@@ -32,12 +32,14 @@
       }
 
       main {
-        width: min(1280px, calc(100% - 32px));
-        margin: 0 auto;
-        padding: 32px 0 48px;
+        width: 100%;
+        min-height: 100vh;
+        margin: 0;
+        padding: 24px;
       }
 
       header {
+        width: 100%;
         margin-bottom: 22px;
       }
 
@@ -65,7 +67,8 @@
       .shell {
         display: grid;
         grid-template-columns: 250px minmax(0, 1fr);
-        min-height: 680px;
+        width: 100%;
+        min-height: calc(100vh - 150px);
         overflow: hidden;
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -108,6 +111,7 @@
         grid-column: 2;
         grid-row: 1;
         padding: 24px;
+        min-width: 0;
       }
 
       .tab-panel.active {
@@ -218,8 +222,8 @@
 
       @media (max-width: 760px) {
         main {
-          width: min(100% - 20px, 1280px);
-          padding-top: 18px;
+          width: 100%;
+          padding: 12px;
         }
 
         .shell {
@@ -1082,6 +1086,60 @@ git remote set-url origin https://github.com/ntrong22/vue-project-fist-2026.git<
             </div>
             <pre><code>npm cache verify
 npm install</code></pre>
+          </div>
+
+          <h3>Vite báo Node version không phù hợp</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>node -v
+npm -v
+npm run build</code></pre>
+          </div>
+
+          <h3>package-lock lệch với package.json</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">powershell</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>npm install
+npm run build
+git status --short
+git add package.json package-lock.json</code></pre>
+          </div>
+
+          <h3>Port dev server đang bị chiếm</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">powershell</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>netstat -ano | findstr :5173
+Stop-Process -Id PID_CAN_TAT
+npm run dev</code></pre>
+          </div>
+
+          <h3>Commit bị thiếu file</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git status --short
+git add file-bi-thieu.vue
+git commit --amend --no-edit
+git push</code></pre>
           </div>
         </section>
       </section>

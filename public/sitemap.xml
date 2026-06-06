@@ -2,157 +2,157 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://example.com/</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://example.com/?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://example.com/tin-tuc</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://example.com/tin-tuc?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://example.com/gioi-thieu</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://example.com/gioi-thieu?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://example.com/lien-he</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://example.com/lien-he?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/thoi-su</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/thoi-su?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/kinh-doanh</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/kinh-doanh?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/cong-nghe</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/cong-nghe?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/the-gioi</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/the-gioi?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/the-thao</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/the-thao?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/giai-tri</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/giai-tri?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/suc-khoe</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/suc-khoe?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/giao-duc</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/giao-duc?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/giao-duc-2</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://example.com/danh-muc/giao-duc-2?lang=en</loc>
-    <lastmod>2026-06-06T05:39:52.063Z</lastmod>
+    <lastmod>2026-06-06T06:03:58.155Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
