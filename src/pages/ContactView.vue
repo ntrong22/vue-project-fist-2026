@@ -17,8 +17,9 @@
             <li>{{ t('contactPage.hotline') }}</li>
             <li>{{ t('contactPage.workTime') }}</li>
           </ul>
+          
         </section>
-
+ 
         <section>
           <h2 class="mb-3 text-xl font-semibold text-slate-900">{{ t('contactPage.quickFormTitle') }}</h2>
           <form class="space-y-3" @submit.prevent>

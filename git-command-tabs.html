@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Git & NPM Command Cheatsheet</title>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --panel: #ffffff;
+        --text: #142033;
+        --muted: #64748b;
+        --line: #d9e2ef;
+        --brand: #0f766e;
+        --brand-soft: #e6fffb;
+        --code-bg: #171b20;
+        --code-top: #20252c;
+        --code-text: #e7edf5;
+        --code-muted: #a7b0be;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", Arial, sans-serif;
+        line-height: 1.6;
+      }
+
+      main {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      header {
+        margin-bottom: 22px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: clamp(28px, 4vw, 42px);
+        line-height: 1.15;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 22px;
+      }
+
+      h3 {
+        margin: 22px 0 10px;
+        font-size: 17px;
+      }
+
+      p {
+        margin: 0 0 14px;
+        color: var(--muted);
+      }
+
+      .shell {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+      }
+
+      .tabs {
+        display: flex;
+        gap: 2px;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--line);
+        background: #edf3f8;
+        padding: 8px;
+      }
+
+      .tab-button {
+        flex: 0 0 auto;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: #334155;
+        cursor: pointer;
+        font: inherit;
+        font-weight: 600;
+        padding: 10px 14px;
+        white-space: nowrap;
+      }
+
+      .tab-button[aria-selected="true"] {
+        background: var(--panel);
+        color: var(--brand);
+        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+      }
+
+      .tab-panel {
+        display: none;
+        padding: 24px;
+      }
+
+      .tab-panel.active {
+        display: block;
+      }
+
+      .note {
+        border-left: 4px solid var(--brand);
+        border-radius: 6px;
+        background: var(--brand-soft);
+        color: #134e4a;
+        margin: 14px 0 20px;
+        padding: 12px 14px;
+      }
+
+      .code-card {
+        overflow: hidden;
+        border-radius: 8px;
+        background: var(--code-bg);
+        margin: 12px 0 18px;
+      }
+
+      .code-head {
+        align-items: center;
+        background: var(--code-top);
+        color: var(--code-muted);
+        display: flex;
+        justify-content: space-between;
+        min-height: 38px;
+        padding: 0 12px;
+      }
+
+      .code-lang {
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 13px;
+      }
+
+      .copy-btn {
+        align-items: center;
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--code-muted);
+        cursor: pointer;
+        display: inline-flex;
+        gap: 6px;
+        padding: 6px;
+      }
+
+      .copy-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--code-text);
+      }
+
+      .copy-btn svg {
+        height: 16px;
+        width: 16px;
+      }
+
+      pre {
+        margin: 0;
+        overflow-x: auto;
+        padding: 16px;
+      }
+
+      code {
+        color: var(--code-text);
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 14px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      }
+
+      .mini-card {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .mini-card strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      @media (max-width: 640px) {
+        main {
+          width: min(100% - 20px, 1120px);
+          padding-top: 18px;
+        }
+
+        .tab-panel {
+          padding: 16px;
+        }
+
+        pre {
+          padding: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>Git & NPM Command Cheatsheet</h1>
+        <p>Tổng hợp các lệnh thường dùng cho project Vue/Vite này: clone, sửa code, push GitHub, cài thư viện, build và deploy IIS.</p>
+      </header>
+
+      <section class="shell">
+        <nav class="tabs" aria-label="Command groups">
+          <button class="tab-button" type="button" aria-selected="true" data-tab="overview">Tổng quan</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="first-push">Push lần đầu</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="daily">Sửa code & push</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="clone">Clone project</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="sync">Đồng bộ code</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="branch">Branch</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="npm">NPM</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="deploy">Build & IIS</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="fix">Lỗi thường gặp</button>
+        </nav>
+
+        <section id="overview" class="tab-panel active">
+          <h2>Tổng quan luồng làm việc</h2>
+          <p>Dùng Git để quản lý source code, dùng npm để cài thư viện/build, dùng thư mục <strong>dist</strong> để deploy IIS.</p>
+
+          <div class="grid">
+            <div class="mini-card">
+              <strong>Code source</strong>
+              <p>Push lên GitHub: <code>src</code>, <code>public</code>, <code>package.json</code>, <code>package-lock.json</code>, config.</p>
+            </div>
+            <div class="mini-card">
+              <strong>Không push</strong>
+              <p><code>node_modules</code>, <code>dist</code>, <code>.env</code> đã được chặn trong <code>.gitignore</code>.</p>
+            </div>
+            <div class="mini-card">
+              <strong>Deploy</strong>
+              <p>Build xong copy nội dung trong <code>dist</code> lên IIS.</p>
+            </div>
+          </div>
+
+          <h3>Kiểm tra nhanh project</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git status
+npm install
+npm run build</code></pre>
+          </div>
+        </section>
+
+        <section id="first-push" class="tab-panel">
+          <h2>Push project lên GitHub lần đầu</h2>
+          <p>Dùng khi thư mục local chưa có Git hoặc chưa gắn remote GitHub.</p>
+          <div class="note">Repo ví dụ: https://github.com/ntrong22/vue-project-fist-2026</div>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>cd G:\VUEJS-NEW\pro-vue-01
+git init
+git branch -M main
+git add .
+git commit -m "Initial Vue news project"
+git remote add origin https://github.com/ntrong22/vue-project-fist-2026.git
+git push -u origin main</code></pre>
+          </div>
+
+          <h3>Kiểm tra trước khi push</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git status
+git check-ignore -v node_modules dist .env</code></pre>
+          </div>
+        </section>
+
+        <section id="daily" class="tab-panel">
+          <h2>Sửa code xong rồi push</h2>
+          <p>Dùng cho các lần làm việc hằng ngày sau khi repo đã kết nối GitHub.</p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git status
+npm run build
+git add .
+git commit -m "Update SEO and deploy config"
+git push</code></pre>
+          </div>
+
+          <h3>Commit message ví dụ</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git commit -m "Improve SEO metadata and sitemap config"
+git commit -m "Fix contact form layout"
+git commit -m "Update API config example"</code></pre>
+          </div>
+        </section>
+
+        <section id="clone" class="tab-panel">
+          <h2>Lần đầu lấy code từ GitHub về máy</h2>
+          <p>Dùng khi máy chưa có project.</p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git clone https://github.com/ntrong22/vue-project-fist-2026.git
+cd vue-project-fist-2026
+npm install
+copy .env.example .env
+npm run dev</code></pre>
+          </div>
+
+          <h3>PowerShell copy file .env</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">powershell</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>Copy-Item .env.example .env</code></pre>
+          </div>
+        </section>
+
+        <section id="sync" class="tab-panel">
+          <h2>Đồng bộ code với GitHub</h2>
+          <p>Dùng để lấy code mới hoặc xử lý repo đã có commit sẵn.</p>
+
+          <h3>Lấy code mới nhất</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git pull</code></pre>
+          </div>
+
+          <h3>Repo GitHub đã có commit sẵn</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git pull origin main --allow-unrelated-histories
+git push -u origin main</code></pre>
+          </div>
+
+          <h3>Xem remote hiện tại</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git remote -v</code></pre>
+          </div>
+        </section>
+
+        <section id="branch" class="tab-panel">
+          <h2>Làm việc với branch</h2>
+          <p>Branch giúp tách việc sửa code khỏi nhánh chính.</p>
+
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git branch
+git checkout -b seo-update
+git add .
+git commit -m "Improve SEO setup"
+git push -u origin seo-update</code></pre>
+          </div>
+
+          <h3>Quay về main</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git checkout main
+git pull</code></pre>
+          </div>
+        </section>
+
+        <section id="npm" class="tab-panel">
+          <h2>NPM và thư viện</h2>
+          <p>Dùng để cài package, cập nhật package và build project.</p>
+
+          <h3>Cài và chạy project</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>npm install
+npm run dev
+npm run build
+npm run preview</code></pre>
+          </div>
+
+          <h3>Quản lý thư viện</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>npm install
+npm update
+npm install ten-thu-vien
+npm uninstall ten-thu-vien</code></pre>
+          </div>
+
+          <h3>Cài đúng theo package-lock</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>npm ci</code></pre>
+          </div>
+        </section>
+
+        <section id="deploy" class="tab-panel">
+          <h2>Build và deploy IIS</h2>
+          <p>Project Vue/Vite chỉ cần deploy thư mục <code>dist</code>.</p>
+
+          <h3>Build production</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>npm install
+npm run build</code></pre>
+          </div>
+
+          <h3>Biến môi trường production</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">env</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>VITE_APP_URL=https://domain-cua-ban.com
+VITE_API_BASE_URL=https://domain-cua-ban.com/api
+VITE_USE_MOCK_API=false</code></pre>
+          </div>
+
+          <div class="note">Sau khi build, copy nội dung bên trong thư mục dist lên IIS. Không copy node_modules, src, package.json, .env.</div>
+        </section>
+
+        <section id="fix" class="tab-panel">
+          <h2>Lỗi thường gặp</h2>
+          <p>Một số lệnh xử lý tình huống hay gặp khi dùng Git/NPM.</p>
+
+          <h3>Chưa cấu hình Git user</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git config --global user.name "ntrong22"
+git config --global user.email "email-cua-ban@example.com"</code></pre>
+          </div>
+
+          <h3>Remote origin đã tồn tại</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git remote -v
+git remote set-url origin https://github.com/ntrong22/vue-project-fist-2026.git</code></pre>
+          </div>
+
+          <h3>Xóa cache npm khi cài bị lỗi</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>npm cache verify
+npm install</code></pre>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const tabButtons = document.querySelectorAll(".tab-button");
+      const tabPanels = document.querySelectorAll(".tab-panel");
+
+      tabButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const tabId = button.dataset.tab;
+
+          tabButtons.forEach((item) => {
+            item.setAttribute("aria-selected", String(item === button));
+          });
+
+          tabPanels.forEach((panel) => {
+            panel.classList.toggle("active", panel.id === tabId);
+          });
+        });
+      });
+
+      document.querySelectorAll(".copy-btn").forEach((button) => {
+        button.addEventListener("click", async () => {
+          const card = button.closest(".code-card");
+          const code = card.querySelector("code").innerText;
+
+          try {
+            await navigator.clipboard.writeText(code);
+            button.setAttribute("aria-label", "Copied");
+            setTimeout(() => button.setAttribute("aria-label", "Copy code"), 1200);
+          } catch {
+            const textarea = document.createElement("textarea");
+            textarea.value = code;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand("copy");
+            textarea.remove();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
