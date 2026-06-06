@@ -32,7 +32,7 @@
       }
 
       main {
-        width: min(1120px, calc(100% - 32px));
+        width: min(1280px, calc(100% - 32px));
         margin: 0 auto;
         padding: 32px 0 48px;
       }
@@ -63,6 +63,9 @@
       }
 
       .shell {
+        display: grid;
+        grid-template-columns: 250px minmax(0, 1fr);
+        min-height: 680px;
         overflow: hidden;
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -72,9 +75,10 @@
 
       .tabs {
         display: flex;
+        flex-direction: column;
         gap: 2px;
-        overflow-x: auto;
-        border-bottom: 1px solid var(--line);
+        overflow-y: auto;
+        border-right: 1px solid var(--line);
         background: #edf3f8;
         padding: 8px;
       }
@@ -88,6 +92,7 @@
         cursor: pointer;
         font: inherit;
         font-weight: 600;
+        text-align: left;
         padding: 10px 14px;
         white-space: nowrap;
       }
@@ -100,6 +105,8 @@
 
       .tab-panel {
         display: none;
+        grid-column: 2;
+        grid-row: 1;
         padding: 24px;
       }
 
@@ -189,10 +196,46 @@
         margin-bottom: 4px;
       }
 
-      @media (max-width: 640px) {
+      .check-list {
+        margin: 0 0 18px;
+        padding-left: 20px;
+        color: var(--muted);
+      }
+
+      .check-list li {
+        margin-bottom: 6px;
+      }
+
+      .kbd {
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        background: #f8fafc;
+        color: #334155;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 13px;
+        padding: 2px 5px;
+      }
+
+      @media (max-width: 760px) {
         main {
-          width: min(100% - 20px, 1120px);
+          width: min(100% - 20px, 1280px);
           padding-top: 18px;
+        }
+
+        .shell {
+          display: block;
+          min-height: 0;
+        }
+
+        .tabs {
+          flex-direction: row;
+          overflow-x: auto;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+
+        .tab-button {
+          text-align: center;
         }
 
         .tab-panel {
@@ -217,11 +260,15 @@
           <button class="tab-button" type="button" aria-selected="true" data-tab="overview">Tổng quan</button>
           <button class="tab-button" type="button" aria-selected="false" data-tab="first-push">Push lần đầu</button>
           <button class="tab-button" type="button" aria-selected="false" data-tab="daily">Sửa code & push</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="partial">Push file riêng</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="inspect">Xem thay đổi</button>
           <button class="tab-button" type="button" aria-selected="false" data-tab="clone">Clone project</button>
           <button class="tab-button" type="button" aria-selected="false" data-tab="sync">Đồng bộ code</button>
           <button class="tab-button" type="button" aria-selected="false" data-tab="branch">Branch</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="undo">Undo & Stash</button>
           <button class="tab-button" type="button" aria-selected="false" data-tab="npm">NPM</button>
           <button class="tab-button" type="button" aria-selected="false" data-tab="deploy">Build & IIS</button>
+          <button class="tab-button" type="button" aria-selected="false" data-tab="conflict">Conflict & Auth</button>
           <button class="tab-button" type="button" aria-selected="false" data-tab="fix">Lỗi thường gặp</button>
         </nav>
 
@@ -324,6 +371,211 @@ git commit -m "Update API config example"</code></pre>
           </div>
         </section>
 
+        <section id="partial" class="tab-panel">
+          <h2>Push một số file nhất định</h2>
+          <p>Git không push từng file trực tiếp. Git push các commit. Muốn chỉ đẩy vài file thì chỉ đưa vài file đó vào commit bằng <span class="kbd">git add file</span>.</p>
+          <div class="note">Các thay đổi chưa được <strong>git add</strong> sẽ nằm lại local, không đi theo commit này.</div>
+
+          <h3>Flow chuẩn: chỉ commit vài file</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git status --short
+git add src/pages/ContactView.vue public/web.config git-command-tabs.html
+git diff --staged --name-only
+git commit -m "Update contact page and Git cheatsheet"
+git push</code></pre>
+          </div>
+
+          <h3>Chỉ thêm một file</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git add README.md
+git commit -m "Update README"
+git push</code></pre>
+          </div>
+
+          <h3>File có dấu cách trong tên</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git add "docs/Git Command Note.html"
+git commit -m "Add Git command note"
+git push</code></pre>
+          </div>
+
+          <h3>Thêm cả thư mục hoặc một nhóm file</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git add src/pages/
+git add src/components/**/*.vue
+git add "*.md"</code></pre>
+          </div>
+
+          <h3>Chỉ lấy một phần thay đổi trong cùng một file</h3>
+          <p>Dùng khi một file có nhiều đoạn sửa, nhưng chỉ muốn commit một vài đoạn.</p>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git add -p src/pages/ContactView.vue
+git diff --staged
+git commit -m "Update selected contact changes"
+git push</code></pre>
+          </div>
+
+          <h3>Gỡ file khỏi commit đang chuẩn bị</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git restore --staged src/pages/ContactView.vue
+git status --short</code></pre>
+          </div>
+
+          <h3>Chỉ commit file đã xóa</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git rm old-file.html
+git commit -m "Remove old HTML note"
+git push</code></pre>
+          </div>
+
+          <h3>Kiểm tra chắc chắn trước khi commit</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git diff --staged --name-only
+git diff --staged
+npm run build</code></pre>
+          </div>
+
+          <ul class="check-list">
+            <li>Không dùng <span class="kbd">git add .</span> nếu chỉ muốn push vài file.</li>
+            <li>Không commit <span class="kbd">.env</span>, <span class="kbd">node_modules</span>, <span class="kbd">dist</span>.</li>
+            <li><span class="kbd">git commit</span> chỉ lấy file đang staged.</li>
+            <li><span class="kbd">git push</span> đẩy commit lên GitHub.</li>
+          </ul>
+        </section>
+
+        <section id="inspect" class="tab-panel">
+          <h2>Xem thay đổi trước khi commit</h2>
+          <p>Tab này dùng để kiểm tra mình đã sửa gì, file nào đang staged, và lịch sử commit.</p>
+
+          <h3>Xem trạng thái file</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git status
+git status --short</code></pre>
+          </div>
+
+          <h3>Xem nội dung thay đổi chưa staged</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git diff
+git diff src/pages/ContactView.vue
+git diff --name-only</code></pre>
+          </div>
+
+          <h3>Xem nội dung đã staged</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git diff --staged
+git diff --staged --name-only
+git diff --cached</code></pre>
+          </div>
+
+          <h3>Xem lịch sử commit</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git log --oneline -10
+git log --oneline --graph --decorate --all -15
+git show --stat
+git show --name-only HEAD</code></pre>
+          </div>
+
+          <h3>Kiểm tra file có bị .gitignore chặn không</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git check-ignore -v node_modules dist .env
+git ls-files
+git ls-files package-lock.json</code></pre>
+          </div>
+
+          <h3>Đọc ký hiệu trong git status --short</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">text</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>?? file-moi.html       file mới, chưa được Git theo dõi
+ M src/App.vue         file đã sửa, chưa staged
+M  src/App.vue         file đã staged
+ D old-file.html       file bị xóa
+A  new-file.html       file mới đã staged</code></pre>
+          </div>
+        </section>
+
         <section id="clone" class="tab-panel">
           <h2>Lần đầu lấy code từ GitHub về máy</h2>
           <p>Dùng khi máy chưa có project.</p>
@@ -422,6 +674,122 @@ git push -u origin seo-update</code></pre>
             <pre><code>git checkout main
 git pull</code></pre>
           </div>
+
+          <h3>Đổi branch nhanh</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git switch main
+git switch -c fix-contact-form
+git push -u origin fix-contact-form</code></pre>
+          </div>
+
+          <h3>Xóa branch đã làm xong</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git branch -d fix-contact-form
+git push origin --delete fix-contact-form</code></pre>
+          </div>
+        </section>
+
+        <section id="undo" class="tab-panel">
+          <h2>Undo và stash</h2>
+          <p>Dùng khi add nhầm file, sửa nhầm file, muốn đổi commit cuối hoặc muốn cất tạm code trước khi pull.</p>
+
+          <h3>Gỡ file khỏi staged nhưng giữ nội dung đã sửa</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git restore --staged src/pages/ContactView.vue
+git restore --staged .
+git status --short</code></pre>
+          </div>
+
+          <h3>Bỏ thay đổi local của một file</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git restore src/pages/ContactView.vue
+git restore README.md</code></pre>
+          </div>
+
+          <h3>Sửa commit cuối khi chưa push</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git commit --amend -m "Update Git and NPM cheatsheet"
+
+# Thêm file quên vào commit cuối
+git add git-command-tabs.html
+git commit --amend --no-edit</code></pre>
+          </div>
+
+          <h3>Tạm cất thay đổi để pull hoặc đổi branch</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git stash push -m "dang sua contact page"
+git pull
+git stash pop</code></pre>
+          </div>
+
+          <h3>Xem và quản lý stash</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git stash list
+git stash show -p stash@{0}
+git stash apply stash@{0}
+git stash drop stash@{0}</code></pre>
+          </div>
+
+          <h3>Hoàn tác commit đã push bằng commit mới</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git log --oneline -5
+git revert HEAD
+git push</code></pre>
+          </div>
+
+          <ul class="check-list">
+            <li><span class="kbd">git restore --staged</span> chỉ bỏ khỏi vùng commit, không mất code.</li>
+            <li><span class="kbd">git restore file</span> sẽ bỏ thay đổi của file đó, nên kiểm tra kỹ bằng <span class="kbd">git diff</span>.</li>
+            <li><span class="kbd">git revert</span> phù hợp khi commit đã push lên GitHub.</li>
+          </ul>
         </section>
 
         <section id="npm" class="tab-panel">
@@ -466,6 +834,52 @@ npm uninstall ten-thu-vien</code></pre>
             </div>
             <pre><code>npm ci</code></pre>
           </div>
+
+          <h3>Xem package đang dùng</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>npm list --depth=0
+npm outdated
+npm explain vite
+npm explain vue</code></pre>
+          </div>
+
+          <h3>Cài package vào đúng nhóm</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code># Thư viện chạy trong app
+npm install axios
+
+# Thư viện chỉ dùng khi dev/build
+npm install -D vite tailwindcss</code></pre>
+          </div>
+
+          <h3>Kiểm tra bảo mật và dọn cài đặt</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">powershell</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>npm audit
+npm audit fix
+npm cache verify
+
+# Nếu node_modules bị lỗi, xóa rồi cài lại
+Remove-Item -Recurse -Force node_modules
+npm install</code></pre>
+          </div>
         </section>
 
         <section id="deploy" class="tab-panel">
@@ -497,7 +911,137 @@ VITE_API_BASE_URL=https://domain-cua-ban.com/api
 VITE_USE_MOCK_API=false</code></pre>
           </div>
 
+          <h3>Xem nội dung build ra</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">powershell</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>Get-ChildItem dist
+Get-ChildItem dist -Recurse | Select-Object FullName</code></pre>
+          </div>
+
+          <h3>Preview bản production trước khi copy lên IIS</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>npm run build
+npm run preview</code></pre>
+          </div>
+
+          <h3>Checklist trước khi deploy</h3>
+          <ul class="check-list">
+            <li>Chạy <span class="kbd">npm run build</span> thành công.</li>
+            <li>Kiểm tra <span class="kbd">dist/index.html</span>, <span class="kbd">dist/robots.txt</span>, <span class="kbd">dist/sitemap.xml</span>.</li>
+            <li>Copy nội dung bên trong <span class="kbd">dist</span>, không copy nguyên thư mục <span class="kbd">dist</span> nếu IIS đang trỏ vào web root.</li>
+            <li>Đảm bảo có <span class="kbd">web.config</span> để F5 route con không bị 404.</li>
+          </ul>
+
           <div class="note">Sau khi build, copy nội dung bên trong thư mục dist lên IIS. Không copy node_modules, src, package.json, .env.</div>
+        </section>
+
+        <section id="conflict" class="tab-panel">
+          <h2>Conflict và đăng nhập GitHub</h2>
+          <p>Dùng khi pull/push bị lỗi do code trên GitHub mới hơn local, merge conflict, sai remote hoặc GitHub yêu cầu đăng nhập.</p>
+
+          <h3>Push bị non-fast-forward</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git status
+git pull --rebase origin main
+npm run build
+git push</code></pre>
+          </div>
+
+          <h3>Khi có conflict</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git status
+
+# Mở file báo conflict, tìm các đoạn:
+# <<<<<<< HEAD
+# =======
+# >>>>>>> branch-hoac-commit
+
+git add file-bi-conflict.vue
+git rebase --continue
+git push</code></pre>
+          </div>
+
+          <h3>Không muốn tiếp tục merge/rebase nữa</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git merge --abort
+git rebase --abort
+git status</code></pre>
+          </div>
+
+          <h3>Kiểm tra và sửa remote</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git remote -v
+git remote set-url origin https://github.com/ntrong22/vue-project-fist-2026.git
+git branch -vv</code></pre>
+          </div>
+
+          <h3>Gắn upstream khi push lần đầu của branch</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">bash</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>git push -u origin main
+git push -u origin ten-branch-cua-ban</code></pre>
+          </div>
+
+          <h3>GitHub không nhận mật khẩu</h3>
+          <div class="code-card">
+            <div class="code-head">
+              <span class="code-lang">text</span>
+              <button class="copy-btn" type="button" aria-label="Copy code">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
+            <pre><code>GitHub không dùng password tài khoản để push qua HTTPS.
+Khi Git hỏi mật khẩu, dùng Personal Access Token.
+
+Username: tên GitHub
+Password: token GitHub</code></pre>
+          </div>
+
+          <ul class="check-list">
+            <li>Trước khi pull, nếu đang sửa dở: commit hoặc stash trước.</li>
+            <li>Sau khi resolve conflict: chạy <span class="kbd">npm run build</span> trước khi push.</li>
+            <li>Không dùng force push nếu chưa chắc chắn vì có thể ghi đè lịch sử làm việc của người khác.</li>
+          </ul>
         </section>
 
         <section id="fix" class="tab-panel">
