@@ -1,0 +1,214 @@
+{
+  "app": {
+    "name": "VietNews 24h"
+  },
+  "language": {
+    "label": "Language",
+    "vi": "VI",
+    "en": "EN"
+  },
+  "nav": {
+    "home": "Home",
+    "latest": "Latest",
+    "about": "About",
+    "contact": "Contact",
+    "search": "Search",
+    "categories": "Categories"
+  },
+  "categories": {
+    "thoiSu": "Current Affairs",
+    "kinhDoanh": "Business",
+    "congNghe": "Technology",
+    "theThao": "Sports"
+  },
+  "common": {
+    "close": "Close",
+    "search": "Search",
+    "searchPlaceholder": "Search news...",
+    "goHome": "Back to home",
+    "emptyTitle": "No data yet",
+    "emptyDescription": "No matching content is available right now. Please try again later.",
+    "previous": "Previous",
+    "next": "Next",
+    "tags": "Tags",
+    "views": "views",
+    "author": "Author",
+    "editorialTeam": "Editorial team",
+    "results": "results",
+    "category": "Category",
+    "all": "View all",
+    "readMore": "Read more"
+  },
+  "auth": {
+    "expiredMessage": "Your session has expired. Please sign in again to continue secure actions."
+  },
+  "header": {
+    "menuAria": "Open menu",
+    "searchPlaceholder": "Search by title, topic, or tag..."
+  },
+  "mobileMenu": {
+    "ariaLabel": "Mobile menu"
+  },
+  "footer": {
+    "description": "A modern news platform with curated content, fast updates, and an optimized reading experience on every device.",
+    "categoryTitle": "Categories",
+    "contactTitle": "Contact",
+    "copyright": "© {year} VietNews 24h. All rights reserved."
+  },
+  "home": {
+    "srTitle": "VietNews 24h - latest news homepage",
+    "errorTitle": "Unable to load homepage data",
+    "hotTitle": "Hot news",
+    "topReads": "Top reads",
+    "hotPicks": "Editor's picks"
+  },
+  "news": {
+    "featured": "Featured news",
+    "featuredEmpty": "No featured stories yet.",
+    "latest": "Latest news",
+    "popular": "Most viewed",
+    "related": "Related news",
+    "sidebarFeatured": "Featured news",
+    "latestPageTitle": "Latest news",
+    "latestCount": "{count} articles",
+    "listLoadError": "Unable to load the news list",
+    "listEmptyTitle": "No articles yet",
+    "listEmptyDescription": "There are currently no matching articles to display.",
+    "detailLoadError": "Unable to load article details",
+    "detailNotFoundTitle": "Article not found",
+    "detailNotFoundDescription": "This article URL may have changed or the content may have been removed."
+  },
+  "categoryPage": {
+    "titlePrefix": "Category: {name}",
+    "defaultTitle": "News category",
+    "loadErrorTitle": "Unable to load category",
+    "notFoundTitle": "Category not found",
+    "notFoundDescription": "The category URL may have changed or no longer exists."
+  },
+  "searchPage": {
+    "breadcrumb": "Search",
+    "placeholder": "Enter keywords to find articles...",
+    "title": "Search results",
+    "keywordLabel": "Keyword: {keyword} - {count} results",
+    "loadErrorTitle": "Unable to load search results",
+    "emptyKeywordTitle": "Enter a keyword to start",
+    "emptyKeywordDescription": "You can search by article title, summary, or tags.",
+    "emptyResultTitle": "No results found",
+    "emptyResultDescription": "Try a shorter keyword or another topic."
+  },
+  "aboutPage": {
+    "breadcrumb": "About",
+    "title": "About VietNews 24h",
+    "intro": "VietNews 24h is a news platform focused on speed, reliability, and a modern reading experience. We prioritize valuable content, clearly edited and continuously updated.",
+    "missionTitle": "Mission",
+    "missionText": "Connect readers with high-quality information to help them quickly and accurately understand the full picture.",
+    "valuesTitle": "Core values",
+    "value1": "Accuracy and transparency.",
+    "value2": "Clear, useful, and in-depth content.",
+    "value3": "User experience first across all devices."
+  },
+  "contactPage": {
+    "breadcrumb": "Contact",
+    "title": "Contact",
+    "intro": "If you have content feedback, partnership requests, or system issue reports, please send us your information.",
+    "officeTitle": "Editorial office information",
+    "address": "Address: 25 Nguyen Hue, District 1, Ho Chi Minh City",
+    "email": "Email: contact@vietnews24h.vn",
+    "hotline": "Hotline: 1900 6868",
+    "workTime": "Working hours: 08:00 - 18:00 (Monday to Saturday)",
+    "quickFormTitle": "Quick contact form",
+    "fullNameLabel": "Full name",
+    "emailLabel": "Email",
+    "contentLabel": "Message",
+    "submit": "Send"
+  },
+  "notFoundPage": {
+    "title": "Page not found",
+    "description": "The link you visited may have changed or no longer exists. Please return to the homepage to continue reading the latest news."
+  },
+  "seo": {
+    "default": {
+      "title": "VietNews 24h - latest news every day",
+      "description": "A daily updated news portal with curated content and a clean reading experience across devices.",
+      "keywords": "news, breaking news, current affairs, technology, business"
+    },
+    "home": {
+      "title": "VietNews 24h - latest news every day",
+      "description": "Latest highlights, breaking stories, and important daily topics.",
+      "keywords": "today news, breaking news, current affairs, technology, business"
+    },
+    "newsList": {
+      "title": "Latest news - VietNews 24h",
+      "description": "A continuously updated list of latest articles across categories.",
+      "keywords": "news list, latest news, vietnews 24h"
+    },
+    "search": {
+      "titleWithKeyword": "Search \"{keyword}\" - VietNews 24h",
+      "title": "Search news - VietNews 24h",
+      "descriptionWithKeyword": "Search results for keyword {keyword}.",
+      "description": "Search articles by topic, keyword, or tags.",
+      "keywordsWithKeyword": "{keyword}, news search",
+      "keywords": "news search"
+    },
+    "about": {
+      "title": "About - VietNews 24h",
+      "description": "Mission, growth direction, and core values of VietNews 24h.",
+      "keywords": "about, vietnews 24h, digital newsroom"
+    },
+    "contact": {
+      "title": "Contact - VietNews 24h",
+      "description": "Contact information for the VietNews 24h editorial team and quick feedback form.",
+      "keywords": "contact, newsroom, support"
+    },
+    "categoryNotFound": {
+      "title": "Category not found - VietNews 24h",
+      "description": "The requested category could not be found.",
+      "keywords": "category, news"
+    },
+    "newsNotFound": {
+      "title": "Article not found - VietNews 24h",
+      "description": "The requested article URL could not be found.",
+      "keywords": "news, article details"
+    },
+    "notFound": {
+      "title": "404 - Page not found | VietNews 24h",
+      "description": "The page you requested does not exist on VietNews 24h.",
+      "keywords": "404, page not found"
+    }
+  },
+  "errors": {
+    "common": {
+      "default": "Something went wrong. Please try again later."
+    },
+    "http": {
+      "400": "Invalid request. Please check your submitted data.",
+      "401": "Your session is invalid or has expired.",
+      "403": "You do not have permission to access this resource.",
+      "404": "The requested resource could not be found.",
+      "408": "The request timed out. Please try again.",
+      "429": "Too many requests. Please try again in a few minutes.",
+      "500": "The system is busy. Please try again later.",
+      "502": "The service is temporarily unavailable. Please try again later.",
+      "503": "The service is not ready yet. Please try again later.",
+      "504": "The server response timed out. Please try again later."
+    },
+    "code": {
+      "ECONNABORTED": "The connection timed out. Please try again.",
+      "ERR_NETWORK": "Unable to connect to the server. Please check your network.",
+      "ERR_CANCELED": "The request was canceled."
+    },
+    "fallback": {
+      "homeLoad": "Unable to load homepage data.",
+      "categoryNewsLoad": "Unable to load category news.",
+      "newsListLoad": "Unable to load the news list.",
+      "newsDetailLoad": "Unable to load article details.",
+      "searchLoad": "Unable to load search results.",
+      "categoryLoad": "Unable to load categories.",
+      "categoryNotFound": "Category not found.",
+      "requestInit": "Unable to initialize the server request.",
+      "requestHandle": "Unable to process the request. Please try again later.",
+      "loginFailed": "Unable to sign in. Please check your credentials.",
+      "refreshExpired": "Your session has expired. Please sign in again."
+    }
+  }
+}

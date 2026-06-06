@@ -1,0 +1,214 @@
+{
+  "app": {
+    "name": "VietNews 24h"
+  },
+  "language": {
+    "label": "Ngôn ngữ",
+    "vi": "VI",
+    "en": "EN"
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "latest": "Tin mới",
+    "about": "Giới thiệu",
+    "contact": "Liên hệ",
+    "search": "Tìm kiếm",
+    "categories": "Danh mục"
+  },
+  "categories": {
+    "thoiSu": "Thời sự",
+    "kinhDoanh": "Kinh doanh",
+    "congNghe": "Công nghệ",
+    "theThao": "Thể thao"
+  },
+  "common": {
+    "close": "Đóng",
+    "search": "Tìm",
+    "searchPlaceholder": "Tìm kiếm tin tức...",
+    "goHome": "Về trang chủ",
+    "emptyTitle": "Chưa có dữ liệu",
+    "emptyDescription": "Hiện chưa có nội dung phù hợp. Vui lòng thử lại sau.",
+    "previous": "Trước",
+    "next": "Sau",
+    "tags": "Tags",
+    "views": "lượt xem",
+    "author": "Tác giả",
+    "editorialTeam": "Ban biên tập",
+    "results": "kết quả",
+    "category": "Danh mục",
+    "all": "Xem tất cả",
+    "readMore": "Xem thêm"
+  },
+  "auth": {
+    "expiredMessage": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục thao tác bảo mật."
+  },
+  "header": {
+    "menuAria": "Mở menu",
+    "searchPlaceholder": "Tìm theo tiêu đề, chủ đề hoặc tag..."
+  },
+  "mobileMenu": {
+    "ariaLabel": "Menu di động"
+  },
+  "footer": {
+    "description": "Nền tảng tin tức hiện đại với nội dung được chọn lọc, cập nhật nhanh và tối ưu trải nghiệm đọc trên mọi thiết bị.",
+    "categoryTitle": "Chuyên mục",
+    "contactTitle": "Liên hệ",
+    "copyright": "© {year} VietNews 24h. All rights reserved."
+  },
+  "home": {
+    "srTitle": "VietNews 24h - Trang chủ tin tức mới nhất",
+    "errorTitle": "Không thể tải dữ liệu trang chủ",
+    "hotTitle": "Tin hot",
+    "topReads": "Đọc nhiều",
+    "hotPicks": "Tin đề xuất"
+  },
+  "news": {
+    "featured": "Tin nổi bật",
+    "featuredEmpty": "Chưa có tin nổi bật.",
+    "latest": "Tin mới nhất",
+    "popular": "Tin xem nhiều",
+    "related": "Tin liên quan",
+    "sidebarFeatured": "Tin nổi bật",
+    "latestPageTitle": "Tin tức mới nhất",
+    "latestCount": "{count} bài viết",
+    "listLoadError": "Không tải được danh sách tin tức",
+    "listEmptyTitle": "Chưa có bài viết",
+    "listEmptyDescription": "Hiện chưa có bài viết phù hợp để hiển thị.",
+    "detailLoadError": "Không tải được tin chi tiết",
+    "detailNotFoundTitle": "Bài viết không tồn tại",
+    "detailNotFoundDescription": "Liên kết bài viết có thể đã thay đổi hoặc nội dung đã được gỡ bỏ."
+  },
+  "categoryPage": {
+    "titlePrefix": "Danh mục: {name}",
+    "defaultTitle": "Danh mục tin tức",
+    "loadErrorTitle": "Không tải được danh mục",
+    "notFoundTitle": "Danh mục không tồn tại",
+    "notFoundDescription": "Đường dẫn danh mục có thể đã thay đổi hoặc không còn dữ liệu."
+  },
+  "searchPage": {
+    "breadcrumb": "Tìm kiếm",
+    "placeholder": "Nhập từ khóa để tìm bài viết...",
+    "title": "Kết quả tìm kiếm",
+    "keywordLabel": "Từ khóa: {keyword} - {count} kết quả",
+    "loadErrorTitle": "Không tải được kết quả tìm kiếm",
+    "emptyKeywordTitle": "Nhập từ khóa để bắt đầu",
+    "emptyKeywordDescription": "Bạn có thể tìm theo tiêu đề bài viết, phần tóm tắt hoặc từ khóa tags.",
+    "emptyResultTitle": "Không tìm thấy kết quả",
+    "emptyResultDescription": "Thử dùng từ khóa ngắn hơn hoặc đổi chủ đề tìm kiếm khác."
+  },
+  "aboutPage": {
+    "breadcrumb": "Giới thiệu",
+    "title": "Giới thiệu VietNews 24h",
+    "intro": "VietNews 24h là nền tảng tin tức hướng tới tốc độ, độ tin cậy và trải nghiệm đọc hiện đại. Chúng tôi tập trung vào nội dung có giá trị, được biên tập rõ ràng và cập nhật liên tục.",
+    "missionTitle": "Sứ mệnh",
+    "missionText": "Kết nối độc giả với thông tin chất lượng cao, giúp người đọc nắm bắt bức tranh toàn cảnh một cách nhanh chóng và chính xác.",
+    "valuesTitle": "Giá trị cốt lõi",
+    "value1": "Chính xác và minh bạch.",
+    "value2": "Nội dung dễ hiểu, hữu ích và có chiều sâu.",
+    "value3": "Ưu tiên trải nghiệm người dùng trên mọi thiết bị."
+  },
+  "contactPage": {
+    "breadcrumb": "Liên hệ",
+    "title": "Liên hệ",
+    "intro": "Nếu bạn có góp ý nội dung, hợp tác truyền thông hoặc báo lỗi hệ thống, vui lòng gửi thông tin cho chúng tôi.",
+    "officeTitle": "Thông tin tòa soạn",
+    "address": "Địa chỉ: 25 Nguyễn Huệ, Quận 1, TP.HCM",
+    "email": "Email: contact@vietnews24h.vn",
+    "hotline": "Hotline: 1900 6868",
+    "workTime": "Giờ làm việc: 08:00 - 18:00 (Thứ 2 đến Thứ 7)",
+    "quickFormTitle": "Gửi liên hệ nhanh",
+    "fullNameLabel": "Họ và tên",
+    "emailLabel": "Email",
+    "contentLabel": "Nội dung",
+    "submit": "Gửi thông tin"
+  },
+  "notFoundPage": {
+    "title": "Không tìm thấy trang",
+    "description": "Liên kết bạn truy cập có thể đã thay đổi hoặc không còn tồn tại. Hãy quay về trang chủ để tiếp tục đọc tin mới nhất."
+  },
+  "seo": {
+    "default": {
+      "title": "VietNews 24h - Tin tức mới nhất mỗi ngày",
+      "description": "Trang tin tổng hợp cập nhật liên tục, nội dung chọn lọc và dễ đọc trên mọi thiết bị.",
+      "keywords": "tin tức, tin nóng, thời sự, công nghệ, kinh doanh"
+    },
+    "home": {
+      "title": "VietNews 24h - Tin tức mới nhất mỗi ngày",
+      "description": "Cập nhật tin tức nổi bật, tin mới, tin hot và các chủ đề quan trọng trong ngày.",
+      "keywords": "tin tức hôm nay, tin nóng, thời sự, công nghệ, kinh doanh"
+    },
+    "newsList": {
+      "title": "Tin tức mới nhất - VietNews 24h",
+      "description": "Danh sách tin tức mới nhất, nội dung đa chuyên mục được cập nhật liên tục.",
+      "keywords": "danh sách tin tức, tin mới nhất, vietnews 24h"
+    },
+    "search": {
+      "titleWithKeyword": "Tìm kiếm \"{keyword}\" - VietNews 24h",
+      "title": "Tìm kiếm tin tức - VietNews 24h",
+      "descriptionWithKeyword": "Kết quả tìm kiếm cho từ khóa {keyword}.",
+      "description": "Tìm kiếm bài viết theo chủ đề, từ khóa hoặc tags.",
+      "keywordsWithKeyword": "{keyword}, tìm kiếm tin tức",
+      "keywords": "tìm kiếm tin tức"
+    },
+    "about": {
+      "title": "Giới thiệu - VietNews 24h",
+      "description": "Thông tin về sứ mệnh, định hướng phát triển và giá trị cốt lõi của VietNews 24h.",
+      "keywords": "giới thiệu, vietnews 24h, tòa soạn số"
+    },
+    "contact": {
+      "title": "Liên hệ - VietNews 24h",
+      "description": "Thông tin liên hệ tòa soạn VietNews 24h và biểu mẫu góp ý nhanh.",
+      "keywords": "liên hệ, tòa soạn, hỗ trợ"
+    },
+    "categoryNotFound": {
+      "title": "Danh mục không tồn tại - VietNews 24h",
+      "description": "Không tìm thấy danh mục theo yêu cầu.",
+      "keywords": "danh mục, tin tức"
+    },
+    "newsNotFound": {
+      "title": "Bài viết không tồn tại - VietNews 24h",
+      "description": "Không tìm thấy bài viết theo đường dẫn yêu cầu.",
+      "keywords": "tin tức, chi tiết bài viết"
+    },
+    "notFound": {
+      "title": "404 - Trang không tồn tại | VietNews 24h",
+      "description": "Trang bạn yêu cầu không tồn tại trên hệ thống VietNews 24h.",
+      "keywords": "404, trang không tồn tại"
+    }
+  },
+  "errors": {
+    "common": {
+      "default": "Đã có lỗi xảy ra. Vui lòng thử lại sau."
+    },
+    "http": {
+      "400": "Yêu cầu không hợp lệ. Vui lòng kiểm tra dữ liệu gửi lên.",
+      "401": "Phiên đăng nhập đã hết hạn hoặc không hợp lệ.",
+      "403": "Bạn không có quyền truy cập tài nguyên này.",
+      "404": "Dữ liệu yêu cầu không tồn tại.",
+      "408": "Yêu cầu quá thời gian chờ. Vui lòng thử lại.",
+      "429": "Bạn thao tác quá nhanh. Vui lòng thử lại sau ít phút.",
+      "500": "Hệ thống đang bận. Vui lòng thử lại sau.",
+      "502": "Dịch vụ đang tạm gián đoạn. Vui lòng thử lại sau.",
+      "503": "Dịch vụ hiện chưa sẵn sàng. Vui lòng thử lại sau.",
+      "504": "Máy chủ phản hồi quá chậm. Vui lòng thử lại sau."
+    },
+    "code": {
+      "ECONNABORTED": "Kết nối quá thời gian chờ. Vui lòng thử lại.",
+      "ERR_NETWORK": "Không thể kết nối tới máy chủ. Vui lòng kiểm tra mạng.",
+      "ERR_CANCELED": "Yêu cầu đã bị hủy."
+    },
+    "fallback": {
+      "homeLoad": "Không tải được dữ liệu trang chủ.",
+      "categoryNewsLoad": "Không tải được danh sách tin theo danh mục.",
+      "newsListLoad": "Không tải được danh sách tin tức.",
+      "newsDetailLoad": "Không tải được tin chi tiết.",
+      "searchLoad": "Không tải được kết quả tìm kiếm.",
+      "categoryLoad": "Không tải được danh mục.",
+      "categoryNotFound": "Không tìm thấy danh mục.",
+      "requestInit": "Không thể khởi tạo yêu cầu tới máy chủ.",
+      "requestHandle": "Không thể xử lý yêu cầu. Vui lòng thử lại sau.",
+      "loginFailed": "Không thể đăng nhập. Vui lòng kiểm tra lại thông tin.",
+      "refreshExpired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+    }
+  }
+}
