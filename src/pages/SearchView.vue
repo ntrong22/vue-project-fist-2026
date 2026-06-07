@@ -52,7 +52,7 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, onServerPrefetch, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import Breadcrumb from '@/components/common/Breadcrumb.vue';
@@ -66,7 +66,7 @@ import { useNewsStore } from '@/stores/useNewsStore';
 import {
   buildAlternateLocaleLinks,
   buildLocalizedCanonicalUrl,
-  updateSeoMeta,
+  useSeoHead,
 } from '@/utils/seoHelper';
 import { normalizeSearchInput } from '@/utils/sanitizeHtml';
 
@@ -86,6 +86,35 @@ const pageFromQuery = computed(() => {
   return Number.isNaN(value) || value < 1 ? 1 : value;
 });
 
+const safeSearchQuery = computed(() => {
+  const rawQuery = route.query.q ? String(route.query.q) : '';
+  return normalizeSearchInput(rawQuery);
+});
+
+const searchSeoMeta = computed(() => {
+  const title = safeSearchQuery.value
+    ? t('seo.search.titleWithKeyword', { keyword: safeSearchQuery.value })
+    : t('seo.search.title');
+
+  const description = safeSearchQuery.value
+    ? t('seo.search.descriptionWithKeyword', { keyword: safeSearchQuery.value })
+    : t('seo.search.description');
+
+  return {
+    title,
+    description,
+    keywords: safeSearchQuery.value
+      ? t('seo.search.keywordsWithKeyword', { keyword: safeSearchQuery.value })
+      : t('seo.search.keywords'),
+    canonical: buildLocalizedCanonicalUrl('/tim-kiem', locale.value),
+    robots: 'noindex, follow',
+    locale: locale.value,
+    alternates: buildAlternateLocaleLinks('/tim-kiem'),
+  };
+});
+
+useSeoHead(searchSeoMeta);
+
 const { run: runSearchDebounce, cancel: cancelSearchDebounce } = useDebounce((value) => {
   const safeQuery = normalizeSearchInput(value);
   const currentRouteQuery = route.query.q ? String(route.query.q) : '';
@@ -95,37 +124,16 @@ const { run: runSearchDebounce, cancel: cancelSearchDebounce } = useDebounce((va
   }
 
   router.push({
-    name: 'search',
+    path: '/tim-kiem',
     query: safeQuery ? { q: safeQuery } : {},
   });
 }, 450);
 
 const loadSearch = async () => {
-  const rawQuery = route.query.q ? String(route.query.q) : '';
-  const safeQuery = normalizeSearchInput(rawQuery);
+  const safeQuery = safeSearchQuery.value;
   searchKeyword.value = safeQuery;
 
   await newsStore.searchNews(safeQuery, pageFromQuery.value);
-
-  const title = safeQuery
-    ? t('seo.search.titleWithKeyword', { keyword: safeQuery })
-    : t('seo.search.title');
-
-  const description = safeQuery
-    ? t('seo.search.descriptionWithKeyword', { keyword: safeQuery })
-    : t('seo.search.description');
-
-  updateSeoMeta({
-    title,
-    description,
-    keywords: safeQuery
-      ? t('seo.search.keywordsWithKeyword', { keyword: safeQuery })
-      : t('seo.search.keywords'),
-    canonical: buildLocalizedCanonicalUrl('/tim-kiem', locale.value),
-    robots: 'noindex, follow',
-    locale: locale.value,
-    alternates: buildAlternateLocaleLinks('/tim-kiem'),
-  });
 };
 
 const handleSearch = (keyword) => {
@@ -133,7 +141,7 @@ const handleSearch = (keyword) => {
   const safeQuery = normalizeSearchInput(keyword);
 
   router.push({
-    name: 'search',
+    path: '/tim-kiem',
     query: safeQuery ? { q: safeQuery } : {},
   });
 };
@@ -142,7 +150,7 @@ const handlePageChange = (nextPage) => {
   const currentQuery = searchResult.value.query;
 
   router.push({
-    name: 'search',
+    path: '/tim-kiem',
     query: {
       ...(currentQuery ? { q: currentQuery } : {}),
       ...(nextPage > 1 ? { page: String(nextPage) } : {}),
@@ -150,12 +158,15 @@ const handlePageChange = (nextPage) => {
   });
 };
 
+onServerPrefetch(loadSearch);
+
+onMounted(loadSearch);
+
 watch(
   () => [route.query.q, route.query.page, locale.value],
   async () => {
     await loadSearch();
   },
-  { immediate: true },
 );
 
 watch(searchKeyword, (nextKeyword) => {

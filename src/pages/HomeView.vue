@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, watch } from 'vue';
+import { computed, onMounted, onServerPrefetch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import CategorySection from '@/components/news/CategorySection.vue';
 import FeaturedNews from '@/components/news/FeaturedNews.vue';
@@ -58,9 +58,8 @@ import { useNewsStore } from '@/stores/useNewsStore';
 import {
   buildAlternateLocaleLinks,
   buildLocalizedCanonicalUrl,
-  removeStructuredData,
-  setStructuredData,
-  updateSeoMeta,
+  useSeoHead,
+  useStructuredDataHead,
 } from '@/utils/seoHelper';
 import { getLocalizedContent } from '@/utils/localizedContent';
 import { buildNewsPath } from '@/utils/slugHelper';
@@ -77,7 +76,18 @@ const categorySections = computed(() => {
   return homeData.value.categorySections.filter((section) => section.items.length > 0);
 });
 
-const applyHomeStructuredData = () => {
+const homeCanonicalUrl = computed(() => buildLocalizedCanonicalUrl('/', locale.value));
+
+const homeSeoMeta = computed(() => ({
+  title: t('seo.home.title'),
+  description: t('seo.home.description'),
+  keywords: t('seo.home.keywords'),
+  canonical: homeCanonicalUrl.value,
+  locale: locale.value,
+  alternates: buildAlternateLocaleLinks('/'),
+}));
+
+const homeStructuredDataEntries = computed(() => {
   const latestItems = homeData.value.latest.slice(0, 10);
   const itemListElement = latestItems.map((item, index) => ({
     '@type': 'ListItem',
@@ -86,52 +96,38 @@ const applyHomeStructuredData = () => {
     url: buildLocalizedCanonicalUrl(buildNewsPath(item.slug), locale.value),
   }));
 
-  setStructuredData('home-collection', {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: t('seo.home.title'),
-    description: t('seo.home.description'),
-    url: buildLocalizedCanonicalUrl('/', locale.value),
-    mainEntity: {
-      '@type': 'ItemList',
-      itemListOrder: 'https://schema.org/ItemListOrderDescending',
-      numberOfItems: itemListElement.length,
-      itemListElement,
+  return [
+    {
+      id: 'home-collection',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: t('seo.home.title'),
+        description: t('seo.home.description'),
+        url: homeCanonicalUrl.value,
+        mainEntity: {
+          '@type': 'ItemList',
+          itemListOrder: 'https://schema.org/ItemListOrderDescending',
+          numberOfItems: itemListElement.length,
+          itemListElement,
+        },
+      },
     },
-  });
-};
+  ];
+});
 
-const applyHomeSeoMeta = () => {
-  updateSeoMeta({
-    title: t('seo.home.title'),
-    description: t('seo.home.description'),
-    keywords: t('seo.home.keywords'),
-    canonical: buildLocalizedCanonicalUrl('/', locale.value),
-    locale: locale.value,
-    alternates: buildAlternateLocaleLinks('/'),
-  });
-};
+useSeoHead(homeSeoMeta);
+useStructuredDataHead(homeStructuredDataEntries);
 
-onMounted(async () => {
+const loadHome = async () => {
   if (!categoryStore.hasCategories) {
     await categoryStore.fetchCategories();
   }
 
   await newsStore.fetchHomeNews();
+};
 
-  applyHomeSeoMeta();
-  applyHomeStructuredData();
-});
+onServerPrefetch(loadHome);
 
-watch(
-  () => locale.value,
-  () => {
-    applyHomeSeoMeta();
-    applyHomeStructuredData();
-  },
-);
-
-onBeforeUnmount(() => {
-  removeStructuredData('home-collection');
-});
+onMounted(loadHome);
 </script>

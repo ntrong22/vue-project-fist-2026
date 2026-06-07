@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue';
+import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Breadcrumb from '@/components/common/Breadcrumb.vue';
 import {
@@ -54,9 +54,7 @@ const applySeo = () => {
   });
 };
 
-onMounted(() => {
-  applySeo();
-});
+applySeo();
 
 watch(
   () => locale.value,

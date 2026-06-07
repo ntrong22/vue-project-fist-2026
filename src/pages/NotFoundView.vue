@@ -6,18 +6,18 @@
       <p class="mx-auto mb-6 max-w-xl text-slate-600">
         {{ t('notFoundPage.description') }}
       </p>
-      <RouterLink
+      <NuxtLink
         to="/"
         class="inline-flex rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-brand-700"
       >
         {{ t('common.goHome') }}
-      </RouterLink>
+      </NuxtLink>
     </article>
   </section>
 </template>
 
 <script setup>
-import { onMounted, watch } from 'vue';
+import { watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import {
   buildAlternateLocaleLinks,
@@ -39,9 +39,7 @@ const applySeo = () => {
   });
 };
 
-onMounted(() => {
-  applySeo();
-});
+applySeo();
 
 watch(
   () => locale.value,

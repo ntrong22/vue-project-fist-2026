@@ -43,14 +43,14 @@
         <div v-if="newsDetail.tags?.length" class="mt-8 border-t border-slate-200 pt-4">
           <h2 class="mb-2 text-base font-semibold text-slate-900">{{ t('common.tags') }}</h2>
           <div class="flex flex-wrap gap-2">
-            <RouterLink
+            <NuxtLink
               v-for="tag in newsDetail.tags"
               :key="tag"
-              :to="{ name: 'search', query: { q: tag } }"
+              :to="{ path: '/tim-kiem', query: { q: tag } }"
               class="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700 transition hover:bg-brand-100 hover:text-brand-700"
             >
               #{{ tag }}
-            </RouterLink>
+            </NuxtLink>
           </div>
         </div>
       </section>
@@ -66,7 +66,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, onServerPrefetch, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import Breadcrumb from '@/components/common/Breadcrumb.vue';
@@ -81,9 +81,8 @@ import {
   buildAbsoluteUrl,
   buildCanonicalUrl,
   buildLocalizedCanonicalUrl,
-  removeStructuredData,
-  setStructuredData,
-  updateSeoMeta,
+  useSeoHead,
+  useStructuredDataHead,
 } from '@/utils/seoHelper';
 import { getLocalizedContent } from '@/utils/localizedContent';
 import { sanitizeHtml } from '@/utils/sanitizeHtml';
@@ -129,123 +128,131 @@ const sanitizedContent = computed(() =>
   sanitizeHtml(getLocalizedContent(newsDetail.value, 'content', locale.value) || ''),
 );
 
-const applyNewsStructuredData = (item) => {
+const newsDetailSeoMeta = computed(() => {
+  const item = newsDetail.value;
+
+  if (item) {
+    return {
+      title: getLocalizedContent(item, 'seoTitle', locale.value) || displayTitle.value,
+      description: getLocalizedContent(item, 'seoDescription', locale.value) || displaySummary.value,
+      keywords: getLocalizedContent(item, 'seoKeywords', locale.value),
+      ogTitle: displayTitle.value,
+      ogDescription: displaySummary.value,
+      ogImage: item.thumbnail,
+      canonical: buildLocalizedCanonicalUrl(`/tin-tuc/${item.slug}`, locale.value),
+      ogType: 'article',
+      robots: 'index, follow, max-image-preview:large',
+      locale: locale.value,
+      alternates: buildAlternateLocaleLinks(`/tin-tuc/${item.slug}`),
+    };
+  }
+
+  return {
+    title: t('seo.newsNotFound.title'),
+    description: t('seo.newsNotFound.description'),
+    keywords: t('seo.newsNotFound.keywords'),
+    canonical: buildLocalizedCanonicalUrl('/tin-tuc', locale.value),
+    robots: 'noindex, follow',
+    locale: locale.value,
+    alternates: buildAlternateLocaleLinks('/tin-tuc'),
+  };
+});
+
+const newsDetailStructuredDataEntries = computed(() => {
+  const item = newsDetail.value;
+
+  if (!item) {
+    return [];
+  }
+
   const newsUrl = buildLocalizedCanonicalUrl(`/tin-tuc/${item.slug}`, locale.value);
   const categoryUrl = buildLocalizedCanonicalUrl(
     buildCategoryPath(item.categorySlug || generateSlug(displayCategoryName.value)),
     locale.value,
   );
 
-  setStructuredData('news-breadcrumb', {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: t('nav.home'),
-        item: buildLocalizedCanonicalUrl('/', locale.value),
+  return [
+    {
+      id: 'news-breadcrumb',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: t('nav.home'),
+            item: buildLocalizedCanonicalUrl('/', locale.value),
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: displayCategoryName.value,
+            item: categoryUrl,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: displayTitle.value,
+            item: newsUrl,
+          },
+        ],
       },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: displayCategoryName.value,
-        item: categoryUrl,
+    },
+    {
+      id: 'news-article',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'NewsArticle',
+        headline: displayTitle.value,
+        description: getLocalizedContent(item, 'seoDescription', locale.value) || displaySummary.value,
+        articleBody: displaySummary.value,
+        image: [buildAbsoluteUrl(item.thumbnail) || buildCanonicalUrl('/images/og-default.svg')],
+        mainEntityOfPage: {
+          '@type': 'WebPage',
+          '@id': newsUrl,
+        },
+        author: {
+          '@type': 'Person',
+          name: displayAuthor.value || t('common.editorialTeam'),
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'VietNews 24h',
+          logo: {
+            '@type': 'ImageObject',
+            url: buildCanonicalUrl('/favicon.svg'),
+          },
+        },
+        datePublished: item.publishedAt,
+        dateModified: item.updatedAt || item.publishedAt,
+        articleSection: displayCategoryName.value,
+        keywords: item.tags,
       },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: displayTitle.value,
-        item: newsUrl,
-      },
-    ],
-  });
+    },
+  ];
+});
 
-  setStructuredData('news-article', {
-    '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
-    headline: displayTitle.value,
-    description: getLocalizedContent(item, 'seoDescription', locale.value) || displaySummary.value,
-    articleBody: displaySummary.value,
-    image: [buildAbsoluteUrl(item.thumbnail) || buildCanonicalUrl('/images/og-default.svg')],
-    mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': newsUrl,
-    },
-    author: {
-      '@type': 'Person',
-      name: displayAuthor.value || t('common.editorialTeam'),
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'VietNews 24h',
-      logo: {
-        '@type': 'ImageObject',
-        url: buildCanonicalUrl('/favicon.svg'),
-      },
-    },
-    datePublished: item.publishedAt,
-    dateModified: item.updatedAt || item.publishedAt,
-    articleSection: displayCategoryName.value,
-    keywords: item.tags,
-  });
-};
-
-const clearNewsStructuredData = () => {
-  removeStructuredData('news-breadcrumb');
-  removeStructuredData('news-article');
-};
+useSeoHead(newsDetailSeoMeta);
+useStructuredDataHead(newsDetailStructuredDataEntries);
 
 const loadNewsDetail = async () => {
   const slug = String(route.params.slug || '');
-  const item = await newsStore.fetchNewsDetail(slug);
-
-  if (item) {
-    const canonicalUrl = buildLocalizedCanonicalUrl(`/tin-tuc/${item.slug}`, locale.value);
-    const seoTitle = getLocalizedContent(item, 'seoTitle', locale.value) || displayTitle.value;
-    const seoDescription = getLocalizedContent(item, 'seoDescription', locale.value) || displaySummary.value;
-    const seoKeywords = getLocalizedContent(item, 'seoKeywords', locale.value);
-
-    updateSeoMeta({
-      title: seoTitle,
-      description: seoDescription,
-      keywords: seoKeywords,
-      ogTitle: displayTitle.value,
-      ogDescription: displaySummary.value,
-      ogImage: item.thumbnail,
-      canonical: canonicalUrl,
-      ogType: 'article',
-      robots: 'index, follow, max-image-preview:large',
-      locale: locale.value,
-      alternates: buildAlternateLocaleLinks(`/tin-tuc/${item.slug}`),
-    });
-
-    applyNewsStructuredData(item);
-  } else {
-    updateSeoMeta({
-      title: t('seo.newsNotFound.title'),
-      description: t('seo.newsNotFound.description'),
-      keywords: t('seo.newsNotFound.keywords'),
-      canonical: buildLocalizedCanonicalUrl('/tin-tuc', locale.value),
-      robots: 'noindex, follow',
-      locale: locale.value,
-      alternates: buildAlternateLocaleLinks('/tin-tuc'),
-    });
-
-    clearNewsStructuredData();
-  }
+  await newsStore.fetchNewsDetail(slug);
 };
+
+onServerPrefetch(loadNewsDetail);
+
+onMounted(loadNewsDetail);
 
 watch(
   () => [route.params.slug, locale.value],
   async () => {
     await loadNewsDetail();
   },
-  { immediate: true },
 );
 
 onBeforeUnmount(() => {
-  clearNewsStructuredData();
   newsStore.clearNewsDetail();
 });
 

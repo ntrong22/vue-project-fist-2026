@@ -1,6 +1,6 @@
 <template>
   <article class="card-surface group overflow-hidden">
-    <RouterLink :to="newsPath" class="block overflow-hidden">
+    <NuxtLink :to="newsPath" class="block overflow-hidden">
       <img
         :src="item.thumbnail"
         :alt="displayTitle"
@@ -8,18 +8,18 @@
         loading="lazy"
         @error="onImageError"
       />
-    </RouterLink>
+    </NuxtLink>
 
     <div class="p-4">
-      <RouterLink
+      <NuxtLink
         :to="categoryPath"
         class="mb-2 inline-flex rounded-full bg-brand-50 px-2.5 py-1 text-xs font-medium text-brand-700"
       >
         {{ displayCategoryName }}
-      </RouterLink>
+      </NuxtLink>
 
       <h3 class="line-clamp-2 text-lg font-bold leading-snug text-slate-900">
-        <RouterLink :to="newsPath" class="transition group-hover:text-brand-700">{{ displayTitle }}</RouterLink>
+        <NuxtLink :to="newsPath" class="transition group-hover:text-brand-700">{{ displayTitle }}</NuxtLink>
       </h3>
 
       <p class="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{{ displaySummary }}</p>

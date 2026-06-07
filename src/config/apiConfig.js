@@ -1,8 +1,14 @@
+const readEnv = (key, fallback = '') => {
+  return import.meta.env?.[key] ?? (
+    typeof process !== 'undefined' && process.env ? process.env[key] : undefined
+  ) ?? fallback;
+};
+
 const apiConfig = {
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
-  timeout: Number(import.meta.env.VITE_API_TIMEOUT || 12000),
+  baseURL: readEnv('VITE_API_BASE_URL', 'http://localhost:5000/api'),
+  timeout: Number(readEnv('VITE_API_TIMEOUT', 12000)),
   withCredentials:
-    String(import.meta.env.VITE_API_WITH_CREDENTIALS || 'false').toLowerCase() === 'true',
+    String(readEnv('VITE_API_WITH_CREDENTIALS', 'false')).toLowerCase() === 'true',
 };
 
 export default apiConfig;

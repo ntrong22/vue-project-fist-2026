@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, watch } from 'vue';
+import { computed, onMounted, onServerPrefetch, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import Breadcrumb from '@/components/common/Breadcrumb.vue';
@@ -54,9 +54,8 @@ import { useNewsStore } from '@/stores/useNewsStore';
 import {
   buildAlternateLocaleLinks,
   buildLocalizedCanonicalUrl,
-  removeStructuredData,
-  setStructuredData,
-  updateSeoMeta,
+  useSeoHead,
+  useStructuredDataHead,
 } from '@/utils/seoHelper';
 import { getLocalizedContent } from '@/utils/localizedContent';
 import { buildNewsPath } from '@/utils/slugHelper';
@@ -91,7 +90,49 @@ const breadcrumbItems = computed(() => {
   return [{ label: t('common.category') }];
 });
 
-const applyCategoryStructuredData = (category) => {
+const canonicalQuery = computed(() => (pageFromQuery.value > 1 ? { page: pageFromQuery.value } : {}));
+const categoryCanonicalUrl = computed(() => {
+  const slug = categoryNews.value.category?.slug || String(route.params.slug || '');
+  const path = slug ? `/danh-muc/${slug}` : '/danh-muc';
+
+  return buildLocalizedCanonicalUrl(path, locale.value, canonicalQuery.value);
+});
+
+const categorySeoMeta = computed(() => {
+  if (categoryNews.value.category) {
+    const category = categoryNews.value.category;
+    const categoryName = getLocalizedContent(category, 'name', locale.value);
+    const categoryDescription = getLocalizedContent(category, 'description', locale.value);
+
+    return {
+      title: `${categoryName} - VietNews 24h`,
+      description: categoryDescription,
+      keywords: `${categoryName}, vietnews 24h`,
+      canonical: categoryCanonicalUrl.value,
+      robots: 'index, follow, max-image-preview:large',
+      locale: locale.value,
+      alternates: buildAlternateLocaleLinks(`/danh-muc/${category.slug}`, canonicalQuery.value),
+    };
+  }
+
+  return {
+    title: t('seo.categoryNotFound.title'),
+    description: t('seo.categoryNotFound.description'),
+    keywords: t('seo.categoryNotFound.keywords'),
+    canonical: buildLocalizedCanonicalUrl('/danh-muc', locale.value),
+    robots: 'noindex, follow',
+    locale: locale.value,
+    alternates: buildAlternateLocaleLinks('/danh-muc'),
+  };
+});
+
+const categoryStructuredDataEntries = computed(() => {
+  const category = categoryNews.value.category;
+
+  if (!category) {
+    return [];
+  }
+
   const items = categoryNews.value.items.map((item, index) => ({
     '@type': 'ListItem',
     position: index + 1,
@@ -99,105 +140,70 @@ const applyCategoryStructuredData = (category) => {
     url: buildLocalizedCanonicalUrl(buildNewsPath(item.slug), locale.value),
   }));
 
-  const categoryUrl = buildLocalizedCanonicalUrl(
-    `/danh-muc/${category.slug}`,
-    locale.value,
-    pageFromQuery.value > 1 ? { page: pageFromQuery.value } : {},
-  );
-
-  setStructuredData('category-breadcrumb', {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: t('nav.home'),
-        item: buildLocalizedCanonicalUrl('/', locale.value),
+  return [
+    {
+      id: 'category-breadcrumb',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: t('nav.home'),
+            item: buildLocalizedCanonicalUrl('/', locale.value),
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: getLocalizedContent(category, 'name', locale.value),
+            item: categoryCanonicalUrl.value,
+          },
+        ],
       },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: getLocalizedContent(category, 'name', locale.value),
-        item: categoryUrl,
-      },
-    ],
-  });
-
-  setStructuredData('category-collection', {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: `${t('common.category')} ${getLocalizedContent(category, 'name', locale.value)} - VietNews 24h`,
-    description: getLocalizedContent(category, 'description', locale.value),
-    url: categoryUrl,
-    mainEntity: {
-      '@type': 'ItemList',
-      numberOfItems: items.length,
-      itemListElement: items,
     },
-  });
-};
+    {
+      id: 'category-collection',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: `${t('common.category')} ${getLocalizedContent(category, 'name', locale.value)} - VietNews 24h`,
+        description: getLocalizedContent(category, 'description', locale.value),
+        url: categoryCanonicalUrl.value,
+        mainEntity: {
+          '@type': 'ItemList',
+          numberOfItems: items.length,
+          itemListElement: items,
+        },
+      },
+    },
+  ];
+});
+
+useSeoHead(categorySeoMeta);
+useStructuredDataHead(categoryStructuredDataEntries);
 
 const loadCategory = async () => {
   const slug = String(route.params.slug || '');
   await newsStore.fetchCategoryNews(slug, pageFromQuery.value);
-
-  if (categoryNews.value.category) {
-    const category = categoryNews.value.category;
-    const categoryName = getLocalizedContent(category, 'name', locale.value);
-    const categoryDescription = getLocalizedContent(category, 'description', locale.value);
-    const canonicalQuery = pageFromQuery.value > 1 ? { page: pageFromQuery.value } : {};
-    const categoryCanonical = buildLocalizedCanonicalUrl(
-      `/danh-muc/${category.slug}`,
-      locale.value,
-      canonicalQuery,
-    );
-
-    updateSeoMeta({
-      title: `${categoryName} - VietNews 24h`,
-      description: categoryDescription,
-      keywords: `${categoryName}, vietnews 24h`,
-      canonical: categoryCanonical,
-      robots: 'index, follow, max-image-preview:large',
-      locale: locale.value,
-      alternates: buildAlternateLocaleLinks(`/danh-muc/${category.slug}`, canonicalQuery),
-    });
-
-    applyCategoryStructuredData(category);
-  } else {
-    updateSeoMeta({
-      title: t('seo.categoryNotFound.title'),
-      description: t('seo.categoryNotFound.description'),
-      keywords: t('seo.categoryNotFound.keywords'),
-      canonical: buildLocalizedCanonicalUrl('/danh-muc', locale.value),
-      robots: 'noindex, follow',
-      locale: locale.value,
-      alternates: buildAlternateLocaleLinks('/danh-muc'),
-    });
-
-    removeStructuredData('category-breadcrumb');
-    removeStructuredData('category-collection');
-  }
 };
 
 const handlePageChange = (nextPage) => {
   router.push({
-    name: 'category',
-    params: { slug: route.params.slug },
+    path: `/danh-muc/${route.params.slug}`,
     query: nextPage > 1 ? { page: String(nextPage) } : {},
   });
 };
+
+onServerPrefetch(loadCategory);
+
+onMounted(loadCategory);
 
 watch(
   () => [route.params.slug, route.query.page, locale.value],
   async () => {
     await loadCategory();
   },
-  { immediate: true },
 );
 
-onBeforeUnmount(() => {
-  removeStructuredData('category-breadcrumb');
-  removeStructuredData('category-collection');
-});
 </script>

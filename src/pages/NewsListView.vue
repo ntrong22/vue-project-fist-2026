@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, watch } from 'vue';
+import { computed, onMounted, onServerPrefetch, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import Breadcrumb from '@/components/common/Breadcrumb.vue';
@@ -57,9 +57,8 @@ import { useNewsStore } from '@/stores/useNewsStore';
 import {
   buildAlternateLocaleLinks,
   buildLocalizedCanonicalUrl,
-  removeStructuredData,
-  setStructuredData,
-  updateSeoMeta,
+  useSeoHead,
+  useStructuredDataHead,
 } from '@/utils/seoHelper';
 import { getLocalizedContent } from '@/utils/localizedContent';
 import { buildNewsPath } from '@/utils/slugHelper';
@@ -78,7 +77,22 @@ const pageFromQuery = computed(() => {
   return Number.isNaN(value) || value < 1 ? 1 : value;
 });
 
-const applyNewsListStructuredData = (canonicalUrl) => {
+const canonicalQuery = computed(() => (pageFromQuery.value > 1 ? { page: pageFromQuery.value } : {}));
+const newsListCanonicalUrl = computed(() =>
+  buildLocalizedCanonicalUrl('/tin-tuc', locale.value, canonicalQuery.value),
+);
+
+const newsListSeoMeta = computed(() => ({
+  title: t('seo.newsList.title'),
+  description: t('seo.newsList.description'),
+  keywords: t('seo.newsList.keywords'),
+  canonical: newsListCanonicalUrl.value,
+  robots: 'index, follow, max-image-preview:large',
+  locale: locale.value,
+  alternates: buildAlternateLocaleLinks('/tin-tuc', canonicalQuery.value),
+}));
+
+const newsListStructuredDataEntries = computed(() => {
   const items = newsList.value.items.map((item, index) => ({
     '@type': 'ListItem',
     position: index + 1,
@@ -86,83 +100,69 @@ const applyNewsListStructuredData = (canonicalUrl) => {
     url: buildLocalizedCanonicalUrl(buildNewsPath(item.slug), locale.value),
   }));
 
-  setStructuredData('news-list-breadcrumb', {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: t('nav.home'),
-        item: buildLocalizedCanonicalUrl('/', locale.value),
+  return [
+    {
+      id: 'news-list-breadcrumb',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: t('nav.home'),
+            item: buildLocalizedCanonicalUrl('/', locale.value),
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: t('news.latest'),
+            item: newsListCanonicalUrl.value,
+          },
+        ],
       },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: t('news.latest'),
-        item: canonicalUrl,
-      },
-    ],
-  });
-
-  setStructuredData('news-list-collection', {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    name: t('seo.newsList.title'),
-    description: t('seo.newsList.description'),
-    url: canonicalUrl,
-    mainEntity: {
-      '@type': 'ItemList',
-      numberOfItems: items.length,
-      itemListElement: items,
     },
-  });
-};
+    {
+      id: 'news-list-collection',
+      schema: {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        name: t('seo.newsList.title'),
+        description: t('seo.newsList.description'),
+        url: newsListCanonicalUrl.value,
+        mainEntity: {
+          '@type': 'ItemList',
+          numberOfItems: items.length,
+          itemListElement: items,
+        },
+      },
+    },
+  ];
+});
 
-const clearStructuredDataForNewsList = () => {
-  removeStructuredData('news-list-breadcrumb');
-  removeStructuredData('news-list-collection');
-};
+useSeoHead(newsListSeoMeta);
+useStructuredDataHead(newsListStructuredDataEntries);
 
 const loadNewsList = async () => {
   await newsStore.fetchNewsList(pageFromQuery.value);
-
-  const canonicalQuery = pageFromQuery.value > 1 ? { page: pageFromQuery.value } : {};
-  const canonicalUrl = buildLocalizedCanonicalUrl(
-    '/tin-tuc',
-    locale.value,
-    canonicalQuery,
-  );
-
-  updateSeoMeta({
-    title: t('seo.newsList.title'),
-    description: t('seo.newsList.description'),
-    keywords: t('seo.newsList.keywords'),
-    canonical: canonicalUrl,
-    robots: 'index, follow, max-image-preview:large',
-    locale: locale.value,
-    alternates: buildAlternateLocaleLinks('/tin-tuc', canonicalQuery),
-  });
-
-  applyNewsListStructuredData(canonicalUrl);
 };
 
 const handlePageChange = (nextPage) => {
   router.push({
-    name: 'news-list',
+    path: '/tin-tuc',
     query: nextPage > 1 ? { page: String(nextPage) } : {},
   });
 };
+
+onServerPrefetch(loadNewsList);
+
+onMounted(loadNewsList);
 
 watch(
   () => [route.query.page, locale.value],
   async () => {
     await loadNewsList();
   },
-  { immediate: true },
 );
 
-onBeforeUnmount(() => {
-  clearStructuredDataForNewsList();
-});
 </script>

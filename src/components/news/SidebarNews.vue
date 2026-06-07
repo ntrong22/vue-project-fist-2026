@@ -3,7 +3,7 @@
     <h3 class="mb-4 text-lg font-bold text-slate-900">{{ resolvedTitle }}</h3>
     <ul class="space-y-4">
       <li v-for="item in props.items" :key="item.id" class="flex gap-3">
-        <RouterLink :to="buildNewsPath(item.slug)" class="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-200">
+        <NuxtLink :to="buildNewsPath(item.slug)" class="h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-200">
           <img
             :src="item.thumbnail"
             :alt="getText(item, 'title')"
@@ -11,15 +11,15 @@
             loading="lazy"
             @error="onImageError"
           />
-        </RouterLink>
+        </NuxtLink>
 
         <div>
-          <RouterLink
+          <NuxtLink
             :to="buildNewsPath(item.slug)"
             class="line-clamp-2 text-sm font-medium text-slate-800 transition hover:text-brand-700"
           >
             {{ getText(item, 'title') }}
-          </RouterLink>
+          </NuxtLink>
           <p class="mt-1 text-xs text-slate-500">{{ getText(item, 'categoryName') }}</p>
         </div>
       </li>

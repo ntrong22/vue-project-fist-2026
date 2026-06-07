@@ -8,18 +8,23 @@ import {
 import en from '@/locales/en.json';
 import vi from '@/locales/vi.json';
 
+const normalizeLocale = (value = DEFAULT_LOCALE) => {
+  const safeLocale = String(value || '').toLowerCase();
+  return isSupportedLocale(safeLocale) ? safeLocale : DEFAULT_LOCALE;
+};
+
 const getLocaleFromStorage = () => {
   if (typeof window === 'undefined') {
     return DEFAULT_LOCALE;
   }
 
   const savedLocale = String(window.localStorage.getItem(LOCALE_STORAGE_KEY) || '').toLowerCase();
-  return isSupportedLocale(savedLocale) ? savedLocale : DEFAULT_LOCALE;
+  return normalizeLocale(savedLocale);
 };
 
-export const i18n = createI18n({
+export const createAppI18n = (initialLocale = getLocaleFromStorage()) => createI18n({
   legacy: false,
-  locale: getLocaleFromStorage(),
+  locale: normalizeLocale(initialLocale),
   fallbackLocale: DEFAULT_LOCALE,
   warnHtmlMessage: false,
   messages: {
@@ -28,17 +33,24 @@ export const i18n = createI18n({
   },
 });
 
+export let i18n = createAppI18n();
+
+export const setI18nInstance = (instance) => {
+  i18n = instance || createAppI18n();
+};
+
 export const persistLocale = (locale) => {
   if (typeof window === 'undefined') {
     return;
   }
 
-  const safeLocale = isSupportedLocale(locale) ? locale : DEFAULT_LOCALE;
+  const safeLocale = normalizeLocale(locale);
   window.localStorage.setItem(LOCALE_STORAGE_KEY, safeLocale);
+  document.cookie = `${LOCALE_STORAGE_KEY}=${encodeURIComponent(safeLocale)}; Path=/; Max-Age=31536000; SameSite=Lax`;
 };
 
 export const getSupportedLocales = () => {
   return [...SUPPORTED_LOCALES];
 };
 
-export default i18n;
+export { i18n as default };

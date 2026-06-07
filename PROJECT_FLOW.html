@@ -1,0 +1,2013 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PROJECT_FLOW - Tổng hợp full luồng project</title>
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --paper: #ffffff;
+        --text: #142033;
+        --muted: #64748b;
+        --line: #d9e2ef;
+        --brand: #0f766e;
+        --brand-2: #0f4c81;
+        --code-bg: #171b20;
+        --code-top: #20252c;
+        --code-text: #e7edf5;
+        --code-muted: #a7b0be;
+        /* Extended color tokens */
+        --api-bg: #eef9f6;
+        --api-border: #0f766e;
+        --sec-bg: #fff7ed;
+        --sec-border: #c2410c;
+        --ui-bg: #eff6ff;
+        --ui-border: #1d4ed8;
+        --warn-bg: #fef9c3;
+        --warn-border: #a16207;
+        --step-api: #065f46;
+        --step-sec: #7c2d12;
+        --step-ui: #1e3a8a;
+        --badge-api: #d1fae5;
+        --badge-api-text: #065f46;
+        --badge-sec: #fee2e2;
+        --badge-sec-text: #991b1b;
+        --badge-ui: #dbeafe;
+        --badge-ui-text: #1e40af;
+        --badge-warn: #fef9c3;
+        --badge-warn-text: #854d0e;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", Arial, sans-serif;
+        line-height: 1.65;
+      }
+      .page {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+      .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        border-right: 1px solid var(--line);
+        background: #eaf2f8;
+        padding: 22px 16px;
+      }
+      .brand {
+        margin: 0 0 8px;
+        font-size: 22px;
+        line-height: 1.2;
+      }
+      .subtitle {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .toc {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .toc-link {
+        border-radius: 7px;
+        color: #24364f;
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        padding: 7px 10px;
+        text-decoration: none;
+      }
+      .toc-link:hover {
+        background: #ffffff;
+        color: var(--brand);
+      }
+      .toc-link.active {
+        background: #ffffff;
+        color: var(--brand);
+        box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
+      }
+      .toc-link.level-2 { padding-left: 18px; font-size: 13px; font-weight: 500; color: #52627a; }
+      .toc-link.level-3 { padding-left: 30px; font-size: 12px; font-weight: 500; color: #64748b; }
+      .toc-link.level-2.active,
+      .toc-link.level-3.active {
+        color: var(--brand);
+        font-weight: 700;
+      }
+      .content-wrap {
+        height: 100vh;
+        overflow: hidden;
+        min-width: 0;
+        padding: 28px;
+      }
+      .content {
+        width: 100%;
+        height: calc(100vh - 56px);
+        overflow-y: auto;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--paper);
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+        padding: 34px;
+      }
+      .content-source {
+        display: none;
+      }
+      .panel-view {
+        min-height: 100%;
+      }
+      h1, h2, h3, h4, h5, h6 {
+        color: #0f1f36;
+        letter-spacing: 0;
+        line-height: 1.25;
+      }
+      h1 { margin: 0 0 18px; font-size: clamp(30px, 4vw, 46px); }
+      h2 { margin: 38px 0 14px; font-size: 28px; border-top: 1px solid var(--line); padding-top: 28px; }
+      h3 { margin: 26px 0 10px; font-size: 21px; }
+      h4 { margin: 20px 0 8px; font-size: 18px; }
+      p { margin: 0 0 14px; color: #42526b; }
+      ul, ol { margin: 0 0 18px; padding-left: 24px; color: #42526b; }
+      li { margin-bottom: 6px; }
+      hr { border: 0; border-top: 1px solid var(--line); margin: 28px 0; }
+      .note-box {
+        border: 1px solid var(--line);
+        border-left-width: 5px;
+        border-radius: 8px;
+        margin: 16px 0 22px;
+        padding: 14px 16px;
+      }
+      .note-box strong {
+        display: block;
+        margin-bottom: 6px;
+        color: #0f1f36;
+      }
+      .note-box p:last-child,
+      .note-box ul:last-child,
+      .note-box ol:last-child {
+        margin-bottom: 0;
+      }
+      .note-important {
+        border-left-color: #dc2626;
+        background: #fff1f2;
+      }
+      .note-api {
+        border-left-color: #0f766e;
+        background: #ecfdf5;
+      }
+      .note-security {
+        border-left-color: #b45309;
+        background: #fffbeb;
+      }
+      .note-info {
+        border-left-color: #2563eb;
+        background: #eff6ff;
+      }
+      code {
+        border-radius: 5px;
+        background: #eef4f8;
+        color: #0f4c81;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 0.92em;
+        padding: 2px 5px;
+      }
+      .code-card {
+        overflow: hidden;
+        border-radius: 8px;
+        background: var(--code-bg);
+        margin: 14px 0 22px;
+      }
+      .code-head {
+        align-items: center;
+        background: var(--code-top);
+        color: var(--code-muted);
+        display: flex;
+        justify-content: space-between;
+        min-height: 38px;
+        padding: 0 12px;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 13px;
+      }
+      .copy-code {
+        border: 0;
+        border-radius: 5px;
+        background: transparent;
+        color: var(--code-muted);
+        cursor: pointer;
+        padding: 6px 8px;
+      }
+      .copy-code:hover { background: rgba(255,255,255,0.08); color: var(--code-text); }
+      pre {
+        margin: 0;
+        overflow-x: auto;
+        padding: 16px;
+      }
+      pre code {
+        background: transparent;
+        color: var(--code-text);
+        display: block;
+        font-size: 14px;
+        padding: 0;
+        white-space: pre;
+      }
+      .table-wrap {
+        margin: 16px 0 24px;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 760px;
+      }
+      th, td {
+        border-bottom: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        padding: 10px 12px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        background: #f0f6fb;
+        color: #10243d;
+        font-weight: 700;
+      }
+      tr:last-child td { border-bottom: 0; }
+      th:last-child, td:last-child { border-right: 0; }
+      td { color: #42526b; }
+      /* ── Highlight blocks ── */
+      .hl-block {
+        border-radius: 10px;
+        border-left-width: 5px;
+        border-left-style: solid;
+        margin: 18px 0 24px;
+        padding: 16px 18px;
+      }
+      .hl-block strong.hl-title {
+        display: block;
+        font-size: 15px;
+        margin-bottom: 8px;
+        letter-spacing: 0.01em;
+      }
+      .hl-block p:last-child,
+      .hl-block ul:last-child,
+      .hl-block ol:last-child { margin-bottom: 0; }
+
+      .hl-api   { background: var(--api-bg);  border-left-color: var(--api-border); }
+      .hl-api   strong.hl-title { color: var(--step-api); }
+      .hl-sec   { background: var(--sec-bg);  border-left-color: var(--sec-border); }
+      .hl-sec   strong.hl-title { color: var(--step-sec); }
+      .hl-ui    { background: var(--ui-bg);   border-left-color: var(--ui-border); }
+      .hl-ui    strong.hl-title { color: var(--step-ui); }
+      .hl-warn  { background: var(--warn-bg); border-left-color: var(--warn-border); }
+      .hl-warn  strong.hl-title { color: var(--badge-warn-text); }
+
+      /* Badge labels */
+      .badge {
+        border-radius: 4px;
+        display: inline-block;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 1px 7px;
+        margin-right: 4px;
+        vertical-align: middle;
+      }
+      .badge-api  { background: var(--badge-api);  color: var(--badge-api-text); }
+      .badge-sec  { background: var(--badge-sec);  color: var(--badge-sec-text); }
+      .badge-ui   { background: var(--badge-ui);   color: var(--badge-ui-text); }
+      .badge-warn { background: var(--badge-warn); color: var(--badge-warn-text); }
+
+      /* Flow step diagram */
+      .flow-steps {
+        counter-reset: step;
+        list-style: none;
+        margin: 14px 0 20px;
+        padding: 0;
+      }
+      .flow-steps li {
+        align-items: flex-start;
+        border-bottom: 1px dashed var(--line);
+        counter-increment: step;
+        display: flex;
+        gap: 12px;
+        margin-bottom: 0;
+        padding: 9px 4px;
+      }
+      .flow-steps li:last-child { border-bottom: 0; }
+      .flow-steps li::before {
+        align-items: center;
+        background: var(--brand);
+        border-radius: 50%;
+        color: #fff;
+        content: counter(step);
+        display: flex;
+        flex-shrink: 0;
+        font-size: 12px;
+        font-weight: 700;
+        height: 22px;
+        justify-content: center;
+        margin-top: 2px;
+        min-width: 22px;
+        width: 22px;
+      }
+      .flow-steps.step-sec li::before { background: #b91c1c; }
+      .flow-steps.step-ui  li::before { background: var(--brand-2); }
+
+      /* Two-column grid for comparison */
+      .grid-2 {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: 1fr 1fr;
+        margin: 14px 0 22px;
+      }
+      @media (max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+      .grid-2-item {
+        background: #f8fafc;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px 14px;
+      }
+      .grid-2-item h5 {
+        font-size: 13px;
+        margin: 0 0 8px;
+        color: #0f1f36;
+      }
+
+      /* Section divider accent */
+      h2.accent-api   { border-top-color: var(--api-border);  color: var(--step-api); }
+      h2.accent-sec   { border-top-color: var(--sec-border);  color: var(--step-sec); }
+      h2.accent-ui    { border-top-color: var(--ui-border);   color: var(--step-ui); }
+
+      @media (max-width: 900px) {
+        .page { display: block; }
+        .sidebar {
+          position: static;
+          height: auto;
+          max-height: 48vh;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .content-wrap {
+          height: auto;
+          overflow: visible;
+          padding: 14px;
+        }
+        .content {
+          height: auto;
+          min-height: calc(100vh - 220px);
+          overflow-y: visible;
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <aside class="sidebar">
+        <h1 class="brand">PROJECT_FLOW</h1>
+        <p class="subtitle">Tổng hợp full luồng project Nuxt SSR/SSG hiện tại.</p>
+        <nav class="toc" aria-label="Mục lục">
+          <a class="toc-link level-1" href="#projectflow-tong-hop-full-luong-project">PROJECT_FLOW - Tổng hợp full luồng project</a>
+<a class="toc-link level-1" href="#0-cap-nhat-nuxt-ssr-ssg-seo">0. Cập nhật Nuxt SSR/SSG SEO</a>
+<a class="toc-link level-2" href="#01-luong-runtime-nuxt-hien-tai">0.1. Luồng runtime Nuxt hiện tại</a>
+<a class="toc-link level-2" href="#02-luong-ssg-prerender">0.2. Luồng SSG/prerender</a>
+<a class="toc-link level-2" href="#03-file-moi-va-vai-tro">0.3. File mới và vai trò</a>
+<a class="toc-link level-2" href="#04-ghi-chu-giu-luong-chinh">0.4. Ghi chú giữ luồng chính</a>
+<a class="toc-link level-1" href="#14-luong-ket-noi-api-chi-tiet">14. 🟢 Luồng kết nối API chi tiết</a>
+<a class="toc-link level-2" href="#141-cach-axios-khoi-tao-va-bien-moi-truong">14.1. Cấu hình & biến môi trường</a>
+<a class="toc-link level-2" href="#142-luong-request-qua-interceptor">14.2. Luồng request qua Interceptor</a>
+<a class="toc-link level-2" href="#143-cac-api-endpoint-hien-co">14.3. Các API endpoint hiện có</a>
+<a class="toc-link level-2" href="#144-mock-vs-real-api">14.4. Mock vs Real API</a>
+<a class="toc-link level-2" href="#145-bao-mat-api">14.5. 🔴 Bảo mật API</a>
+<a class="toc-link level-2" href="#146-cache-va-fallback">14.6. Cache & Fallback</a>
+<a class="toc-link level-1" href="#15-doi-giao-dien-giu-dung-luong">15. 🔵 Đổi giao diện — giữ đúng luồng</a>
+<a class="toc-link level-2" href="#151-nguyen-tac-vang">15.1. Nguyên tắc vàng</a>
+<a class="toc-link level-2" href="#152-thu-muc-an-toan-chinh-sua">15.2. Thư mục an toàn chỉnh sửa</a>
+<a class="toc-link level-2" href="#153-thu-muc-khong-cham-khi-doi-ui">15.3. Thư mục KHÔNG chạm khi đổi UI</a>
+<a class="toc-link level-2" href="#154-huong-dan-theo-tinh-huong">15.4. Hướng dẫn theo tình huống</a>
+<a class="toc-link level-1" href="#1-tong-quan-project">1. Tổng quan project</a>
+<a class="toc-link level-2" href="#11-project-dung-cong-nghe-gi">1.1. Project dùng công nghệ gì</a>
+<a class="toc-link level-2" href="#12-muc-dich-chinh-cua-project">1.2. Mục đích chính của project</a>
+<a class="toc-link level-2" href="#13-cau-truc-tong-the">1.3. Cấu trúc tổng thể</a>
+<a class="toc-link level-2" href="#14-luong-chay-chinh-tu-luc-mo-webapp-den-khi-xu-ly-du-lieu">1.4. Luồng chạy chính từ lúc mở web/app đến khi xử lý dữ liệu</a>
+<a class="toc-link level-1" href="#2-cay-thu-muc-project">2. Cây thư mục project</a>
+<a class="toc-link level-2" href="#21-thu-muc-cap-root">2.1. Thư mục cấp root</a>
+<a class="toc-link level-2" href="#22-thu-muc-trong-src">2.2. Thư mục trong <code>src</code></a>
+<a class="toc-link level-2" href="#23-thu-muc-khong-co-trong-project">2.3. Thư mục không có trong project</a>
+<a class="toc-link level-1" href="#3-giai-thich-tung-file-quan-trong">3. Giải thích từng file quan trọng</a>
+<a class="toc-link level-1" href="#4-luong-du-lieu">4. Luồng dữ liệu</a>
+<a class="toc-link level-2" href="#41-luong-du-lieu-tong-quat">4.1. Luồng dữ liệu tổng quát</a>
+<a class="toc-link level-2" href="#42-module-trang-chu">4.2. Module trang chủ</a>
+<a class="toc-link level-2" href="#43-module-danh-sach-tin-moi">4.3. Module danh sách tin mới</a>
+<a class="toc-link level-2" href="#44-module-chi-tiet-bai-viet">4.4. Module chi tiết bài viết</a>
+<a class="toc-link level-2" href="#45-module-danh-muc">4.5. Module danh mục</a>
+<a class="toc-link level-2" href="#46-module-tim-kiem">4.6. Module tìm kiếm</a>
+<a class="toc-link level-2" href="#47-module-danh-mucmenu">4.7. Module danh mục/menu</a>
+<a class="toc-link level-2" href="#48-module-auth">4.8. Module auth</a>
+<a class="toc-link level-2" href="#49-databasetablestored-procedure">4.9. Database/table/stored procedure</a>
+<a class="toc-link level-1" href="#5-luong-giao-dien">5. Luồng giao diện</a>
+<a class="toc-link level-2" href="#51-trang-chinh-va-trang-con">5.1. Trang chính và trang con</a>
+<a class="toc-link level-2" href="#52-layoutheaderfootersidebar-nam-o-dau">5.2. Layout/header/footer/sidebar nằm ở đâu</a>
+<a class="toc-link level-2" href="#53-component-dung-lai-nhieu-noi">5.3. Component dùng lại nhiều nơi</a>
+<a class="toc-link level-2" href="#54-menu-lay-du-lieu-tinh-hay-dong">5.4. Menu lấy dữ liệu tĩnh hay động</a>
+<a class="toc-link level-2" href="#55-noi-dung-lay-tu-api-database-hay-hard-code">5.5. Nội dung lấy từ API, database hay hard-code</a>
+<a class="toc-link level-1" href="#6-phan-loai-file-dong-va-file-tinh">6. Phân loại file động và file tĩnh</a>
+<a class="toc-link level-1" href="#7-nhung-file-nen-sua-khi-phat-trien">7. Những file nên sửa khi phát triển</a>
+<a class="toc-link level-2" href="#71-khi-doi-giao-dien">7.1. Khi đổi giao diện</a>
+<a class="toc-link level-2" href="#72-khi-doi-api">7.2. Khi đổi API</a>
+<a class="toc-link level-2" href="#73-khi-doi-route">7.3. Khi đổi route</a>
+<a class="toc-link level-2" href="#74-khi-doi-menu">7.4. Khi đổi menu</a>
+<a class="toc-link level-2" href="#75-khi-doi-seo">7.5. Khi đổi SEO</a>
+<a class="toc-link level-2" href="#76-khi-doi-cau-hinh-database">7.6. Khi đổi cấu hình database</a>
+<a class="toc-link level-2" href="#77-khi-doi-logic-nghiep-vu">7.7. Khi đổi logic nghiệp vụ</a>
+<a class="toc-link level-1" href="#8-nhung-file-khong-nen-sua-neu-khong-can">8. Những file không nên sửa nếu không cần</a>
+<a class="toc-link level-1" href="#9-cac-lien-ket-quan-trong-trong-project">9. Các liên kết quan trọng trong project</a>
+<a class="toc-link level-2" href="#91-component-goi-storeservice">9.1. Component gọi store/service</a>
+<a class="toc-link level-2" href="#92-store-goi-service">9.2. Store gọi service</a>
+<a class="toc-link level-2" href="#93-service-goi-api">9.3. Service gọi API</a>
+<a class="toc-link level-2" href="#94-api-goi-database-nao">9.4. API gọi database nào</a>
+<a class="toc-link level-2" href="#95-trang-dung-layout-nao">9.5. Trang dùng layout nào</a>
+<a class="toc-link level-2" href="#96-file-cau-hinh-anh-huong-toan-project">9.6. File cấu hình ảnh hưởng toàn project</a>
+<a class="toc-link level-1" href="#10-ghi-chu-rui-ro">10. Ghi chú rủi ro</a>
+<a class="toc-link level-2" href="#101-file-sua-de-loi-toan-he-thong">10.1. File sửa dễ lỗi toàn hệ thống</a>
+<a class="toc-link level-2" href="#102-file-dang-chua-logic-quan-trong">10.2. File đang chứa logic quan trọng</a>
+<a class="toc-link level-2" href="#103-file-co-dau-hieu-hard-code">10.3. File có dấu hiệu hard-code</a>
+<a class="toc-link level-2" href="#104-file-co-the-bi-lap-code">10.4. File có thể bị lặp code</a>
+<a class="toc-link level-2" href="#105-file-nen-tach-nho">10.5. File nên tách nhỏ</a>
+<a class="toc-link level-2" href="#106-file-nen-gom-lai">10.6. File nên gom lại</a>
+<a class="toc-link level-2" href="#107-file-nen-chuyen-sang-configenv">10.7. File nên chuyển sang config/env</a>
+<a class="toc-link level-1" href="#11-de-xuat-cai-thien">11. Đề xuất cải thiện</a>
+<a class="toc-link level-2" href="#111-cau-truc-thu-muc-nen-cai-thien">11.1. Cấu trúc thư mục nên cải thiện</a>
+<a class="toc-link level-2" href="#112-file-nen-tach-servicecomponent">11.2. File nên tách service/component</a>
+<a class="toc-link level-2" href="#113-file-nen-doi-ten-cho-de-hieu">11.3. File nên đổi tên cho dễ hiểu</a>
+<a class="toc-link level-2" href="#114-file-nen-them-comment">11.4. File nên thêm comment</a>
+<a class="toc-link level-2" href="#115-file-nen-gom-logic">11.5. File nên gom logic</a>
+<a class="toc-link level-2" href="#116-file-can-bao-mat-hon">11.6. File cần bảo mật hơn</a>
+<a class="toc-link level-2" href="#117-seo-nen-cai-thien-them">11.7. SEO nên cải thiện thêm</a>
+<a class="toc-link level-1" href="#12-so-do-luong-project">12. Sơ đồ luồng project</a>
+<a class="toc-link level-2" href="#121-luong-tong-quat">12.1. Luồng tổng quát</a>
+<a class="toc-link level-2" href="#122-luong-bai-viet-chi-tiet">12.2. Luồng bài viết chi tiết</a>
+<a class="toc-link level-2" href="#123-luong-danh-muc">12.3. Luồng danh mục</a>
+<a class="toc-link level-2" href="#124-luong-tim-kiem">12.4. Luồng tìm kiếm</a>
+<a class="toc-link level-2" href="#125-luong-api-that">12.5. Luồng API thật</a>
+<a class="toc-link level-1" href="#13-ghi-chu-kiem-tra-theo-yeu-cau-ky-thuat">13. Ghi chú kiểm tra theo yêu cầu kỹ thuật</a>
+<a class="toc-link level-2" href="#131-khong-xoa-code-hien-tai">13.1. Không xóa code hiện tại</a>
+<a class="toc-link level-2" href="#132-khong-sua-logic-project">13.2. Không sửa logic project</a>
+<a class="toc-link level-2" href="#133-chi-taocap-nhat-file-projectflowmd">13.3. Chỉ tạo/cập nhật file <code>PROJECT_FLOW.md</code></a>
+<a class="toc-link level-2" href="#134-noi-dung-viet-bang-tieng-viet">13.4. Nội dung viết bằng tiếng Việt</a>
+<a class="toc-link level-2" href="#135-cho-chua-chac">13.5. Chỗ chưa chắc</a>
+<a class="toc-link level-2" href="#136-file-chua-thay-noi-goi-truc-tiep">13.6. File chưa thấy nơi gọi trực tiếp</a>
+<a class="toc-link level-1" href="#tom-tat-nhanh-cho-nguoi-moi-vao-project">Tóm tắt nhanh cho người mới vào project</a>
+        </nav>
+      </aside>
+      <main class="content-wrap">
+        <article class="content">
+          <h1 id="projectflow-tong-hop-full-luong-project">PROJECT_FLOW - Tổng hợp full luồng project</h1>
+<p>Tài liệu này phân tích project hiện tại theo code thực tế trong thư mục <code>G:\VUEJS-NEW\pro-vue-01</code>.</p>
+<p>Lưu ý quan trọng:</p>
+<ul>
+<li>Project hiện tại đã chuyển sang <strong>Nuxt 3 SSR/SSG</strong> để tăng SEO, crawler có thể nhận HTML đã có content/title/meta/canonical/schema.</li>
+<li>Các file SPA cũ như <code>src/main.js</code>, <code>src/App.vue</code>, <code>src/router/index.js</code>, <code>index.html</code> chỉ còn là tham chiếu legacy, không còn là entry runtime chính khi chạy <code>npm run dev</code>, <code>npm run build</code> hoặc <code>npm run generate</code>.</li>
+<li>Cấu hình Vite/PostCSS root cũ đã được nhập vào <code>nuxt.config.js</code> để tránh warning external config của Nuxt.</li>
+<li>Không thấy backend, database, controller hoặc migration trong repo này.</li>
+<li>Database/stored procedure nếu có sẽ nằm ở backend ngoài project này. Cần kiểm tra thêm repo/API backend.</li>
+<li>Luồng nghiệp vụ chính vẫn giữ nguyên: view gọi store, store gọi service, service lấy mock data hoặc API thật theo cấu hình.</li>
+</ul>
+
+<hr />
+<h1 id="0-cap-nhat-nuxt-ssr-ssg-seo">0. Cập nhật Nuxt SSR/SSG SEO</h1>
+<div class="note-box note-important">
+  <strong>Trạng thái sau cập nhật:</strong>
+  <p>Runtime chính là Nuxt 3. Mục tiêu của lớp Nuxt là render HTML server/static cho SEO, còn cấu trúc nghiệp vụ trong <code>src/pages</code>, <code>src/stores</code>, <code>src/services</code>, <code>src/api</code> vẫn được giữ để không phá luồng chính.</p>
+</div>
+
+<h2 id="01-luong-runtime-nuxt-hien-tai">0.1. Luồng runtime Nuxt hiện tại</h2>
+<div class="code-card"><div class="code-head"><span>Luồng SSR khi user/crawler mở URL</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>Request từ user hoặc Googlebot
+↓
+Nuxt/Nitro SSR hoặc HTML đã prerender
+↓
+app.vue
+↓
+src/layouts/MainLayout.vue
+↓
+pages/* wrapper theo file-based routing của Nuxt
+↓
+src/pages/*View.vue giữ màn hình cũ
+↓
+Pinia store
+↓
+service
+↓
+mock data hoặc API thật
+↓
+src/utils/seoHelper.js dùng useHead để ghi title/meta/canonical/hreflang/schema vào HTML server
+↓
+Hydration phía client</code></pre></div>
+
+<h2 id="02-luong-ssg-prerender">0.2. Luồng SSG/prerender</h2>
+<div class="code-card"><div class="code-head"><span>Luồng generate static</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>npm run generate
+↓
+scripts/generate-sitemap.mjs sinh sitemap.xml, news-sitemap.xml, robots.txt
+↓
+nuxt generate
+↓
+nuxt.config.js đọc src/data/categories.js và src/data/news.js
+↓
+Nitro prerender routes: /, /tin-tuc, /danh-muc/[slug], /tin-tuc/[slug], /gioi-thieu, /lien-he
+↓
+.output/public chứa HTML tĩnh để deploy CDN/IIS/static hosting</code></pre></div>
+
+<h2 id="03-file-moi-va-vai-tro">0.3. File mới và vai trò</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>File/thư mục</th><th>Vai trò hiện tại</th><th>Ghi chú SEO</th></tr></thead>
+<tbody>
+<tr><td><code>nuxt.config.js</code></td><td>Bật SSR, cấu hình Pinia, Tailwind, head mặc định, routeRules, Nitro prerender routes.</td><td>Nơi kiểm soát SSG route theo category/news data.</td></tr>
+<tr><td><code>app.vue</code></td><td>Root Nuxt app, bọc <code>NuxtPage</code> bằng layout chính.</td><td>Entry runtime mới thay cho SPA entry cũ.</td></tr>
+<tr><td><code>pages/</code></td><td>Wrapper file-based routing của Nuxt cho các URL chính.</td><td>Giữ URL SEO cũ: <code>/tin-tuc/[slug]</code>, <code>/danh-muc/[slug]</code>,...</td></tr>
+<tr><td><code>plugins/i18n.js</code></td><td>Đăng ký i18n cho Nuxt, đọc <code>lang</code> query hoặc cookie locale.</td><td>Giúp SSR render đúng ngôn ngữ ban đầu.</td></tr>
+<tr><td><code>plugins/directives.client.js</code></td><td>Đăng ký directive chỉ chạy client.</td><td>Tránh lỗi DOM directive khi SSR.</td></tr>
+<tr><td><code>middleware/route-sanitizer.global.js</code></td><td>Sanitize slug/query trên route Nuxt.</td><td>Giữ lớp bảo vệ URL từ router cũ.</td></tr>
+<tr><td><code>src/utils/seoHelper.js</code></td><td>Build canonical, alternate locale, meta, JSON-LD; thêm helper reactive <code>useSeoHead</code>, <code>useStructuredDataHead</code>.</td><td>Đây là điểm chính đưa SEO vào HTML server.</td></tr>
+<tr><td><code>src/utils/sanitizeHtml.js</code></td><td>Sanitize HTML bài viết bằng DOMPurify chạy được cả server/client.</td><td>Cho phép nội dung bài viết SSR an toàn.</td></tr>
+<tr><td><code>.output/public</code></td><td>Output sau <code>npm run generate</code>.</td><td>Deploy thư mục này nếu muốn static SSG.</td></tr>
+</tbody></table></div>
+
+<h2 id="04-ghi-chu-giu-luong-chinh">0.4. Ghi chú giữ luồng chính</h2>
+<ul>
+<li>Luồng màn hình không bị đổi: <code>HomeView</code>, <code>NewsListView</code>, <code>NewsDetailView</code>, <code>CategoryView</code>, <code>SearchView</code>, <code>AboutView</code>, <code>ContactView</code>, <code>NotFoundView</code> vẫn nằm trong <code>src/pages</code>.</li>
+<li>Luồng data không bị đổi: page gọi Pinia store, store gọi service, service gọi API/mock data.</li>
+<li>Luồng SEO đã đổi từ cập nhật DOM sau khi app chạy sang <code>useHead</code> reactive trong setup để Nuxt ghi title/meta/canonical/schema ngay vào HTML SSR/SSG.</li>
+<li>Trước khi build production cần đổi <code>VITE_APP_URL</code> từ <code>https://example.com</code> sang domain thật để canonical, sitemap, robots và JSON-LD đúng domain.</li>
+<li><code>/tim-kiem</code> vẫn để <code>noindex, follow</code>; các trang bài viết/danh mục/trang chủ dùng <code>index, follow, max-image-preview:large</code>.</li>
+</ul>
+
+<hr />
+<h1 id="14-luong-ket-noi-api-chi-tiet">14. 🟢 Luồng kết nối API chi tiết &amp; Bảo mật</h1>
+
+<div class="hl-block hl-api">
+  <strong class="hl-title">🟢 API LAYER — Đây là tầng duy nhất giao tiếp với backend. Mọi request đều đi qua <code>src/api/httpClient.js</code>.</strong>
+  <p>Tất cả các API endpoint (news, categories, auth, log, information…) đều dùng chung <strong>một instance Axios duy nhất</strong>. Không tạo Axios mới ở service riêng lẻ.</p>
+</div>
+
+<h2 id="141-cach-axios-khoi-tao-va-bien-moi-truong" class="accent-api">14.1. Cấu hình &amp; biến môi trường</h2>
+
+<p>Toàn bộ cấu hình kết nối đọc từ <code>.env</code> qua <code>src/config/apiConfig.js</code>:</p>
+
+<div class="code-card"><div class="code-head"><span>src/config/apiConfig.js</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>baseURL  ← VITE_API_BASE_URL    (mặc định: http://localhost:5000/api)
+timeout  ← VITE_API_TIMEOUT     (mặc định: 12000 ms)
+withCredentials ← VITE_API_WITH_CREDENTIALS  (mặc định: false)</code></pre></div>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Biến .env</th><th>Giá trị mặc định</th><th>Ý nghĩa</th><th>Ảnh hưởng</th></tr></thead>
+<tbody>
+<tr><td><code>VITE_API_BASE_URL</code></td><td><code>http://localhost:5000/api</code></td><td>Domain gốc của backend API</td><td><strong>Toàn bộ mọi request</strong></td></tr>
+<tr><td><code>VITE_USE_MOCK_API</code></td><td><code>true</code></td><td>Dùng mock data hay API thật</td><td>Quyết định luồng service</td></tr>
+<tr><td><code>VITE_API_TIMEOUT</code></td><td><code>12000</code></td><td>Timeout ms mỗi request</td><td>Khi backend chậm/lỗi</td></tr>
+<tr><td><code>VITE_API_WITH_CREDENTIALS</code></td><td><code>false</code></td><td>Gửi cookie/session qua cross-origin</td><td>Bật khi dùng cookie auth</td></tr>
+<tr><td><code>VITE_AUTH_TOKEN_TYPE</code></td><td><code>Bearer</code></td><td>Tiền tố token trong header</td><td>Header Authorization</td></tr>
+<tr><td><code>VITE_AUTH_LOGIN_ENDPOINT</code></td><td><code>/auth/login</code></td><td>Endpoint đăng nhập</td><td><code>authService.login()</code></td></tr>
+<tr><td><code>VITE_AUTH_REFRESH_ENDPOINT</code></td><td><code>/auth/refresh</code></td><td>Endpoint làm mới token</td><td><code>authService.refreshAccessToken()</code></td></tr>
+<tr><td><code>VITE_AUTH_LOGOUT_ENDPOINT</code></td><td><code>/auth/logout</code></td><td>Endpoint đăng xuất</td><td><code>authService.logout()</code></td></tr>
+<tr><td><code>VITE_NEWS_CACHE_TTL_MS</code></td><td><code>60000</code></td><td>Thời gian cache tin tức (ms)</td><td>Bao lâu mới gọi API lại</td></tr>
+</tbody></table></div>
+
+<h2 id="142-luong-request-qua-interceptor" class="accent-api">14.2. Luồng request qua Interceptor</h2>
+
+<div class="hl-block hl-api">
+  <strong class="hl-title">🟢 Mọi request đều đi qua 2 interceptor trong <code>src/api/httpClient.js</code> — không bypass được.</strong>
+</div>
+
+<p><strong>Interceptor REQUEST (trước khi gửi):</strong></p>
+<ol class="flow-steps">
+  <li>Service gọi <code>apiClient.get('/news')</code> hoặc bất kỳ method nào.</li>
+  <li>Interceptor kiểm tra URL có khớp <code>/auth/login</code> hoặc <code>/auth/refresh</code> không (SKIP_AUTH_PATTERNS).</li>
+  <li>Nếu không skip → gọi <code>getAuthorizationHeader()</code> từ <code>authSession.js</code>.</li>
+  <li><code>hasValidAccessToken()</code> kiểm tra token tồn tại và chưa hết hạn (<code>Date.now() &lt; expiresAt</code>).</li>
+  <li>Nếu có token hợp lệ → tự động thêm header <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+  <li>Request bay đến backend.</li>
+</ol>
+
+<p><strong>Interceptor RESPONSE (sau khi nhận):</strong></p>
+<ol class="flow-steps">
+  <li>Response trả về → kiểm tra HTTP status.</li>
+  <li>Nếu status <code>401</code> → gọi <code>clearAuthSession()</code> (xóa token khỏi memory) + <code>notifyUnauthorized()</code>.</li>
+  <li><code>MainLayout.vue</code> lắng nghe event <code>notifyUnauthorized</code> → hiện banner "phiên đăng nhập hết hạn".</li>
+  <li>Nếu status <code>0, 403, 500</code> → gọi <code>logTechnicalError()</code> (chỉ log ở DEV mode).</li>
+  <li>Lỗi được normalize qua <code>normalizeAppError()</code> → trả ra message i18n thân thiện.</li>
+  <li>Store bắt lỗi, lưu vào <code>error.home / error.list / error.detail</code>…</li>
+  <li>Page hiển thị thông báo lỗi cho user.</li>
+</ol>
+
+<h2 id="143-cac-api-endpoint-hien-co" class="accent-api">14.3. Các API endpoint hiện có</h2>
+
+<div class="hl-block hl-api">
+  <strong class="hl-title">🟢 Tất cả endpoint đều gọi qua <code>apiClient</code> (cùng 1 instance). BaseURL là <code>VITE_API_BASE_URL</code>. Endpoint là path tương đối.</strong>
+</div>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Endpoint</th><th>Method</th><th>File gọi</th><th>Khi nào gọi</th><th>Cần Auth?</th><th>Fallback</th></tr></thead>
+<tbody>
+<tr><td><code>/news</code></td><td>GET</td><td><code>newsService.js → getAllNews()</code></td><td>Trang chủ, list, detail, search</td><td>Không (public)</td><td>Mock data</td></tr>
+<tr><td><code>/categories</code></td><td>GET</td><td><code>categoryService.js → getCategories()</code></td><td>Menu, filter tin theo danh mục</td><td>Không (public)</td><td>Mock data</td></tr>
+<tr><td><code>/categories/:slug</code></td><td>GET</td><td><code>categoryService.js → getCategoryBySlug()</code></td><td>Trang danh mục</td><td>Không (public)</td><td>Tìm trong mock</td></tr>
+<tr><td><code>/auth/login</code></td><td>POST</td><td><code>authService.js → login()</code></td><td>Đăng nhập</td><td>Skip auth header</td><td>Throw error</td></tr>
+<tr><td><code>/auth/refresh</code></td><td>POST</td><td><code>authService.js → refreshAccessToken()</code></td><td>Token sắp hết hạn</td><td>Skip auth header</td><td>clearAuthSession()</td></tr>
+<tr><td><code>/auth/logout</code></td><td>POST</td><td><code>authService.js → logout()</code></td><td>Đăng xuất</td><td>Có (Bearer token)</td><td>Vẫn clear local session</td></tr>
+<tr><td><code>/information</code></td><td>GET</td><td><em>Chưa có — cần thêm service</em></td><td>Trang About/Contact</td><td>TBD</td><td>—</td></tr>
+<tr><td><code>/logs</code></td><td>POST</td><td><em>Chưa có — cần thêm service</em></td><td>Gửi log client-side</td><td>TBD</td><td>—</td></tr>
+</tbody></table></div>
+
+<div class="hl-block hl-warn">
+  <strong class="hl-title">🟡 Thêm API mới (/information, /logs, /analytics…) — làm như sau:</strong>
+  <ol>
+    <li>KHÔNG tạo Axios instance mới. Import <code>apiClient</code> từ <code>@/api/httpClient</code>.</li>
+    <li>Tạo file service mới: <code>src/services/informationService.js</code>.</li>
+    <li>Trong service: gọi <code>apiClient.get('/information')</code> — interceptor auth tự động xử lý.</li>
+    <li>Nếu cần auth: không làm gì thêm — interceptor tự gắn token.</li>
+    <li>Nếu endpoint public (không cần token): vẫn bình thường — khi không có token thì header không được gắn.</li>
+    <li>Tạo store tương ứng: <code>src/stores/useInformationStore.js</code>.</li>
+    <li>Gọi store trong page: <code>src/pages/AboutView.vue</code>.</li>
+  </ol>
+</div>
+
+<h2 id="144-mock-vs-real-api" class="accent-api">14.4. Mock vs Real API — công tắc chuyển đổi</h2>
+
+<div class="grid-2">
+  <div class="grid-2-item">
+    <h5>🟡 MOCK MODE — <code>VITE_USE_MOCK_API=true</code></h5>
+    <ul>
+      <li>Service dùng data từ <code>src/data/news.js</code> và <code>src/data/categories.js</code>.</li>
+      <li>Có <code>delay(250ms)</code> giả lập latency.</li>
+      <li>Không cần backend chạy.</li>
+      <li>Axios instance vẫn tồn tại nhưng không gọi HTTP.</li>
+      <li>Dùng để dev UI, demo, test offline.</li>
+    </ul>
+  </div>
+  <div class="grid-2-item">
+    <h5>🟢 REAL API MODE — <code>VITE_USE_MOCK_API=false</code></h5>
+    <ul>
+      <li>Service gọi <code>apiClient.get('/news')</code> thật.</li>
+      <li>Nếu backend trả lỗi hoặc data rỗng → tự fallback về mock data.</li>
+      <li>Token auth tự gắn vào header qua interceptor.</li>
+      <li>Cache TTL theo <code>VITE_NEWS_CACHE_TTL_MS</code> (mặc định 60s).</li>
+      <li>Cần backend đang chạy tại <code>VITE_API_BASE_URL</code>.</li>
+    </ul>
+  </div>
+</div>
+
+<p>Chuyển đổi: chỉ cần sửa <code>.env</code>, không sửa code:</p>
+<div class="code-card"><div class="code-head"><span>.env</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code># Bật mock (dev offline)
+VITE_USE_MOCK_API=true
+
+# Bật API thật (staging/production)
+VITE_USE_MOCK_API=false
+VITE_API_BASE_URL=https://api.vietnews24h.com/api</code></pre></div>
+
+<h2 id="145-bao-mat-api" class="accent-sec">14.5. 🔴 Bảo mật API</h2>
+
+<div class="hl-block hl-sec">
+  <strong class="hl-title">🔴 BẢO MẬT — Token lưu trong memory JavaScript (không phải localStorage/cookie), tự xóa khi 401.</strong>
+</div>
+
+<p><strong>Cơ chế bảo mật hiện tại:</strong></p>
+<ol class="flow-steps step-sec">
+  <li><strong>Token chỉ lưu trong biến module (memory)</strong> — <code>authSession.js</code> dùng biến <code>let accessToken</code>, <code>let refreshToken</code>. Không lưu <code>localStorage</code>, không lưu cookie. Mất khi F5 hoặc đóng tab. An toàn hơn trước XSS.</li>
+  <li><strong>Kiểm tra expiry trước khi gắn token</strong> — <code>hasValidAccessToken()</code> so sánh <code>Date.now() &lt; expiresAt</code>. Token hết hạn → không gắn header → backend trả 401.</li>
+  <li><strong>SKIP_AUTH_PATTERNS bảo vệ endpoint login/refresh</strong> — <code>/auth/login</code> và <code>/auth/refresh</code> bị loại khỏi việc gắn token (tránh vòng lặp và leak token cũ).</li>
+  <li><strong>skipAuth flag</strong> — khi gọi <code>apiClient.post(endpoint, data, { skipAuth: true })</code> thì interceptor bỏ qua gắn token. Dùng cho login, refresh.</li>
+  <li><strong>Auto clear khi 401</strong> — interceptor response tự gọi <code>clearAuthSession()</code> khi nhận 401. Không để token cũ tồn tại.</li>
+  <li><strong>notifyUnauthorized listener</strong> — <code>MainLayout.vue</code> đăng ký listener để bắt event 401, hiển thị banner thông báo hết phiên mà không redirect cứng.</li>
+  <li><strong>DOMPurify sanitize HTML</strong> — nội dung bài viết dùng <code>v-html</code> nhưng bắt buộc qua <code>sanitizeHtml.js</code> (DOMPurify) trước khi render. Ngăn XSS từ nội dung CMS.</li>
+  <li><strong>Nuxt middleware sanitize slug/query</strong> — <code>middleware/route-sanitizer.global.js</code> sanitize params slug và query string trước khi cho vào component. Ngăn path traversal và injection qua URL.</li>
+  <li><strong>normalizeSearchInput()</strong> — search query bị strip HTML và whitespace trước khi dùng. Ngăn XSS qua tìm kiếm.</li>
+  <li><strong>logTechnicalError chỉ chạy DEV</strong> — <code>if (import.meta.dev || import.meta.env?.DEV)</code> mới <code>console.error</code>. Production không lộ stack trace ra console.</li>
+  <li><strong>X-Requested-With header</strong> — Axios instance gắn mặc định <code>X-Requested-With: XMLHttpRequest</code>. Giúp backend phân biệt AJAX request và block CSRF từ form HTML thông thường.</li>
+  <li><strong>.env không commit</strong> — <code>.gitignore</code> bỏ <code>.env</code>. Secret key, API URL, token config không vào repo.</li>
+</ol>
+
+<div class="hl-block hl-warn">
+  <strong class="hl-title">🟡 Điểm cần lưu ý thêm khi mở rộng bảo mật:</strong>
+  <ul>
+    <li>Nếu backend dùng <strong>cookie httpOnly</strong>: bật <code>VITE_API_WITH_CREDENTIALS=true</code> và cấu hình CORS backend cho phép <code>credentials</code>.</li>
+    <li>Nếu cần <strong>auto refresh token</strong> trước khi hết hạn: thêm logic gọi <code>authService.refreshAccessToken()</code> trong interceptor request khi <code>expiresAt - Date.now() &lt; threshold</code>.</li>
+    <li>API <strong>/logs</strong> nếu có: nên dùng <code>skipAuth: false</code> (gắn token) để backend biết user nào gửi log.</li>
+    <li>API <strong>/information</strong> nếu public: không cần token, interceptor tự bỏ qua khi không có token trong session.</li>
+    <li>Không bao giờ log <code>accessToken</code> hay <code>credentials</code> ra console, ngay cả trong DEV.</li>
+  </ul>
+</div>
+
+<h2 id="146-cache-va-fallback" class="accent-api">14.6. Cache &amp; Fallback Strategy</h2>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Tầng cache</th><th>Vị trí</th><th>TTL</th><th>Fallback khi lỗi</th></tr></thead>
+<tbody>
+<tr><td>Pinia store cacheKeys</td><td><code>useNewsStore.js</code>, <code>useCategoryStore.js</code></td><td>Trong phiên (xóa khi reload)</td><td>Fetch lại</td></tr>
+<tr><td>Service memory cache</td><td><code>newsService.js</code> — <code>newsCache</code>, <code>categoryCache</code></td><td><code>VITE_NEWS_CACHE_TTL_MS</code> (60s)</td><td>Mock data</td></tr>
+<tr><td>Pending dedup</td><td><code>newsCache.pending</code>, <code>categoryCache.pending</code></td><td>Trong lúc request đang chạy</td><td>Dùng chung kết quả</td></tr>
+<tr><td>Fallback data</td><td><code>src/data/news.js</code>, <code>src/data/categories.js</code></td><td>Tĩnh</td><td>Luôn có dữ liệu hiển thị</td></tr>
+</tbody></table></div>
+
+<hr />
+<h1 id="15-doi-giao-dien-giu-dung-luong">15. 🔵 Đổi giao diện — giữ đúng luồng thư mục</h1>
+
+<div class="hl-block hl-ui">
+  <strong class="hl-title">🔵 NGUYÊN TẮC CỐT LÕI: UI nằm trong <code>src/components/</code> và <code>src/pages/</code>. Logic nằm trong <code>src/stores/</code>, <code>src/services/</code>, <code>src/api/</code>. Hai tầng này KHÔNG được trộn lẫn.</strong>
+</div>
+
+<h2 id="151-nguyen-tac-vang" class="accent-ui">15.1. Nguyên tắc vàng khi đổi giao diện</h2>
+
+<ol class="flow-steps step-ui">
+  <li><strong>Chỉ sửa file trong <code>src/components/</code> hoặc <code>src/pages/</code></strong> — đây là "vùng an toàn" cho UI. Không ảnh hưởng dữ liệu.</li>
+  <li><strong>Giữ nguyên tên props và emit</strong> — component nhận data từ page qua props. Đổi tên prop = phải sửa cả page truyền xuống.</li>
+  <li><strong>Không di chuyển logic fetch vào component</strong> — component chỉ hiển thị, KHÔNG tự gọi store/service. Page mới là nơi gọi store.</li>
+  <li><strong>Tailwind class thay đổi tự do</strong> — sửa class Tailwind trong template không ảnh hưởng logic.</li>
+  <li><strong>CSS global sửa ở <code>src/styles/main.css</code></strong> — chỉ ảnh hưởng style, không logic.</li>
+  <li><strong>Thêm component mới</strong> — tạo file mới trong <code>src/components/</code>, import vào page. Không cần đụng store/service.</li>
+</ol>
+
+<h2 id="152-thu-muc-an-toan-chinh-sua" class="accent-ui">15.2. Thư mục AN TOÀN khi đổi UI</h2>
+
+<div class="hl-block hl-ui">
+  <strong class="hl-title">🔵 Sửa thoải mái — không ảnh hưởng luồng dữ liệu hay API</strong>
+</div>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Thư mục / File</th><th>Được sửa gì</th><th>Ảnh hưởng gì</th><th>Không được làm</th></tr></thead>
+<tbody>
+<tr><td><code>src/components/news/*.vue</code><br/><small>NewsCard, FeaturedNews, LatestNews, PopularNews, SidebarNews, CategorySection</small></td><td>Template HTML, Tailwind class, thứ tự hiển thị trường, ảnh thumbnail, badge, icon</td><td>Chỉ giao diện</td><td>Không tự gọi store/service trong đây</td></tr>
+<tr><td><code>src/components/layout/*.vue</code><br/><small>AppHeader, AppFooter, MobileMenu</small></td><td>Logo, nav links, layout header/footer, responsive mobile</td><td>Layout tổng thể</td><td>Không sửa logic auth hay route guard</td></tr>
+<tr><td><code>src/components/common/*.vue</code><br/><small>Pagination, SearchBox, Breadcrumb, EmptyState, LoadingSkeleton</small></td><td>Style, text placeholder, icon, animation skeleton</td><td>UI component tái sử dụng</td><td>Không đổi tên emit event (ảnh hưởng page dùng)</td></tr>
+<tr><td><code>src/components/ui/*.vue</code><br/><small>LanguageSwitcher</small></td><td>Dropdown style, icon ngôn ngữ</td><td>UI switcher ngôn ngữ</td><td>Không sửa logic <code>useLocale.js</code></td></tr>
+<tr><td><code>src/pages/*.vue</code><br/><small>HomeView, NewsListView, CategoryView, NewsDetailView, SearchView, AboutView, ContactView, NotFoundView</small></td><td>Bố cục section, thứ tự component con, class wrapper</td><td>Layout từng trang</td><td>Không xóa các lời gọi store (<code>fetchHomeNews</code>, <code>fetchNewsList</code>…)</td></tr>
+<tr><td><code>src/layouts/MainLayout.vue</code></td><td>Khoảng cách header/footer, sidebar layout, max-width content</td><td>Khung tất cả trang</td><td>Không xóa auth listener <code>addUnauthorizedListener</code></td></tr>
+<tr><td><code>src/styles/main.css</code></td><td>CSS variable, font, global reset, Tailwind layer</td><td>Style toàn app</td><td>—</td></tr>
+<tr><td><code>src/locales/vi.json</code>, <code>en.json</code></td><td>Text label, placeholder, error message</td><td>Ngôn ngữ hiển thị</td><td>Không xóa key đang dùng trong component</td></tr>
+<tr><td><code>tailwind.config.js</code></td><td>Màu brand, font, breakpoint custom</td><td>Design token toàn app</td><td>Không xóa <code>content</code> paths</td></tr>
+<tr><td><code>nuxt.config.js</code></td><td>Favicon, meta/head mặc định, CSS entry, routeRules</td><td>App shell Nuxt</td><td>Không đổi SSR/SSG/head khi chỉ sửa UI</td></tr>
+</tbody></table></div>
+
+<h2 id="153-thu-muc-khong-cham-khi-doi-ui" class="accent-ui">15.3. Thư mục KHÔNG chạm khi chỉ đổi UI</h2>
+
+<div class="hl-block hl-sec">
+  <strong class="hl-title">🔴 KHÔNG SỬA các thư mục này khi chỉ thay đổi giao diện. Sửa sai sẽ làm vỡ dữ liệu hoặc bảo mật.</strong>
+</div>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Thư mục / File</th><th>Lý do không chạm</th><th>Hậu quả nếu sửa sai</th></tr></thead>
+<tbody>
+<tr><td><code>src/api/httpClient.js</code></td><td>Core Axios instance, interceptor auth toàn app</td><td>Mất auth header, 401 liên tục, lỗi toàn bộ API</td></tr>
+<tr><td><code>src/services/*.js</code></td><td>Logic gọi API, fallback, cache, normalize data</td><td>Dữ liệu trả về sai, cache bị vỡ, lỗi mapper</td></tr>
+<tr><td><code>src/stores/*.js</code></td><td>State management, loading/error flags cho page</td><td>Page mất dữ liệu, loading không tắt, lỗi hiển thị</td></tr>
+<tr><td><code>src/config/*.js</code></td><td>Đọc biến env, cấu hình toàn app</td><td>Sai baseURL = mọi API call thất bại</td></tr>
+<tr><td><code>pages/</code> và <code>middleware/route-sanitizer.global.js</code></td><td>Route mapping Nuxt và guard sanitize</td><td>Route 404, bảo mật slug/query bị bypass</td></tr>
+<tr><td><code>src/utils/sanitizeHtml.js</code></td><td>DOMPurify sanitize trước v-html</td><td>Lỗ hổng XSS trong nội dung bài viết</td></tr>
+<tr><td><code>src/utils/seoHelper.js</code></td><td>Cập nhật title, meta, canonical, JSON-LD</td><td>SEO hỏng, Google không index đúng</td></tr>
+<tr><td><code>src/utils/errorHandler.js</code></td><td>Normalize lỗi, map status code sang i18n</td><td>Lỗi không hiển thị đúng, crash handler</td></tr>
+<tr><td><code>src/services/authSession.js</code></td><td>Lưu/xóa token trong memory</td><td>Token leak hoặc auth bị mất</td></tr>
+<tr><td><code>src/plugins/i18n.js</code></td><td>Khởi tạo vue-i18n instance</td><td>Toàn app mất dịch, error handler crash</td></tr>
+<tr><td><code>src/directives/lazyImage.js</code></td><td>Lazy load ảnh directive</td><td>Ảnh không lazy load, performance giảm</td></tr>
+<tr><td><code>app.vue</code></td><td>Khởi động layout/page Nuxt toàn app</td><td>App không render layout hoặc page</td></tr>
+<tr><td><code>nuxt.config.js</code></td><td>Alias <code>@</code>, CSS, head, SSR/SSG, build config</td><td>Import/build/SEO lỗi toàn project</td></tr>
+</tbody></table></div>
+
+<h2 id="154-huong-dan-theo-tinh-huong" class="accent-ui">15.4. Hướng dẫn theo tình huống cụ thể</h2>
+
+<div class="hl-block hl-ui">
+  <strong class="hl-title">🔵 Tình huống 1 — Đổi màu, font, design system</strong>
+  <ul>
+    <li>Sửa <code>tailwind.config.js</code> → <code>theme.extend.colors</code> / <code>fontFamily</code>.</li>
+    <li>Sửa <code>src/styles/main.css</code> → CSS variables, global base styles.</li>
+    <li><strong>Không cần đụng</strong> bất kỳ file nào khác.</li>
+  </ul>
+</div>
+
+<div class="hl-block hl-ui">
+  <strong class="hl-title">🔵 Tình huống 2 — Đổi layout card tin tức (NewsCard)</strong>
+  <ul>
+    <li>Sửa <code>src/components/news/NewsCard.vue</code> — template và Tailwind class.</li>
+    <li>Giữ nguyên props: <code>article</code>, <code>showCategory</code>, <code>variant</code> (hoặc bất kỳ prop nào đang có).</li>
+    <li><strong>Không cần đụng</strong> store, service, hay page.</li>
+  </ul>
+</div>
+
+<div class="hl-block hl-ui">
+  <strong class="hl-title">🔵 Tình huống 3 — Thêm section mới trên trang chủ</strong>
+  <ul>
+    <li>Tạo component mới: <code>src/components/news/TrendingNews.vue</code>.</li>
+    <li>Sửa <code>src/pages/HomeView.vue</code> — import component, đặt vào template.</li>
+    <li>Nếu cần data mới: thêm getter/action vào <code>src/stores/useNewsStore.js</code>, thêm method vào <code>src/services/newsService.js</code>.</li>
+    <li><strong>Không cần đụng</strong> <code>httpClient.js</code>, chỉ thêm logic service/store mới.</li>
+  </ul>
+</div>
+
+<div class="hl-block hl-ui">
+  <strong class="hl-title">🔵 Tình huống 4 — Đổi header/navbar</strong>
+  <ul>
+    <li>Sửa <code>src/components/layout/AppHeader.vue</code> và <code>MobileMenu.vue</code>.</li>
+    <li>Menu items (categories) đến từ <code>useCategoryStore</code> — giữ nguyên lời gọi store.</li>
+    <li>Chỉ đổi HTML/class, không đổi logic fetch categories.</li>
+  </ul>
+</div>
+
+<div class="hl-block hl-ui">
+  <strong class="hl-title">🔵 Tình huống 5 — Đổi trang detail bài viết</strong>
+  <ul>
+    <li>Sửa <code>src/pages/NewsDetailView.vue</code> — template, layout, related news section.</li>
+    <li><strong>Bắt buộc giữ</strong>: lời gọi <code>newsStore.fetchNewsDetail(slug)</code>, <code>sanitizeHtml()</code> bọc ngoài <code>v-html</code>, và <code>updateSeoMeta()</code>.</li>
+    <li>Nếu đổi component related news: sửa <code>src/components/news/NewsCard.vue</code>.</li>
+  </ul>
+</div>
+
+<div class="hl-block hl-warn">
+  <strong class="hl-title">🟡 Tình huống 6 — Thêm API endpoint mới (ví dụ /information)</strong>
+  <ul>
+    <li>Tạo <code>src/services/informationService.js</code> — import <code>apiClient</code> từ <code>@/api/httpClient</code>.</li>
+    <li>Tạo <code>src/stores/useInformationStore.js</code> — gọi service trong action.</li>
+    <li>Sửa <code>src/pages/AboutView.vue</code> — gọi store trong <code>onMounted</code>.</li>
+    <li>Tạo component UI: <code>src/components/info/InfoSection.vue</code>.</li>
+    <li><strong>Không cần đụng</strong> <code>httpClient.js</code> — interceptor tự động áp dụng.</li>
+    <li>Nếu endpoint cần auth: token tự gắn, không cần làm gì thêm.</li>
+    <li>Nếu endpoint không cần auth và muốn chắc chắn không gắn token: truyền <code>{ skipAuth: true }</code> vào option của <code>apiClient.get()</code>.</li>
+  </ul>
+</div>
+
+<hr />
+<h1 id="1-tong-quan-project">1. Tổng quan project</h1>
+<h2 id="11-project-dung-cong-nghe-gi">1.1. Project dùng công nghệ gì</h2>
+<p>Project là website tin tức chạy Nuxt 3 SSR/SSG, bên trong vẫn dùng Vue 3 component và Pinia store.</p>
+<p>Công nghệ chính:</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Nhóm</th><th>Công nghệ</th><th>Vai trò</th></tr></thead>
+<tbody>
+<tr><td>Frontend framework</td><td>Nuxt 3 + Vue 3</td><td>SSR/SSG và xây dựng UI theo component</td></tr>
+<tr><td>Build tool</td><td>Nuxt/Nitro/Vite</td><td>Dev server, build production, prerender static</td></tr>
+<tr><td>Routing</td><td>Nuxt file-based routing</td><td>Quản lý route <code>/</code>, <code>/tin-tuc</code>, <code>/danh-muc/[slug]</code>, ...</td></tr>
+<tr><td>State management</td><td>Pinia</td><td>Lưu state tin tức, danh mục, trạng thái app</td></tr>
+<tr><td>HTTP client</td><td>Axios</td><td>Gọi API backend khi tắt mock</td></tr>
+<tr><td>i18n</td><td>vue-i18n</td><td>Đa ngôn ngữ VI/EN</td></tr>
+<tr><td>CSS</td><td>Tailwind CSS</td><td>Style utility class</td></tr>
+<tr><td>HTML sanitize</td><td>isomorphic DOMPurify</td><td>Làm sạch HTML trước khi render bằng <code>v-html</code> ở server/client</td></tr>
+<tr><td>SEO helper</td><td>Custom <code>src/utils/seoHelper.js</code></td><td>Ghi title, meta, canonical, Open Graph, Twitter, JSON-LD bằng Nuxt <code>useHead</code></td></tr>
+<tr><td>Sitemap</td><td><code>scripts/generate-sitemap.mjs</code></td><td>Sinh <code>sitemap.xml</code>, <code>news-sitemap.xml</code>, <code>robots.txt</code> khi build</td></tr>
+<tr><td>Deploy IIS/static</td><td><code>public/web.config</code>, <code>.output/public</code></td><td>Rewrite/serve route static Nuxt khi deploy SSG</td></tr>
+</tbody></table></div>
+<h2 id="12-muc-dich-chinh-cua-project">1.2. Mục đích chính của project</h2>
+<p>Project là một nền tảng tin tức tên <code>VietNews 24h</code>, có các chức năng:</p>
+<ul>
+<li>Hiển thị trang chủ tin tức.</li>
+<li>Hiển thị danh sách tin mới.</li>
+<li>Hiển thị tin theo danh mục.</li>
+<li>Hiển thị chi tiết bài viết.</li>
+<li>Tìm kiếm tin tức.</li>
+<li>Có trang giới thiệu, liên hệ, 404.</li>
+<li>Hỗ trợ tiếng Việt và tiếng Anh.</li>
+<li>Tối ưu SEO frontend: title, description, canonical, Open Graph, Twitter card, JSON-LD, robots, sitemap.</li>
+<li>Có chế độ mock data để chạy không cần backend.</li>
+<li>Có chế độ gọi API thật qua biến môi trường.</li>
+</ul>
+<h2 id="13-cau-truc-tong-the">1.3. Cấu trúc tổng thể</h2>
+<p>Luồng kiến trúc chính:</p>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>Browser/crawler request URL
+↓
+Nuxt/Nitro SSR hoặc HTML đã prerender
+↓
+app.vue
+↓
+src/layouts/MainLayout.vue
+↓
+root pages/* wrapper
+↓
+src/pages/*.vue
+↓
+src/stores/*.js
+↓
+src/services/*.js
+↓
+src/api/httpClient.js hoặc src/data/*.js
+↓
+src/components/*.vue
+↓
+Nuxt render HTML SSR/SSG + hydrate UI + ghi SEO head/schema</code></pre></div>
+<h2 id="14-luong-chay-chinh-tu-luc-mo-webapp-den-khi-xu-ly-du-lieu">1.4. Luồng chạy chính từ lúc mở web/app đến khi xử lý dữ liệu</h2>
+<ol>
+<li>Browser hoặc crawler request URL như <code>/</code>, <code>/tin-tuc/:slug</code>, <code>/danh-muc/:slug</code>.</li>
+<li>Nuxt/Nitro xử lý SSR hoặc trả HTML đã prerender trong <code>.output/public</code>.</li>
+<li><code>nuxt.config.js</code> áp dụng SSR, routeRules, Nitro prerender, CSS, Pinia và head mặc định.</li>
+<li><code>app.vue</code> render <code>MainLayout.vue</code> và <code>NuxtPage</code>.</li>
+<li>Nuxt file-based routing chọn wrapper trong root <code>pages/</code>.</li>
+<li>Wrapper gọi lại view chính trong <code>src/pages/*View.vue</code> để giữ luồng UI/nghiệp vụ cũ.</li>
+<li><code>plugins/i18n.js</code> đăng ký i18n server/client; <code>plugins/directives.client.js</code> chỉ đăng ký directive trên client.</li>
+<li><code>middleware/route-sanitizer.global.js</code> sanitize slug/query trước khi vào page.</li>
+<li>Page con như <code>HomeView.vue</code>, <code>NewsListView.vue</code>, <code>CategoryView.vue</code>, <code>NewsDetailView.vue</code> gọi Pinia store bằng <code>onServerPrefetch</code> + client hydrate.</li>
+<li>Store gọi service.</li>
+<li>Service lấy dữ liệu từ:</li>
+</ol>
+<ul>
+<li><code>src/data/news.js</code>, <code>src/data/categories.js</code> nếu <code>VITE_USE_MOCK_API=true</code>.</li>
+<li>API thật nếu <code>VITE_USE_MOCK_API=false</code>.</li>
+</ul>
+<ol>
+<li>Service chuẩn hóa dữ liệu bằng mapper.</li>
+<li>Store lưu dữ liệu, loading, error, pagination.</li>
+<li>Page truyền dữ liệu xuống component để render.</li>
+<li>Page ghi SEO bằng <code>useSeoHead()</code> và JSON-LD bằng <code>useStructuredDataHead()</code> để title/meta/canonical/schema có trong HTML SSR/SSG.</li>
+</ol>
+<hr />
+<h1 id="2-cay-thu-muc-project">2. Cây thư mục project</h1>
+<h2 id="21-thu-muc-cap-root">2.1. Thư mục cấp root</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Đường dẫn</th><th>Nhiệm vụ</th></tr></thead>
+<tbody>
+<tr><td><code>.git/</code></td><td>Dữ liệu Git local. Không sửa thủ công.</td></tr>
+<tr><td><code>.nuxt/</code></td><td>Cache/runtime build tạm của Nuxt. Generated, không sửa trực tiếp.</td></tr>
+<tr><td><code>.output/</code></td><td>Output production của Nuxt/Nitro; <code>.output/public</code> là static SSG deploy được. Generated, không sửa trực tiếp.</td></tr>
+<tr><td><code>node_modules/</code></td><td>Thư viện npm đã cài. Generated, không sửa, không push.</td></tr>
+<tr><td><code>public/</code></td><td>File tĩnh copy vào output Nuxt khi build: <code>robots.txt</code>, <code>sitemap.xml</code>, <code>web.config</code>, ảnh public.</td></tr>
+<tr><td><code>scripts/</code></td><td>Script Node hỗ trợ build, hiện có script generate sitemap.</td></tr>
+<tr><td><code>src/</code></td><td>Toàn bộ source Vue app. Đây là phần phát triển chính.</td></tr>
+<tr><td><code>app.vue</code></td><td>Root Nuxt app, render layout chính và <code>NuxtPage</code>.</td></tr>
+<tr><td><code>pages/</code></td><td>Wrapper route theo file-based routing của Nuxt.</td></tr>
+<tr><td><code>plugins/</code></td><td>Plugin Nuxt cấp root: i18n và directive client-only.</td></tr>
+<tr><td><code>middleware/</code></td><td>Middleware Nuxt toàn cục sanitize route/query.</td></tr>
+<tr><td><code>.env</code></td><td>Biến môi trường local. Không nên commit.</td></tr>
+<tr><td><code>.env.example</code></td><td>Mẫu biến môi trường để người khác tạo <code>.env</code>. Nên commit.</td></tr>
+<tr><td><code>.gitignore</code></td><td>Danh sách file/thư mục Git bỏ qua.</td></tr>
+<tr><td><code>git-command-tabs.html</code></td><td>File HTML tài liệu lệnh Git/NPM, độc lập với app runtime.</td></tr>
+<tr><td><code>index.html</code></td><td>Legacy entry của SPA cũ, không còn là entry chính khi chạy Nuxt.</td></tr>
+<tr><td><code>nuxt.config.js</code></td><td>Cấu hình SSR/SSG, routeRules, Nitro prerender, Pinia, Tailwind, head mặc định.</td></tr>
+<tr><td><code>package.json</code></td><td>Khai báo scripts và dependency trực tiếp.</td></tr>
+<tr><td><code>package-lock.json</code></td><td>Khóa phiên bản dependency. Nên commit, hạn chế sửa thủ công.</td></tr>
+<tr><td><code>README.md</code></td><td>Tài liệu giới thiệu, chạy project, SEO/deploy/Git.</td></tr>
+<tr><td><code>tailwind.config.js</code></td><td>Cấu hình Tailwind theme, content scan.</td></tr>
+<tr><td><code>PROJECT_FLOW.md</code></td><td>File tài liệu phân tích full luồng project này.</td></tr>
+</tbody></table></div>
+<h2 id="22-thu-muc-trong-src">2.2. Thư mục trong <code>src</code></h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Đường dẫn</th><th>Nhiệm vụ</th></tr></thead>
+<tbody>
+<tr><td><code>src/api/</code></td><td>HTTP client Axios và interceptor request/response.</td></tr>
+<tr><td><code>src/assets/</code></td><td>Asset import trong source. Hiện có ảnh fallback.</td></tr>
+<tr><td><code>src/components/</code></td><td>Component UI tái sử dụng. Chia thành layout, common, news, ui.</td></tr>
+<tr><td><code>src/composables/</code></td><td>Logic Vue dùng lại: locale, debounce.</td></tr>
+<tr><td><code>src/config/</code></td><td>Cấu hình app/API/auth lấy từ <code>import.meta.env</code>.</td></tr>
+<tr><td><code>src/constants/</code></td><td>Hằng số toàn cục, hiện có locale constants.</td></tr>
+<tr><td><code>src/data/</code></td><td>Dữ liệu mock categories/news.</td></tr>
+<tr><td><code>src/directives/</code></td><td>Custom directive, hiện có lazy image directive.</td></tr>
+<tr><td><code>src/layouts/</code></td><td>Layout khung trang. Hiện có <code>MainLayout.vue</code>.</td></tr>
+<tr><td><code>src/locales/</code></td><td>File ngôn ngữ <code>vi.json</code>, <code>en.json</code>.</td></tr>
+<tr><td><code>src/pages/</code></td><td>Các view/page nghiệp vụ được root <code>pages/</code> của Nuxt gọi lại.</td></tr>
+<tr><td><code>src/plugins/</code></td><td>Plugin legacy/shared như i18n/directives; Nuxt root plugin sẽ đăng ký runtime.</td></tr>
+<tr><td><code>src/router/</code></td><td>Router SPA cũ, hiện chỉ còn tham chiếu legacy; runtime chính dùng Nuxt file-based routing.</td></tr>
+<tr><td><code>src/services/</code></td><td>Service gọi API/mock, normalize dữ liệu, session auth.</td></tr>
+<tr><td><code>src/stores/</code></td><td>Pinia stores quản lý state app/news/category.</td></tr>
+<tr><td><code>src/styles/</code></td><td>CSS global và Tailwind layer.</td></tr>
+<tr><td><code>src/utils/</code></td><td>Helper SEO, sanitize, slug, date, localized content, error.</td></tr>
+</tbody></table></div>
+<h2 id="23-thu-muc-khong-co-trong-project">2.3. Thư mục không có trong project</h2>
+<p>Các thư mục sau không thấy trong project hiện tại:</p>
+<ul>
+<li><code>/Controllers</code>: không có, vì đây không phải backend ASP.NET/MVC.</li>
+<li><code>/Views</code>: không có theo nghĩa MVC, thay bằng <code>src/pages</code> và <code>src/components</code>.</li>
+<li><code>/Models</code>: không có model class riêng, dữ liệu được chuẩn hóa trong mapper service.</li>
+<li><code>/wwwroot</code>: không có, tương đương frontend là <code>public</code>.</li>
+<li><code>/database</code>, <code>/sql</code>, <code>/migrations</code>: không có. Cần kiểm tra thêm backend nếu có database.</li>
+</ul>
+<hr />
+<h1 id="3-giai-thich-tung-file-quan-trong">3. Giải thích từng file quan trọng</h1>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Nhiệm vụ</th><th>Được gọi từ đâu</th><th>Liên kết đến đâu</th><th>Động/Tĩnh</th><th>Có nên sửa?</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td><code>package.json</code></td><td>Khai báo tên project, scripts, dependencies</td><td>npm CLI</td><td>Nuxt, Vue, Pinia, Tailwind</td><td>Cấu hình</td><td>Có, khi đổi script/thư viện</td><td>Scripts chính là <code>nuxt dev</code>, <code>nuxt build</code>, <code>nuxt generate</code></td></tr>
+<tr><td><code>package-lock.json</code></td><td>Khóa phiên bản dependency đã cài</td><td><code>npm install</code>, <code>npm ci</code></td><td><code>node_modules</code></td><td>Generated/cố định</td><td>Hạn chế sửa thủ công</td><td>Nên commit để team cài giống nhau</td></tr>
+<tr><td><code>nuxt.config.js</code></td><td>Cấu hình SSR/SSG, Pinia, Tailwind/PostCSS, head mặc định, routeRules, Nitro prerender</td><td>Nuxt CLI</td><td>root <code>pages/</code>, <code>src/data</code>, public assets, env</td><td>Core cấu hình</td><td>Có cẩn thận</td><td>Điểm chính điều khiển SEO SSR/SSG</td></tr>
+<tr><td><code>app.vue</code></td><td>Root Nuxt app, bọc <code>NuxtPage</code> bằng <code>MainLayout</code></td><td>Nuxt runtime</td><td><code>src/layouts/MainLayout.vue</code>, <code>NuxtPage</code></td><td>Core runtime</td><td>Hạn chế sửa</td><td>Entry chính thay SPA entry cũ</td></tr>
+<tr><td><code>pages/</code></td><td>Wrapper route theo file-based routing Nuxt</td><td>Nuxt runtime</td><td><code>src/pages/*View.vue</code></td><td>Core route</td><td>Có khi đổi URL</td><td>Giữ URL chính nhưng render lại view cũ</td></tr>
+<tr><td><code>plugins/i18n.js</code></td><td>Đăng ký i18n cho Nuxt SSR/client</td><td>Nuxt runtime</td><td><code>src/plugins/i18n.js</code>, locale files</td><td>Core plugin</td><td>Ít sửa</td><td>Đọc locale từ query/cookie để SSR đúng ngôn ngữ</td></tr>
+<tr><td><code>plugins/directives.client.js</code></td><td>Đăng ký directive chỉ ở client</td><td>Nuxt client runtime</td><td><code>src/plugins/directives.js</code></td><td>Plugin client</td><td>Ít sửa</td><td>Tránh lỗi directive DOM trong SSR</td></tr>
+<tr><td><code>middleware/route-sanitizer.global.js</code></td><td>Sanitize route/query toàn cục</td><td>Nuxt middleware</td><td><code>src/utils/sanitizeHtml.js</code>, <code>src/utils/slugHelper.js</code></td><td>Core route guard</td><td>Có cẩn thận</td><td>Thay lớp guard quan trọng của router SPA cũ</td></tr>
+<tr><td><code>index.html</code></td><td>Legacy entry HTML của SPA cũ</td><td>Không còn là entry Nuxt chính</td><td><code>/src/main.js</code></td><td>Legacy</td><td>Hạn chế sửa</td><td>Meta chính hiện nằm trong <code>nuxt.config.js</code> và <code>seoHelper.js</code></td></tr>
+<tr><td><code>tailwind.config.js</code></td><td>Cấu hình Tailwind content/theme</td><td>Nuxt/PostCSS build</td><td><code>app.vue</code>, root <code>pages/</code>, <code>src/**/*.{vue,js}</code></td><td>Cấu hình</td><td>Ít sửa</td><td>Sai content có thể mất CSS</td></tr>
+<tr><td><code>.env.example</code></td><td>Mẫu biến môi trường</td><td>Dev đọc thủ công, README</td><td><code>src/config/*.js</code>, script sitemap</td><td>Cấu hình mẫu</td><td>Có, khi thêm biến env</td><td>Không chứa secret thật</td></tr>
+<tr><td><code>.env</code></td><td>Env local thật</td><td>Vite, script sitemap</td><td>API URL, app URL, mock flag</td><td>Cấu hình local</td><td>Có, theo máy</td><td>Không commit</td></tr>
+<tr><td><code>.gitignore</code></td><td>Chặn file không cần commit</td><td>Git</td><td><code>.env</code>, <code>node_modules</code>, <code>dist</code></td><td>Cấu hình Git</td><td>Ít sửa</td><td>Sửa sai dễ push file nhạy cảm</td></tr>
+<tr><td><code>README.md</code></td><td>Tài liệu chạy/deploy/Git/SEO</td><td>Người phát triển</td><td>Không gọi runtime</td><td>Tĩnh</td><td>Có</td><td>Tài liệu onboarding</td></tr>
+<tr><td><code>git-command-tabs.html</code></td><td>Cheatsheet Git/NPM dạng HTML</td><td>Mở trực tiếp bằng browser</td><td>Không liên kết app runtime</td><td>Tĩnh</td><td>Có</td><td>Không ảnh hưởng app Vue</td></tr>
+<tr><td><code>scripts/generate-sitemap.mjs</code></td><td>Sinh sitemap/news sitemap/robots khi build</td><td><code>npm run sitemap</code>, <code>npm run build</code></td><td><code>src/data/news.js</code>, <code>src/data/categories.js</code>, <code>.env</code>, <code>public/*.xml/txt</code></td><td>Build script</td><td>Có, khi đổi SEO/build sitemap</td><td>Hiện sitemap lấy từ mock data, chưa lấy API thật</td></tr>
+<tr><td><code>public/web.config</code></td><td>IIS rewrite cho Nuxt static SSG</td><td>IIS sau deploy</td><td><code>.output/public/index.html</code></td><td>Cấu hình deploy</td><td>Ít sửa</td><td>Thiếu file này refresh route con dễ 404</td></tr>
+<tr><td><code>public/robots.txt</code></td><td>Rule crawler và sitemap URL</td><td>Bot/crawler</td><td>Sitemap</td><td>Generated/tĩnh</td><td>Không sửa thủ công nếu build ghi đè</td><td>Được script generate lại</td></tr>
+<tr><td><code>public/sitemap.xml</code></td><td>Sitemap URL chính</td><td>Bot/crawler</td><td>Routes, categories, news</td><td>Generated</td><td>Không sửa thủ công</td><td>Được script generate lại</td></tr>
+<tr><td><code>public/news-sitemap.xml</code></td><td>News sitemap cho bài mới</td><td>Bot/crawler</td><td><code>src/data/news.js</code></td><td>Generated</td><td>Không sửa thủ công</td><td>Chỉ lấy bài trong khoảng thời gian script lọc</td></tr>
+<tr><td><code>src/main.js</code></td><td>Entry SPA cũ</td><td>Legacy</td><td><code>App.vue</code>, router, stores, i18n, SEO helper</td><td>Legacy</td><td>Không sửa nếu không phục hồi SPA</td><td>Nuxt runtime không đi qua file này</td></tr>
+<tr><td><code>src/App.vue</code></td><td>Root component SPA cũ, render RouterView</td><td>Legacy <code>main.js</code></td><td>RouterView</td><td>Legacy</td><td>Hạn chế sửa</td><td>Không còn root runtime chính</td></tr>
+<tr><td><code>src/router/index.js</code></td><td>Route/guard SPA cũ</td><td>Legacy <code>main.js</code></td><td><code>MainLayout</code>, pages, authSession, sanitize/slug helper</td><td>Legacy tham chiếu</td><td>Chỉ sửa nếu còn cần SPA fallback</td><td>Runtime chính dùng root <code>pages/</code> + middleware Nuxt</td></tr>
+<tr><td><code>src/layouts/MainLayout.vue</code></td><td>Layout chính: auth expired banner, header, main slot, footer, schema WebSite</td><td><code>app.vue</code></td><td><code>AppHeader</code>, <code>AppFooter</code>, authSession, appStore, seoHelper</td><td>Động</td><td>Có khi đổi layout chung</td><td>Ảnh hưởng toàn trang</td></tr>
+<tr><td><code>src/pages/HomeView.vue</code></td><td>Trang chủ, lấy tin home, render featured/latest/popular/hot/category sections</td><td><code>pages/index.vue</code></td><td>newsStore, categoryStore, news components, seoHelper</td><td>Động SSR/SSG</td><td>Có khi đổi home page</td><td>Có schema <code>CollectionPage</code> trong HTML</td></tr>
+<tr><td><code>src/pages/NewsListView.vue</code></td><td>Trang danh sách tin mới có pagination</td><td><code>pages/tin-tuc/index.vue</code></td><td>newsStore, NewsCard, SidebarNews, Pagination, seoHelper</td><td>Động SSR/SSG</td><td>Có</td><td>Có canonical theo <code>page</code></td></tr>
+<tr><td><code>src/pages/NewsDetailView.vue</code></td><td>Trang chi tiết bài viết, sanitize content, tags, related news, SEO article</td><td><code>pages/tin-tuc/[slug].vue</code></td><td>newsStore, NewsCard, sanitizeHtml, seoHelper</td><td>Động SSR/SSG</td><td>Có, cẩn thận</td><td>Chứa <code>v-html</code>, phải giữ sanitize</td></tr>
+<tr><td><code>src/pages/CategoryView.vue</code></td><td>Trang danh mục theo slug, pagination, sidebar</td><td><code>pages/danh-muc/[slug].vue</code></td><td>newsStore, NewsCard, Pagination, seoHelper</td><td>Động SSR/SSG</td><td>Có</td><td>Nếu category không có thì noindex</td></tr>
+<tr><td><code>src/pages/SearchView.vue</code></td><td>Trang tìm kiếm, debounce input, query <code>q</code>, pagination</td><td><code>pages/tim-kiem.vue</code></td><td>newsStore, SearchBox, useDebounce, sanitizeHtml, seoHelper</td><td>Động SSR, noindex</td><td>Có</td><td>Route noindex, không prerender HTML</td></tr>
+<tr><td><code>src/pages/AboutView.vue</code></td><td>Trang giới thiệu</td><td><code>pages/gioi-thieu.vue</code></td><td>Breadcrumb, i18n, seoHelper</td><td>Tĩnh theo i18n</td><td>Có</td><td>Nội dung lấy từ locale</td></tr>
+<tr><td><code>src/pages/ContactView.vue</code></td><td>Trang liên hệ, form giao diện</td><td><code>pages/lien-he.vue</code></td><td>Breadcrumb, i18n, seoHelper</td><td>Tĩnh theo i18n</td><td>Có</td><td>Form hiện chưa thấy gọi API submit</td></tr>
+<tr><td><code>src/pages/NotFoundView.vue</code></td><td>Trang 404 noindex</td><td><code>pages/404.vue</code> và <code>pages/[...pathMatch].vue</code></td><td>NuxtLink, seoHelper</td><td>Tĩnh theo i18n</td><td>Ít sửa</td><td>Robots <code>noindex, nofollow</code></td></tr>
+<tr><td><code>src/components/layout/AppHeader.vue</code></td><td>Header, search, language switcher, desktop menu, mobile menu</td><td>MainLayout</td><td>appStore, categoryStore, SearchBox, MobileMenu</td><td>Động</td><td>Có khi đổi header/menu</td><td>Danh mục menu lấy từ store</td></tr>
+<tr><td><code>src/components/layout/AppFooter.vue</code></td><td>Footer, danh mục, contact info</td><td>MainLayout</td><td>categoryStore, i18n</td><td>Động/tĩnh</td><td>Có khi đổi footer</td><td>Danh mục footer lấy từ store</td></tr>
+<tr><td><code>src/components/layout/MobileMenu.vue</code></td><td>Menu mobile dạng drawer</td><td>AppHeader</td><td>LanguageSwitcher, locale helper</td><td>Động</td><td>Có</td><td>Nhận categories qua props</td></tr>
+<tr><td><code>src/components/ui/LanguageSwitcher.vue</code></td><td>Nút đổi VI/EN</td><td>Header/MobileMenu</td><td>useLocale</td><td>Động</td><td>Có</td><td>Lưu locale vào localStorage qua plugin i18n</td></tr>
+<tr><td><code>src/components/common/SearchBox.vue</code></td><td>Form search reusable</td><td>Header/SearchView</td><td>normalizeSearchInput</td><td>Động</td><td>Có</td><td>Chặn input bẩn</td></tr>
+<tr><td><code>src/components/common/Breadcrumb.vue</code></td><td>Breadcrumb reusable</td><td>Nhiều page</td><td>RouterLink, i18n</td><td>Động</td><td>Có</td><td>Nhận items qua props</td></tr>
+<tr><td><code>src/components/common/Pagination.vue</code></td><td>Phân trang reusable</td><td>NewsList/Category/Search</td><td>Emits <code>change</code></td><td>Động</td><td>Có</td><td>Không gọi API trực tiếp</td></tr>
+<tr><td><code>src/components/common/EmptyState.vue</code></td><td>Trạng thái rỗng/lỗi</td><td>Nhiều page</td><td>i18n</td><td>Tĩnh/động props</td><td>Có</td><td>UI reuse</td></tr>
+<tr><td><code>src/components/common/LoadingSkeleton.vue</code></td><td>Loading placeholder</td><td>Nhiều page</td><td>Không gọi service</td><td>Tĩnh/động props</td><td>Có</td><td>UI reuse</td></tr>
+<tr><td><code>src/components/news/NewsCard.vue</code></td><td>Card tin tức reusable</td><td>Nhiều page/component</td><td>slugHelper, dateHelper, localizedContent</td><td>Động</td><td>Có</td><td>Ảnh lazy + fallback</td></tr>
+<tr><td><code>src/components/news/FeaturedNews.vue</code></td><td>Khu tin nổi bật trang chủ</td><td>HomeView</td><td>NewsCard, slugHelper</td><td>Động</td><td>Có</td><td>Ảnh lớn featured</td></tr>
+<tr><td><code>src/components/news/LatestNews.vue</code></td><td>Khu tin mới nhất</td><td>HomeView</td><td>NewsCard</td><td>Động</td><td>Có</td><td>Link sang <code>/tin-tuc</code></td></tr>
+<tr><td><code>src/components/news/PopularNews.vue</code></td><td>Danh sách tin đọc nhiều</td><td>HomeView</td><td>slugHelper, localizedContent</td><td>Động</td><td>Có</td><td>Sắp xếp đã xử lý ở service</td></tr>
+<tr><td><code>src/components/news/CategorySection.vue</code></td><td>Section tin theo từng danh mục</td><td>HomeView</td><td>NewsCard</td><td>Động</td><td>Có</td><td>Render nhiều lần theo categories</td></tr>
+<tr><td><code>src/components/news/SidebarNews.vue</code></td><td>Tin sidebar</td><td>Home/List/Category</td><td>slugHelper, fallback image</td><td>Động</td><td>Có</td><td>Reusable</td></tr>
+<tr><td><code>src/stores/useAppStore.js</code></td><td>State app: appName, locale, mobile menu, auth expired, auth state</td><td>Components/layout</td><td>appConfig, locale constants</td><td>Động</td><td>Có cẩn thận</td><td>State global UI</td></tr>
+<tr><td><code>src/stores/useNewsStore.js</code></td><td>State tin tức: home, list, category, detail, search, loading/error/cache</td><td>Pages</td><td>newsService</td><td>Động</td><td>Có cẩn thận</td><td>Store quan trọng nhất cho dữ liệu tin</td></tr>
+<tr><td><code>src/stores/useCategoryStore.js</code></td><td>State danh mục, currentCategory, cache</td><td>Header/Footer/Home</td><td>categoryService</td><td>Động</td><td>Có cẩn thận</td><td>Menu phụ thuộc file này</td></tr>
+<tr><td><code>src/services/newsService.js</code></td><td>Logic lấy, cache, phân trang, lọc tin, search, fallback mock/API</td><td>useNewsStore</td><td>apiClient, categoryService, mock data, mappers</td><td>Động</td><td>Có cẩn thận</td><td>Logic nghiệp vụ chính</td></tr>
+<tr><td><code>src/services/categoryService.js</code></td><td>Lấy danh mục từ mock/API, fallback</td><td>useCategoryStore, newsService</td><td>apiClient, mock categories, mapper</td><td>Động</td><td>Có</td><td>Endpoint <code>/categories</code></td></tr>
+<tr><td><code>src/services/authService.js</code></td><td>Login/refresh/logout</td><td>Chưa thấy page gọi trực tiếp</td><td>apiClient, authSession</td><td>Động</td><td>Cần kiểm tra thêm</td><td>Có service nhưng chưa thấy UI login</td></tr>
+<tr><td><code>src/services/authSession.js</code></td><td>Lưu token in-memory, auth header, unauthorized listener</td><td>apiClient, router, MainLayout, authService</td><td>authConfig</td><td>Động</td><td>Ít sửa</td><td>Không lưu token localStorage</td></tr>
+<tr><td><code>src/services/apiClient.js</code></td><td>Re-export <code>src/api/httpClient.js</code> cho import cũ</td><td>Chưa thấy import trực tiếp ngoài file này</td><td>httpClient</td><td>Cố định</td><td>Hạn chế sửa</td><td>Tương thích ngược</td></tr>
+<tr><td><code>src/api/httpClient.js</code></td><td>Axios instance, auth header, xử lý 401/lỗi</td><td>Services</td><td>apiConfig, authSession, errorHandler</td><td>Core API</td><td>Hạn chế sửa</td><td>Sửa sai ảnh hưởng toàn bộ API</td></tr>
+<tr><td><code>src/services/newsMapper.js</code></td><td>Normalize news item/list, sanitize field cơ bản, image fallback</td><td>newsService</td><td>appConfig, slugHelper</td><td>Động</td><td>Có cẩn thận</td><td>Chốt shape dữ liệu tin</td></tr>
+<tr><td><code>src/services/categoryMapper.js</code></td><td>Normalize category item/list</td><td>categoryService/newsService</td><td>slugHelper</td><td>Động</td><td>Có</td><td>Chốt shape dữ liệu danh mục</td></tr>
+<tr><td><code>src/data/news.js</code></td><td>32 bài viết mock, tự sinh slug/content/thumbnail/SEO fields</td><td>newsService, sitemap script</td><td>Không gọi API</td><td>Tĩnh/mock</td><td>Có khi đổi dữ liệu demo</td><td>Không phải database</td></tr>
+<tr><td><code>src/data/categories.js</code></td><td>9 danh mục mock</td><td>categoryService, newsService, sitemap script</td><td>Không gọi API</td><td>Tĩnh/mock</td><td>Có khi đổi danh mục mock</td><td>Menu mock phụ thuộc file này</td></tr>
+<tr><td><code>src/config/appConfig.js</code></td><td>App name, app URL, mock flag, page size, cache TTL, fallback image</td><td>Stores/services/SEO</td><td><code>.env</code></td><td>Cấu hình động</td><td>Có khi đổi behavior app</td><td>Ảnh hưởng nhiều nơi</td></tr>
+<tr><td><code>src/config/apiConfig.js</code></td><td>Base URL, timeout, credentials cho API</td><td>httpClient</td><td><code>.env</code></td><td>Cấu hình động</td><td>Có khi đổi API</td><td>Không hard-code production trong code</td></tr>
+<tr><td><code>src/config/authConfig.js</code></td><td>Endpoint auth/token type</td><td>authService/authSession</td><td><code>.env</code></td><td>Cấu hình động</td><td>Có khi đổi auth API</td><td>Auth chưa có UI rõ ràng</td></tr>
+<tr><td><code>src/plugins/i18n.js</code></td><td>Tạo i18n, đọc/lưu locale localStorage/cookie</td><td>root <code>plugins/i18n.js</code>, useLocale, errorHandler</td><td>locales, locale constants</td><td>Core plugin</td><td>Ít sửa</td><td>Sai locale làm lỗi text toàn app</td></tr>
+<tr><td><code>src/plugins/directives.js</code></td><td>Đăng ký directive global</td><td>root <code>plugins/directives.client.js</code></td><td>lazyImage directive</td><td>Core plugin client</td><td>Ít sửa</td><td>Hiện chỉ có <code>v-lazy-image</code></td></tr>
+<tr><td><code>src/directives/lazyImage.js</code></td><td>Lazy load image/background bằng IntersectionObserver</td><td>plugins/directives</td><td>DOM/browser API</td><td>Động</td><td>Có</td><td>Chưa thấy nơi dùng <code>v-lazy-image</code> trực tiếp</td></tr>
+<tr><td><code>src/utils/seoHelper.js</code></td><td>Helper SEO meta/canonical/hreflang/JSON-LD</td><td>main/layout/pages</td><td>appConfig, locale constants</td><td>Core SEO</td><td>Có cẩn thận</td><td>Sửa sai ảnh hưởng SEO toàn site</td></tr>
+<tr><td><code>src/utils/sanitizeHtml.js</code></td><td>Sanitize HTML content và search input</td><td>SearchBox, SearchView, NewsDetail, router, newsService</td><td>DOMPurify</td><td>Core bảo mật</td><td>Hạn chế sửa</td><td>Đặc biệt quan trọng vì có <code>v-html</code></td></tr>
+<tr><td><code>src/utils/slugHelper.js</code></td><td>Sinh/normalize slug và path news/category</td><td>Router, components, services, pages</td><td>Không</td><td>Core URL</td><td>Hạn chế sửa</td><td>Sửa có thể đổi URL SEO</td></tr>
+<tr><td><code>src/utils/dateHelper.js</code></td><td>Format ngày, sort tin mới</td><td>Components/services</td><td>Intl DateTimeFormat</td><td>Utility</td><td>Có</td><td>Ít rủi ro</td></tr>
+<tr><td><code>src/utils/errorHandler.js</code></td><td>Normalize lỗi API/UI theo i18n</td><td>apiClient, stores, services</td><td>i18n</td><td>Core lỗi</td><td>Có cẩn thận</td><td>Dùng trong interceptor/store</td></tr>
+<tr><td><code>src/utils/localizedContent.js</code></td><td>Lấy field theo locale từ nhiều kiểu key</td><td>Pages/components</td><td>Không</td><td>Utility</td><td>Có</td><td>Quan trọng cho dữ liệu song ngữ</td></tr>
+<tr><td><code>src/locales/vi.json</code></td><td>Text tiếng Việt và SEO text</td><td>i18n/pages/components</td><td>i18n</td><td>Tĩnh/dynamic content</td><td>Có</td><td>Sửa nội dung UI/SEO tiếng Việt</td></tr>
+<tr><td><code>src/locales/en.json</code></td><td>Text tiếng Anh và SEO text</td><td>i18n/pages/components</td><td>i18n</td><td>Tĩnh/dynamic content</td><td>Có</td><td>Sửa nội dung UI/SEO tiếng Anh</td></tr>
+<tr><td><code>src/styles/main.css</code></td><td>Tailwind base + class global: <code>container-wide</code>, <code>card-surface</code>, rich content</td><td><code>nuxt.config.js</code> CSS entry</td><td>Tailwind</td><td>Style global</td><td>Có cẩn thận</td><td>Ảnh hưởng giao diện toàn app</td></tr>
+</tbody></table></div>
+<hr />
+<h1 id="4-luong-du-lieu">4. Luồng dữ liệu</h1>
+<h2 id="41-luong-du-lieu-tong-quat">4.1. Luồng dữ liệu tổng quát</h2>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>Page/View
+↓ gọi action
+Pinia Store
+↓ gọi service
+Service
+↓ nếu mock
+src/data/*.js
+↓ normalize bằng mapper
+Store state
+↓ computed trong page
+Component render UI</code></pre></div>
+<p>Khi dùng API thật:</p>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>Page/View
+↓
+Pinia Store
+↓
+Service
+↓
+src/api/httpClient.js
+↓
+Backend API: VITE_API_BASE_URL
+↓
+Response JSON
+↓
+Mapper normalize
+↓
+Store state
+↓
+Component render UI</code></pre></div>
+<div class="note-box note-api">
+<strong>Quan trọng: API kết nối qua một cửa duy nhất</strong>
+<p>Project hiện dùng <code>src/api/httpClient.js</code> làm Axios instance trung tâm. Các service như <code>newsService.js</code>, <code>categoryService.js</code>, <code>authService.js</code> không tự tạo Axios mới mà import <code>apiClient</code> rồi gọi endpoint tương ứng.</p>
+<ul>
+<li><code>src/config/apiConfig.js</code> đọc <code>VITE_API_BASE_URL</code>, <code>VITE_API_TIMEOUT</code>, <code>VITE_API_WITH_CREDENTIALS</code>.</li>
+<li><code>src/api/httpClient.js</code> gắn <code>baseURL</code>, timeout, header JSON, auth header và xử lý lỗi 401.</li>
+<li><code>src/services/*.js</code> là nơi viết từng nhóm API nghiệp vụ: news, category, information, log, contact...</li>
+<li><code>src/stores/*.js</code> gọi service, lưu loading/error/cache/state để page dùng.</li>
+</ul>
+</div>
+<div class="note-box note-important">
+<strong>Không nên gọi API trực tiếp trong component</strong>
+<p>Component hoặc page chỉ nên gọi store/action. Nếu sau này có nhiều API như category, information, log, contact, admin... thì tạo service riêng cho từng nhóm, mapper riêng nếu payload phức tạp, rồi cho store gọi service. Cách này giúp đổi endpoint/backend mà ít ảnh hưởng giao diện.</p>
+</div>
+<div class="table-wrap"><table>
+<thead><tr><th>Nhóm API</th><th>File nên tạo/giữ</th><th>Endpoint ví dụ</th><th>Luồng đúng</th><th>Ghi chú bảo trì</th></tr></thead>
+<tbody>
+<tr><td>News</td><td><code>src/services/newsService.js</code>, <code>src/services/newsMapper.js</code></td><td><code>GET /news</code>, nên thêm <code>GET /news/:slug</code> nếu dữ liệu lớn</td><td>Page → Store → newsService → apiClient</td><td>Hiện detail/search đang xử lý từ danh sách <code>/news</code>; production nên cân nhắc endpoint riêng</td></tr>
+<tr><td>Category</td><td><code>src/services/categoryService.js</code>, <code>src/services/categoryMapper.js</code></td><td><code>GET /categories</code>, <code>GET /categories/:slug</code></td><td>Header/Footer/Home/Category → Store → categoryService → apiClient</td><td>Menu động nên lấy từ category store, không hard-code nhiều nơi</td></tr>
+<tr><td>Information</td><td><code>src/services/informationService.js</code>, có thể thêm <code>src/stores/useInformationStore.js</code></td><td><code>GET /information</code>, <code>GET /information/:key</code></td><td>Page/Layout → Store → informationService → apiClient</td><td>Dùng cho thông tin trường, footer, giới thiệu, cấu hình nội dung public</td></tr>
+<tr><td>Contact</td><td><code>src/services/contactService.js</code></td><td><code>POST /contact</code></td><td>ContactView → contactService hoặc contactStore → apiClient</td><td>Cần validate phía client và backend, chống spam/rate limit phía backend</td></tr>
+<tr><td>Log</td><td><code>src/services/logService.js</code></td><td><code>POST /logs/client-error</code></td><td>errorHandler → logService → apiClient</td><td>Không gửi token, password, email nhạy cảm, full response, stack trace chứa dữ liệu người dùng</td></tr>
+<tr><td>Auth</td><td><code>src/services/authService.js</code>, <code>src/services/authSession.js</code>, <code>src/config/authConfig.js</code></td><td><code>POST /auth/login</code>, <code>POST /auth/refresh</code>, <code>POST /auth/logout</code></td><td>Login page → authService → apiClient → authSession</td><td>Login/refresh đang dùng <code>skipAuth</code>, token hiện lưu in-memory</td></tr>
+</tbody></table></div>
+<p>Ví dụ khi thêm API mới:</p>
+<div class="code-card"><div class="code-head"><span>js</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>// src/services/informationService.js
+import apiClient from '@/api/httpClient';
+import { logTechnicalError } from '@/utils/errorHandler';
+
+export const informationService = {
+  async getInformation() {
+    try {
+      const response = await apiClient.get('/information');
+      return response.data?.data || response.data || null;
+    } catch (error) {
+      logTechnicalError(error, 'informationService:getInformation');
+      return null;
+    }
+  },
+};</code></pre></div>
+<div class="code-card"><div class="code-head"><span>js</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>// src/services/logService.js
+import apiClient from '@/api/httpClient';
+
+export const logService = {
+  async sendClientError(payload = {}) {
+    const safePayload = {
+      message: String(payload.message || '').slice(0, 500),
+      context: String(payload.context || '').slice(0, 120),
+      status: Number(payload.status || 0),
+    };
+
+    await apiClient.post('/logs/client-error', safePayload);
+  },
+};</code></pre></div>
+<h2 id="42-module-trang-chu">4.2. Module trang chủ</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Bước</th><th>File</th><th>Chi tiết</th></tr></thead>
+<tbody>
+<tr><td>Route</td><td><code>pages/index.vue</code></td><td>Route <code>/</code> theo Nuxt file-based routing</td></tr>
+<tr><td>Page</td><td><code>src/pages/HomeView.vue</code></td><td>Gọi <code>categoryStore.fetchCategories()</code> nếu chưa có danh mục, sau đó gọi <code>newsStore.fetchHomeNews()</code></td></tr>
+<tr><td>Store</td><td><code>src/stores/useNewsStore.js</code></td><td>Action <code>fetchHomeNews()</code></td></tr>
+<tr><td>Service</td><td><code>src/services/newsService.js</code></td><td>Method <code>getHomeNewsData()</code></td></tr>
+<tr><td>Dữ liệu</td><td><code>src/data/news.js</code> hoặc API <code>/news</code></td><td>Nếu mock thì lấy 32 bài trong data; nếu API thật thì gọi <code>/news</code></td></tr>
+<tr><td>Xử lý</td><td><code>newsService</code></td><td>Chia dữ liệu thành <code>featured</code>, <code>latest</code>, <code>popular</code>, <code>hot</code>, <code>categorySections</code>, <code>sidebar</code></td></tr>
+<tr><td>UI</td><td><code>FeaturedNews</code>, <code>LatestNews</code>, <code>PopularNews</code>, <code>CategorySection</code>, <code>SidebarNews</code>, <code>NewsCard</code></td><td>Render các block trang chủ</td></tr>
+<tr><td>SEO</td><td><code>HomeView.vue</code> + <code>seoHelper.js</code></td><td>Set title/description/canonical/hreflang và schema <code>CollectionPage</code></td></tr>
+</tbody></table></div>
+<h2 id="43-module-danh-sach-tin-moi">4.3. Module danh sách tin mới</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Bước</th><th>File</th><th>Chi tiết</th></tr></thead>
+<tbody>
+<tr><td>Route</td><td><code>pages/tin-tuc/index.vue</code></td><td>Route <code>/tin-tuc</code> theo Nuxt file-based routing</td></tr>
+<tr><td>Page</td><td><code>src/pages/NewsListView.vue</code></td><td>Đọc <code>route.query.page</code>, watch page + locale</td></tr>
+<tr><td>Store</td><td><code>src/stores/useNewsStore.js</code></td><td>Action <code>fetchNewsList(page)</code></td></tr>
+<tr><td>Service</td><td><code>src/services/newsService.js</code></td><td>Method <code>getNewsList(page, pageSize)</code></td></tr>
+<tr><td>Dữ liệu</td><td>Mock hoặc API <code>/news</code></td><td>Dữ liệu được phân trang bằng helper <code>paginate()</code></td></tr>
+<tr><td>UI</td><td><code>NewsCard</code>, <code>SidebarNews</code>, <code>Pagination</code>, <code>LoadingSkeleton</code>, <code>EmptyState</code></td><td>Render grid tin và sidebar</td></tr>
+<tr><td>SEO</td><td><code>NewsListView.vue</code></td><td>Canonical <code>/tin-tuc</code>, thêm <code>?page=n</code> nếu page &gt; 1, schema <code>CollectionPage</code> + <code>BreadcrumbList</code></td></tr>
+</tbody></table></div>
+<h2 id="44-module-chi-tiet-bai-viet">4.4. Module chi tiết bài viết</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Bước</th><th>File</th><th>Chi tiết</th></tr></thead>
+<tbody>
+<tr><td>Route</td><td><code>pages/tin-tuc/[slug].vue</code></td><td>Route <code>/tin-tuc/:slug</code> theo Nuxt file-based routing</td></tr>
+<tr><td>Guard</td><td><code>middleware/route-sanitizer.global.js</code></td><td>Normalize slug/query, nếu slug rỗng không hợp lệ thì đưa về 404</td></tr>
+<tr><td>Page</td><td><code>src/pages/NewsDetailView.vue</code></td><td>Watch <code>route.params.slug</code> và <code>locale</code></td></tr>
+<tr><td>Store</td><td><code>src/stores/useNewsStore.js</code></td><td>Action <code>fetchNewsDetail(slug)</code></td></tr>
+<tr><td>Service</td><td><code>src/services/newsService.js</code></td><td>Method <code>getNewsDetailBySlug(slug)</code>, <code>getRelatedNews(newsItem)</code></td></tr>
+<tr><td>Dữ liệu</td><td>Mock hoặc API <code>/news</code></td><td>Không thấy endpoint <code>/news/:slug</code>; service hiện lấy toàn bộ <code>/news</code>, sau đó tìm slug ở frontend</td></tr>
+<tr><td>Bảo mật</td><td><code>src/utils/sanitizeHtml.js</code></td><td>Content được sanitize trước khi render bằng <code>v-html</code></td></tr>
+<tr><td>UI</td><td><code>Breadcrumb</code>, <code>NewsCard</code>, <code>LoadingSkeleton</code>, <code>EmptyState</code></td><td>Render bài viết, ảnh, tags, related news</td></tr>
+<tr><td>SEO</td><td><code>NewsDetailView.vue</code></td><td>Title/description theo bài, OG image theo thumbnail, canonical theo slug, schema <code>NewsArticle</code></td></tr>
+<tr><td>Cần kiểm tra thêm</td><td>Backend API</td><td>Nếu dữ liệu lớn nên có endpoint chi tiết <code>/news/:slug</code> hoặc <code>/news/{slug}</code> ở backend</td></tr>
+</tbody></table></div>
+<h2 id="45-module-danh-muc">4.5. Module danh mục</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Bước</th><th>File</th><th>Chi tiết</th></tr></thead>
+<tbody>
+<tr><td>Route</td><td><code>pages/danh-muc/[slug].vue</code></td><td>Route <code>/danh-muc/:slug</code> theo Nuxt file-based routing</td></tr>
+<tr><td>Page</td><td><code>src/pages/CategoryView.vue</code></td><td>Đọc slug + query page</td></tr>
+<tr><td>Store</td><td><code>src/stores/useNewsStore.js</code></td><td>Action <code>fetchCategoryNews(slug, page)</code></td></tr>
+<tr><td>Service</td><td><code>src/services/newsService.js</code></td><td>Method <code>getNewsByCategorySlug(slug, page, pageSize)</code></td></tr>
+<tr><td>Dữ liệu</td><td><code>categoryCache.items</code> và all news</td><td>Lọc tin theo <code>categoryId</code></td></tr>
+<tr><td>UI</td><td><code>NewsCard</code>, <code>SidebarNews</code>, <code>Pagination</code></td><td>Render danh sách tin theo danh mục</td></tr>
+<tr><td>SEO</td><td><code>CategoryView.vue</code></td><td>Title/description theo category, canonical <code>/danh-muc/:slug</code>, schema <code>CollectionPage</code></td></tr>
+<tr><td>Cần chú ý</td><td><code>newsService.getCategoryBySlug()</code></td><td>Lấy category từ <code>categoryCache.items</code>; khi mock có sẵn categories, khi API thật cache danh mục lấy từ <code>categoryService</code></td></tr>
+</tbody></table></div>
+<h2 id="46-module-tim-kiem">4.6. Module tìm kiếm</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Bước</th><th>File</th><th>Chi tiết</th></tr></thead>
+<tbody>
+<tr><td>Route</td><td><code>pages/tim-kiem.vue</code></td><td>Route <code>/tim-kiem</code>, SEO <code>noindex, follow</code> trong page</td></tr>
+<tr><td>Guard</td><td><code>middleware/route-sanitizer.global.js</code></td><td>Sanitize query <code>q</code>, sanitize <code>page</code></td></tr>
+<tr><td>Page</td><td><code>src/pages/SearchView.vue</code></td><td>Dùng <code>SearchBox</code>, debounce 450ms</td></tr>
+<tr><td>Store</td><td><code>src/stores/useNewsStore.js</code></td><td>Action <code>searchNews(query, page)</code></td></tr>
+<tr><td>Service</td><td><code>src/services/newsService.js</code></td><td>Method <code>searchNews(query, page, pageSize)</code></td></tr>
+<tr><td>Dữ liệu</td><td>All news</td><td>Search theo <code>title</code>, <code>summary</code>, <code>tags</code> ở frontend</td></tr>
+<tr><td>UI</td><td><code>NewsCard</code>, <code>Pagination</code>, <code>EmptyState</code></td><td>Render kết quả search</td></tr>
+<tr><td>SEO</td><td><code>SearchView.vue</code></td><td><code>robots: noindex, follow</code>, canonical <code>/tim-kiem</code></td></tr>
+<tr><td>Cần kiểm tra thêm</td><td>Backend search</td><td>Chưa thấy endpoint search riêng; nếu dữ liệu lớn nên chuyển search sang backend</td></tr>
+</tbody></table></div>
+<h2 id="47-module-danh-mucmenu">4.7. Module danh mục/menu</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Bước</th><th>File</th><th>Chi tiết</th></tr></thead>
+<tbody>
+<tr><td>Component</td><td><code>AppHeader.vue</code>, <code>AppFooter.vue</code></td><td>On mounted gọi <code>categoryStore.fetchCategories()</code> nếu chưa có</td></tr>
+<tr><td>Store</td><td><code>src/stores/useCategoryStore.js</code></td><td>State <code>categories</code>, <code>currentCategory</code></td></tr>
+<tr><td>Service</td><td><code>src/services/categoryService.js</code></td><td><code>getCategories()</code>, <code>getCategoryBySlug(slug)</code></td></tr>
+<tr><td>API</td><td><code>/categories</code>, <code>/categories/:slug</code></td><td>Chỉ gọi khi <code>VITE_USE_MOCK_API=false</code></td></tr>
+<tr><td>Mock</td><td><code>src/data/categories.js</code></td><td>9 danh mục</td></tr>
+<tr><td>UI</td><td>Desktop menu, mobile menu, footer categories</td><td>Menu danh mục là động theo store</td></tr>
+</tbody></table></div>
+<h2 id="48-module-auth">4.8. Module auth</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Bước</th><th>File</th><th>Chi tiết</th></tr></thead>
+<tbody>
+<tr><td>Service</td><td><code>src/services/authService.js</code></td><td>Có login/refresh/logout</td></tr>
+<tr><td>Session</td><td><code>src/services/authSession.js</code></td><td>Token lưu in-memory, không localStorage</td></tr>
+<tr><td>API client</td><td><code>src/api/httpClient.js</code></td><td>Gắn Authorization header nếu token hợp lệ</td></tr>
+<tr><td>Router/middleware</td><td><code>middleware/route-sanitizer.global.js</code> + authSession</td><td>Hiện runtime Nuxt chỉ dùng sanitize route/query; auth route riêng chưa thấy khai báo</td></tr>
+<tr><td>Layout</td><td><code>MainLayout.vue</code></td><td>Lắng nghe unauthorized để bật banner auth expired</td></tr>
+<tr><td>Cần kiểm tra thêm</td><td>UI login/admin</td><td>Chưa thấy page login/admin trong project hiện tại</td></tr>
+</tbody></table></div>
+<h2 id="49-databasetablestored-procedure">4.9. Database/table/stored procedure</h2>
+<p>Không thấy database, SQL script, migration, stored procedure trong repo frontend này.</p>
+<p>Nếu <code>VITE_USE_MOCK_API=false</code>, frontend dự kiến gọi backend tại:</p>
+<ul>
+<li><code>GET /news</code></li>
+<li><code>GET /categories</code></li>
+<li><code>GET /categories/:slug</code></li>
+<li><code>POST /auth/login</code></li>
+<li><code>POST /auth/refresh</code></li>
+<li><code>POST /auth/logout</code></li>
+</ul>
+<p>Database/table/stored procedure phía sau các API này: Cần kiểm tra thêm ở project backend.</p>
+<hr />
+<h1 id="5-luong-giao-dien">5. Luồng giao diện</h1>
+<h2 id="51-trang-chinh-va-trang-con">5.1. Trang chính và trang con</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Route</th><th>Page</th><th>Vai trò</th></tr></thead>
+<tbody>
+<tr><td><code>/</code></td><td><code>HomeView.vue</code></td><td>Trang chủ tin tức</td></tr>
+<tr><td><code>/tin-tuc</code></td><td><code>NewsListView.vue</code></td><td>Danh sách tin mới</td></tr>
+<tr><td><code>/tin-tuc/:slug</code></td><td><code>NewsDetailView.vue</code></td><td>Chi tiết bài viết</td></tr>
+<tr><td><code>/danh-muc/:slug</code></td><td><code>CategoryView.vue</code></td><td>Tin theo danh mục</td></tr>
+<tr><td><code>/tim-kiem</code></td><td><code>SearchView.vue</code></td><td>Tìm kiếm tin</td></tr>
+<tr><td><code>/gioi-thieu</code></td><td><code>AboutView.vue</code></td><td>Giới thiệu</td></tr>
+<tr><td><code>/lien-he</code></td><td><code>ContactView.vue</code></td><td>Liên hệ</td></tr>
+<tr><td><code>/404</code></td><td><code>NotFoundView.vue</code></td><td>Trang 404 chuẩn</td></tr>
+<tr><td><code>/:pathMatch(.<em>)</em></code></td><td><code>NotFoundView.vue</code> trong <code>MainLayout</code></td><td>Catch-all 404</td></tr>
+</tbody></table></div>
+<h2 id="52-layoutheaderfootersidebar-nam-o-dau">5.2. Layout/header/footer/sidebar nằm ở đâu</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Thành phần</th><th>File</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td>Layout chính</td><td><code>src/layouts/MainLayout.vue</code></td><td>Dùng cho tất cả route public hiện tại</td></tr>
+<tr><td>Header</td><td><code>src/components/layout/AppHeader.vue</code></td><td>Logo, search, menu desktop, language switcher, mobile menu trigger</td></tr>
+<tr><td>Footer</td><td><code>src/components/layout/AppFooter.vue</code></td><td>Mô tả app, danh mục, thông tin liên hệ</td></tr>
+<tr><td>Mobile menu</td><td><code>src/components/layout/MobileMenu.vue</code></td><td>Drawer mobile, nhận categories từ header</td></tr>
+<tr><td>Sidebar tin</td><td><code>src/components/news/SidebarNews.vue</code></td><td>Dùng ở Home/List/Category</td></tr>
+</tbody></table></div>
+<h2 id="53-component-dung-lai-nhieu-noi">5.3. Component dùng lại nhiều nơi</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Component</th><th>Dùng ở đâu</th><th>Vai trò</th></tr></thead>
+<tbody>
+<tr><td><code>NewsCard.vue</code></td><td>Home, NewsList, Category, Search, Related News</td><td>Card bài viết chính</td></tr>
+<tr><td><code>SidebarNews.vue</code></td><td>Home, NewsList, Category</td><td>Danh sách tin nhỏ bên cạnh</td></tr>
+<tr><td><code>Breadcrumb.vue</code></td><td>NewsList, NewsDetail, Category, Search, About, Contact</td><td>Điều hướng breadcrumb</td></tr>
+<tr><td><code>Pagination.vue</code></td><td>NewsList, Category, Search</td><td>Phân trang</td></tr>
+<tr><td><code>EmptyState.vue</code></td><td>Home, NewsList, NewsDetail, Category, Search</td><td>UI lỗi/rỗng</td></tr>
+<tr><td><code>LoadingSkeleton.vue</code></td><td>Home, NewsList, NewsDetail, Category, Search</td><td>Loading placeholder</td></tr>
+<tr><td><code>SearchBox.vue</code></td><td>Header, Search page</td><td>Input tìm kiếm</td></tr>
+<tr><td><code>LanguageSwitcher.vue</code></td><td>Header, MobileMenu</td><td>Đổi ngôn ngữ</td></tr>
+</tbody></table></div>
+<h2 id="54-menu-lay-du-lieu-tinh-hay-dong">5.4. Menu lấy dữ liệu tĩnh hay động</h2>
+<p>Menu gồm 2 phần:</p>
+<ul>
+<li>Link tĩnh: Home, Tin mới, Giới thiệu, Liên hệ, Search mobile.</li>
+<li>Link danh mục động: lấy từ <code>useCategoryStore()</code>, nguồn là <code>categoryService.getCategories()</code>.</li>
+</ul>
+<p>Khi mock:</p>
+<ul>
+<li>Danh mục lấy từ <code>src/data/categories.js</code>.</li>
+</ul>
+<p>Khi API thật:</p>
+<ul>
+<li>Danh mục lấy từ <code>GET /categories</code>.</li>
+</ul>
+<h2 id="55-noi-dung-lay-tu-api-database-hay-hard-code">5.5. Nội dung lấy từ API, database hay hard-code</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Nội dung</th><th>Nguồn hiện tại</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td>Tin tức</td><td><code>src/data/news.js</code> khi mock, hoặc API <code>/news</code> khi tắt mock</td><td>Hiện mock mặc định theo <code>.env.example</code></td></tr>
+<tr><td>Danh mục</td><td><code>src/data/categories.js</code> khi mock, hoặc API <code>/categories</code></td><td>Menu phụ thuộc dữ liệu này</td></tr>
+<tr><td>Text giao diện</td><td><code>src/locales/vi.json</code>, <code>src/locales/en.json</code></td><td>i18n</td></tr>
+<tr><td>About/Contact content</td><td>Locale files</td><td>Không gọi API</td></tr>
+<tr><td>Contact form submit</td><td>Chưa thấy API submit</td><td>Form hiện chỉ <code>@submit.prevent</code>, chưa có logic gửi</td></tr>
+<tr><td>SEO default</td><td><code>index.html</code>, <code>src/utils/seoHelper.js</code>, locale files</td><td>Dynamic theo page</td></tr>
+<tr><td>Sitemap</td><td><code>scripts/generate-sitemap.mjs</code> + <code>src/data</code></td><td>Build-time</td></tr>
+</tbody></table></div>
+<hr />
+<h1 id="6-phan-loai-file-dong-va-file-tinh">6. Phân loại file động và file tĩnh</h1>
+<div class="table-wrap"><table>
+<thead><tr><th>Nhóm</th><th>File/Thư mục</th><th>Loại</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td>Giao diện</td><td><code>src/pages/*.vue</code></td><td>Động/Tĩnh tùy page</td><td>Page tin tức động, About/Contact tĩnh theo i18n</td></tr>
+<tr><td>Giao diện</td><td><code>src/components/news/*.vue</code></td><td>Động</td><td>Nhận dữ liệu tin qua props</td></tr>
+<tr><td>Giao diện</td><td><code>src/components/common/*.vue</code></td><td>Reusable</td><td>Chủ yếu nhận props/emits</td></tr>
+<tr><td>Giao diện</td><td><code>src/components/layout/*.vue</code></td><td>Động</td><td>Header/footer lấy category store</td></tr>
+<tr><td>Giao diện</td><td><code>src/styles/main.css</code></td><td>Cố định/style global</td><td>Ảnh hưởng toàn UI</td></tr>
+<tr><td>Cấu hình</td><td><code>nuxt.config.js</code></td><td>Cố định/core</td><td>SSR/SSG, alias, head, Pinia, routeRules, Nitro prerender</td></tr>
+<tr><td>Cấu hình</td><td><code>tailwind.config.js</code></td><td>Cố định</td><td>Theme Tailwind</td></tr>
+<tr><td>Cấu hình</td><td><code>.env.example</code></td><td>Mẫu cấu hình</td><td>Dùng để tạo <code>.env</code></td></tr>
+<tr><td>Cấu hình</td><td><code>.env</code></td><td>Local động</td><td>Không commit</td></tr>
+<tr><td>Cấu hình</td><td><code>src/config/*.js</code></td><td>Động theo env</td><td>App/API/auth config</td></tr>
+<tr><td>API</td><td><code>src/api/httpClient.js</code></td><td>Động/core</td><td>Axios, auth header, error handling</td></tr>
+<tr><td>API</td><td><code>src/services/newsService.js</code></td><td>Động</td><td>Mock/API, cache, pagination, search</td></tr>
+<tr><td>API</td><td><code>src/services/categoryService.js</code></td><td>Động</td><td>Mock/API danh mục</td></tr>
+<tr><td>API</td><td><code>src/services/authService.js</code></td><td>Động</td><td>Login/refresh/logout, chưa thấy UI gọi</td></tr>
+<tr><td>Store</td><td><code>src/stores/*.js</code></td><td>Động</td><td>Pinia state/loading/error/cache</td></tr>
+<tr><td>Mock data</td><td><code>src/data/news.js</code></td><td>Tĩnh/mock</td><td>32 bài demo</td></tr>
+<tr><td>Mock data</td><td><code>src/data/categories.js</code></td><td>Tĩnh/mock</td><td>9 danh mục demo</td></tr>
+<tr><td>Asset</td><td><code>public/favicon.svg</code></td><td>Tĩnh</td><td>Favicon</td></tr>
+<tr><td>Asset</td><td><code>public/images/*.svg</code></td><td>Tĩnh</td><td>OG/fallback public</td></tr>
+<tr><td>Asset</td><td><code>src/assets/images/*.svg</code></td><td>Tĩnh</td><td>Asset import trong source</td></tr>
+<tr><td>SEO</td><td><code>src/utils/seoHelper.js</code></td><td>Động/core</td><td>Update meta/JSON-LD runtime</td></tr>
+<tr><td>SEO</td><td><code>scripts/generate-sitemap.mjs</code></td><td>Build-time</td><td>Sinh sitemap/robots</td></tr>
+<tr><td>Deploy</td><td><code>public/web.config</code></td><td>Cố định</td><td>IIS Nuxt static fallback</td></tr>
+<tr><td>Build output</td><td><code>.output/</code></td><td>Generated</td><td>Không sửa trực tiếp</td></tr>
+<tr><td>Build cache</td><td><code>.nuxt/</code></td><td>Generated</td><td>Không sửa trực tiếp</td></tr>
+<tr><td>Dependency</td><td><code>node_modules/</code></td><td>Generated</td><td>Không sửa, không commit</td></tr>
+<tr><td>Database</td><td>Không có trong repo</td><td>Cần kiểm tra thêm</td><td>Frontend không chứa DB</td></tr>
+</tbody></table></div>
+<hr />
+<h1 id="7-nhung-file-nen-sua-khi-phat-trien">7. Những file nên sửa khi phát triển</h1>
+<h2 id="71-khi-doi-giao-dien">7.1. Khi đổi giao diện</h2>
+<p>Nên sửa:</p>
+<ul>
+<li><code>src/pages/*.vue</code>: đổi layout riêng từng trang.</li>
+<li><code>src/components/news/*.vue</code>: đổi giao diện card/list/section tin tức.</li>
+<li><code>src/components/common/*.vue</code>: đổi component dùng chung.</li>
+<li><code>src/components/layout/AppHeader.vue</code>: đổi header/menu/search.</li>
+<li><code>src/components/layout/AppFooter.vue</code>: đổi footer.</li>
+<li><code>src/styles/main.css</code>: đổi class global như <code>container-wide</code>, <code>card-surface</code>, <code>rich-content</code>.</li>
+<li><code>tailwind.config.js</code>: đổi màu brand, font, shadow theme.</li>
+</ul>
+<h2 id="72-khi-doi-api">7.2. Khi đổi API</h2>
+<p>Nên sửa:</p>
+<ul>
+<li><code>.env</code>: đổi <code>VITE_API_BASE_URL</code>, <code>VITE_USE_MOCK_API</code>.</li>
+<li><code>.env.example</code>: cập nhật biến mẫu nếu thêm biến mới.</li>
+<li><code>src/config/apiConfig.js</code>: đổi cách đọc cấu hình API.</li>
+<li><code>src/services/newsService.js</code>: đổi endpoint/tầng xử lý tin.</li>
+<li><code>src/services/categoryService.js</code>: đổi endpoint/tầng xử lý danh mục.</li>
+<li><code>src/services/newsMapper.js</code>: đổi mapping payload tin tức.</li>
+<li><code>src/services/categoryMapper.js</code>: đổi mapping payload danh mục.</li>
+<li><code>src/api/httpClient.js</code>: chỉ sửa nếu đổi auth header/interceptor/global error.</li>
+</ul>
+<h2 id="73-khi-doi-route">7.3. Khi đổi route</h2>
+<p>Nên sửa:</p>
+<ul>
+<li>Root <code>pages/</code>: thêm/sửa/xóa route theo file-based routing Nuxt.</li>
+<li><code>middleware/route-sanitizer.global.js</code>: cập nhật sanitize/redirect nếu route có param/query mới.</li>
+<li><code>src/utils/slugHelper.js</code>: nếu đổi format URL slug/path.</li>
+<li><code>src/components/layout/AppHeader.vue</code>: nếu route xuất hiện trên menu.</li>
+<li><code>src/components/layout/MobileMenu.vue</code>: nếu route xuất hiện trên mobile menu.</li>
+<li><code>src/components/layout/AppFooter.vue</code>: nếu footer cần link mới.</li>
+<li><code>scripts/generate-sitemap.mjs</code>: nếu route mới cần index SEO.</li>
+<li>Các page liên quan trong <code>src/pages/</code>.</li>
+</ul>
+<h2 id="74-khi-doi-menu">7.4. Khi đổi menu</h2>
+<p>Nên sửa:</p>
+<ul>
+<li><code>src/components/layout/AppHeader.vue</code>: menu desktop + search.</li>
+<li><code>src/components/layout/MobileMenu.vue</code>: menu mobile.</li>
+<li><code>src/components/layout/AppFooter.vue</code>: danh mục/footer links.</li>
+<li><code>src/data/categories.js</code>: nếu đang dùng mock category.</li>
+<li>Backend <code>/categories</code>: nếu dùng API thật.</li>
+<li><code>src/services/categoryMapper.js</code>: nếu shape category từ API thay đổi.</li>
+</ul>
+<h2 id="75-khi-doi-seo">7.5. Khi đổi SEO</h2>
+<p>Nên sửa:</p>
+<ul>
+<li><code>nuxt.config.js</code>: head mặc định, routeRules, prerender routes.</li>
+<li><code>src/utils/seoHelper.js</code>: logic update meta/canonical/hreflang/JSON-LD.</li>
+<li>Từng page trong <code>src/pages/*.vue</code>: title/description/canonical/schema theo page.</li>
+<li>Root <code>pages/</code>: thêm wrapper nếu URL mới cần SSR/SSG.</li>
+<li><code>scripts/generate-sitemap.mjs</code>: sitemap/robots/news sitemap.</li>
+<li><code>.env</code>: <code>VITE_APP_NAME</code>, <code>VITE_APP_URL</code>.</li>
+<li><code>public/images/og-default.svg</code>: ảnh OG mặc định.</li>
+</ul>
+<h2 id="76-khi-doi-cau-hinh-database">7.6. Khi đổi cấu hình database</h2>
+<p>Trong repo này không có cấu hình database.</p>
+<p>Cần kiểm tra thêm backend. Frontend chỉ biết API qua:</p>
+<ul>
+<li><code>VITE_API_BASE_URL</code></li>
+<li><code>src/services/*.js</code></li>
+<li><code>src/api/httpClient.js</code></li>
+</ul>
+<h2 id="77-khi-doi-logic-nghiep-vu">7.7. Khi đổi logic nghiệp vụ</h2>
+<p>Nên sửa:</p>
+<ul>
+<li><code>src/services/newsService.js</code>: chia dữ liệu home, list, category, detail, related, search.</li>
+<li><code>src/services/categoryService.js</code>: cách lấy danh mục.</li>
+<li><code>src/stores/useNewsStore.js</code>: cache, loading, error, state.</li>
+<li><code>src/stores/useCategoryStore.js</code>: cache category/current category.</li>
+<li><code>src/services/newsMapper.js</code>, <code>src/services/categoryMapper.js</code>: chuẩn hóa payload.</li>
+<li><code>src/utils/sanitizeHtml.js</code>: rules bảo mật nội dung HTML/search.</li>
+</ul>
+<hr />
+<h1 id="8-nhung-file-khong-nen-sua-neu-khong-can">8. Những file không nên sửa nếu không cần</h1>
+<div class="table-wrap"><table>
+<thead><tr><th>File/Thư mục</th><th>Lý do</th></tr></thead>
+<tbody>
+<tr><td><code>node_modules/</code></td><td>Thư viện cài bằng npm, generated.</td></tr>
+<tr><td><code>.output/</code></td><td>Output build/generate Nuxt, có thể bị ghi đè khi <code>npm run build</code> hoặc <code>npm run generate</code>.</td></tr>
+<tr><td><code>.nuxt/</code></td><td>Cache/runtime tạm của Nuxt, có thể bị ghi đè khi dev/build.</td></tr>
+<tr><td><code>package-lock.json</code></td><td>Không sửa tay, để npm cập nhật.</td></tr>
+<tr><td><code>public/sitemap.xml</code></td><td>Generated bởi <code>scripts/generate-sitemap.mjs</code>.</td></tr>
+<tr><td><code>public/news-sitemap.xml</code></td><td>Generated bởi <code>scripts/generate-sitemap.mjs</code>.</td></tr>
+<tr><td><code>public/robots.txt</code></td><td>Generated bởi <code>scripts/generate-sitemap.mjs</code>.</td></tr>
+<tr><td><code>.env</code></td><td>Chỉ sửa local, không commit.</td></tr>
+<tr><td><code>.git/</code></td><td>Dữ liệu Git nội bộ, không sửa thủ công.</td></tr>
+<tr><td><code>src/api/httpClient.js</code></td><td>Core API/interceptor, sửa sai ảnh hưởng mọi service.</td></tr>
+<tr><td><code>pages/</code></td><td>Core route Nuxt, sửa sai ảnh hưởng navigation/SEO.</td></tr>
+<tr><td><code>middleware/route-sanitizer.global.js</code></td><td>Core route guard Nuxt, sửa sai ảnh hưởng slug/query.</td></tr>
+<tr><td><code>src/utils/sanitizeHtml.js</code></td><td>Core bảo mật XSS, sửa sai dễ tạo lỗ hổng.</td></tr>
+<tr><td><code>src/utils/seoHelper.js</code></td><td>Core SEO toàn site, sửa sai dễ trùng meta/canonical/schema.</td></tr>
+<tr><td><code>src/utils/slugHelper.js</code></td><td>Core URL SEO, sửa có thể đổi URL bài viết/danh mục.</td></tr>
+<tr><td><code>src/plugins/i18n.js</code></td><td>Core ngôn ngữ toàn app.</td></tr>
+<tr><td><code>app.vue</code></td><td>Entry app Nuxt toàn hệ thống.</td></tr>
+<tr><td><code>nuxt.config.js</code></td><td>Cấu hình build/runtime toàn hệ thống.</td></tr>
+</tbody></table></div>
+<hr />
+<h1 id="9-cac-lien-ket-quan-trong-trong-project">9. Các liên kết quan trọng trong project</h1>
+<h2 id="91-component-goi-storeservice">9.1. Component gọi store/service</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Nơi gọi</th><th>Gọi đến</th><th>Mục đích</th></tr></thead>
+<tbody>
+<tr><td><code>HomeView.vue</code></td><td><code>useNewsStore.fetchHomeNews()</code></td><td>Lấy dữ liệu home</td></tr>
+<tr><td><code>HomeView.vue</code></td><td><code>useCategoryStore.fetchCategories()</code></td><td>Đảm bảo có danh mục</td></tr>
+<tr><td><code>NewsListView.vue</code></td><td><code>useNewsStore.fetchNewsList(page)</code></td><td>Lấy danh sách tin</td></tr>
+<tr><td><code>NewsDetailView.vue</code></td><td><code>useNewsStore.fetchNewsDetail(slug)</code></td><td>Lấy chi tiết bài</td></tr>
+<tr><td><code>CategoryView.vue</code></td><td><code>useNewsStore.fetchCategoryNews(slug, page)</code></td><td>Lấy tin theo danh mục</td></tr>
+<tr><td><code>SearchView.vue</code></td><td><code>useNewsStore.searchNews(q, page)</code></td><td>Tìm kiếm tin</td></tr>
+<tr><td><code>AppHeader.vue</code></td><td><code>useCategoryStore.fetchCategories()</code></td><td>Render menu danh mục</td></tr>
+<tr><td><code>AppFooter.vue</code></td><td><code>useCategoryStore.fetchCategories()</code></td><td>Render danh mục footer</td></tr>
+<tr><td><code>MainLayout.vue</code></td><td><code>useAppStore</code>, <code>authSession</code></td><td>Banner hết hạn auth, schema WebSite</td></tr>
+</tbody></table></div>
+<h2 id="92-store-goi-service">9.2. Store gọi service</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Store</th><th>Service</th><th>Method</th></tr></thead>
+<tbody>
+<tr><td><code>useNewsStore.js</code></td><td><code>newsService.js</code></td><td><code>getHomeNewsData()</code></td></tr>
+<tr><td><code>useNewsStore.js</code></td><td><code>newsService.js</code></td><td><code>getNewsList()</code></td></tr>
+<tr><td><code>useNewsStore.js</code></td><td><code>newsService.js</code></td><td><code>getNewsByCategorySlug()</code></td></tr>
+<tr><td><code>useNewsStore.js</code></td><td><code>newsService.js</code></td><td><code>getNewsDetailBySlug()</code></td></tr>
+<tr><td><code>useNewsStore.js</code></td><td><code>newsService.js</code></td><td><code>getRelatedNews()</code></td></tr>
+<tr><td><code>useNewsStore.js</code></td><td><code>newsService.js</code></td><td><code>searchNews()</code></td></tr>
+<tr><td><code>useCategoryStore.js</code></td><td><code>categoryService.js</code></td><td><code>getCategories()</code></td></tr>
+<tr><td><code>useCategoryStore.js</code></td><td><code>categoryService.js</code></td><td><code>getCategoryBySlug()</code></td></tr>
+</tbody></table></div>
+<h2 id="93-service-goi-api">9.3. Service gọi API</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Service</th><th>API endpoint</th><th>Khi nào gọi</th></tr></thead>
+<tbody>
+<tr><td><code>newsService.js</code></td><td><code>GET /news</code></td><td>Khi <code>VITE_USE_MOCK_API=false</code></td></tr>
+<tr><td><code>categoryService.js</code></td><td><code>GET /categories</code></td><td>Khi <code>VITE_USE_MOCK_API=false</code></td></tr>
+<tr><td><code>categoryService.js</code></td><td><code>GET /categories/:slug</code></td><td>Khi lấy danh mục theo slug và tắt mock</td></tr>
+<tr><td><code>authService.js</code></td><td><code>POST /auth/login</code> hoặc env <code>VITE_AUTH_LOGIN_ENDPOINT</code></td><td>Khi có UI gọi login</td></tr>
+<tr><td><code>authService.js</code></td><td><code>POST /auth/refresh</code> hoặc env <code>VITE_AUTH_REFRESH_ENDPOINT</code></td><td>Khi refresh token</td></tr>
+<tr><td><code>authService.js</code></td><td><code>POST /auth/logout</code> hoặc env <code>VITE_AUTH_LOGOUT_ENDPOINT</code></td><td>Khi logout</td></tr>
+</tbody></table></div>
+<h2 id="94-api-goi-database-nao">9.4. API gọi database nào</h2>
+<p>Không xác định trong repo này.</p>
+<p>Frontend chỉ gọi API. Backend/database nằm ngoài repo nên:</p>
+<ul>
+<li>API <code>/news</code> gọi table nào: Cần kiểm tra thêm.</li>
+<li>API <code>/categories</code> gọi table nào: Cần kiểm tra thêm.</li>
+<li>Auth endpoints gọi bảng user/token nào: Cần kiểm tra thêm.</li>
+</ul>
+<h2 id="95-trang-dung-layout-nao">9.5. Trang dùng layout nào</h2>
+<p>Tất cả route hiện tại đều nằm dưới <code>MainLayout.vue</code>.</p>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>MainLayout.vue
+├── AppHeader.vue
+├── RouterView page con
+└── AppFooter.vue</code></pre></div>
+<h2 id="96-file-cau-hinh-anh-huong-toan-project">9.6. File cấu hình ảnh hưởng toàn project</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Ảnh hưởng</th></tr></thead>
+<tbody>
+<tr><td><code>.env</code></td><td>App URL, API URL, mock/API mode, port, timeout, auth endpoints</td></tr>
+<tr><td><code>src/config/appConfig.js</code></td><td>Tên app, domain canonical, mock mode, page size, cache TTL</td></tr>
+<tr><td><code>src/config/apiConfig.js</code></td><td>Base URL và timeout toàn bộ API</td></tr>
+<tr><td><code>src/config/authConfig.js</code></td><td>Token type và auth endpoint</td></tr>
+<tr><td><code>pages/</code></td><td>Toàn bộ navigation route Nuxt</td></tr>
+<tr><td><code>middleware/route-sanitizer.global.js</code></td><td>Sanitize route/query</td></tr>
+<tr><td><code>src/utils/seoHelper.js</code></td><td>SEO toàn site</td></tr>
+<tr><td><code>src/utils/sanitizeHtml.js</code></td><td>Bảo mật content/search</td></tr>
+<tr><td><code>tailwind.config.js</code></td><td>Theme style toàn project</td></tr>
+<tr><td><code>src/styles/main.css</code></td><td>Class global toàn project</td></tr>
+</tbody></table></div>
+<hr />
+<h1 id="10-ghi-chu-rui-ro">10. Ghi chú rủi ro</h1>
+<h2 id="101-file-sua-de-loi-toan-he-thong">10.1. File sửa dễ lỗi toàn hệ thống</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Rủi ro</th></tr></thead>
+<tbody>
+<tr><td><code>app.vue</code></td><td>App Nuxt không render layout/page nếu sửa sai</td></tr>
+<tr><td><code>nuxt.config.js</code></td><td>SSR/SSG, alias, CSS, prerender hoặc head mặc định có thể lỗi</td></tr>
+<tr><td><code>pages/</code></td><td>Route sai, 404 sai, wrapper page sai</td></tr>
+<tr><td><code>middleware/route-sanitizer.global.js</code></td><td>Query/slug sanitize sai</td></tr>
+<tr><td><code>src/api/httpClient.js</code></td><td>Tất cả API bị ảnh hưởng, auth header/lỗi 401 sai</td></tr>
+<tr><td><code>src/services/newsService.js</code></td><td>Dữ liệu tin tức toàn site sai</td></tr>
+<tr><td><code>src/stores/useNewsStore.js</code></td><td>Loading/error/cache tin tức sai</td></tr>
+<tr><td><code>src/utils/sanitizeHtml.js</code></td><td>Có thể tạo lỗi hiển thị hoặc rủi ro XSS</td></tr>
+<tr><td><code>src/utils/seoHelper.js</code></td><td>Meta/canonical/schema có thể sai toàn site</td></tr>
+<tr><td><code>src/utils/slugHelper.js</code></td><td>URL bài viết/danh mục có thể đổi, ảnh hưởng SEO</td></tr>
+<tr><td><code>src/styles/main.css</code></td><td>Giao diện toàn site thay đổi</td></tr>
+</tbody></table></div>
+<h2 id="102-file-dang-chua-logic-quan-trong">10.2. File đang chứa logic quan trọng</h2>
+<ul>
+<li><code>src/services/newsService.js</code>: phân trang, lọc danh mục, search, related news, cache, fallback API/mock.</li>
+<li><code>src/stores/useNewsStore.js</code>: state trung tâm cho hầu hết page tin tức.</li>
+<li><code>middleware/route-sanitizer.global.js</code>: sanitize query page/search, normalize slug.</li>
+<li>Root <code>pages/</code>: wrapper route Nuxt cho URL chính.</li>
+<li><code>src/utils/seoHelper.js</code>: SEO runtime.</li>
+<li><code>src/utils/sanitizeHtml.js</code>: bảo mật HTML và search input.</li>
+<li><code>scripts/generate-sitemap.mjs</code>: SEO build-time.</li>
+</ul>
+<h2 id="103-file-co-dau-hieu-hard-code">10.3. File có dấu hiệu hard-code</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Hard-code hiện tại</th><th>Gợi ý</th></tr></thead>
+<tbody>
+<tr><td><code>src/data/news.js</code></td><td>32 bài mock, thumbnail <code>picsum.photos</code></td><td>Chỉ dùng demo; production nên lấy API</td></tr>
+<tr><td><code>src/data/categories.js</code></td><td>9 danh mục mock</td><td>Production nên lấy API</td></tr>
+<tr><td><code>src/pages/NewsDetailView.vue</code></td><td>Publisher name <code>VietNews 24h</code> trong schema</td><td>Nên lấy từ <code>appConfig.appName</code></td></tr>
+<tr><td><code>scripts/generate-sitemap.mjs</code></td><td>Static routes, noindex paths, robots disallow paths</td><td>Có thể đưa một phần sang config</td></tr>
+<tr><td><code>src/config/appConfig.js</code></td><td><code>defaultPageSize=6</code>, <code>relatedNewsLimit=4</code></td><td>Có thể chuyển sang env/config nếu cần linh hoạt</td></tr>
+<tr><td><code>src/pages/ContactView.vue</code></td><td>Form chưa có endpoint submit</td><td>Cần backend/contact service nếu muốn gửi thật</td></tr>
+</tbody></table></div>
+<h2 id="104-file-co-the-bi-lap-code">10.4. File có thể bị lặp code</h2>
+<ul>
+<li>Nhiều page còn tự dựng meta/schema riêng. Hiện đã có <code>useSeoHead()</code> và <code>useStructuredDataHead()</code>, có thể tách composable cấp page nếu code tăng.</li>
+<li>Header, mobile menu, footer đều dựng link menu tương tự nhau. Có thể gom cấu hình menu tĩnh.</li>
+<li>Nhiều component xử lý fallback image riêng bằng <code>onImageError</code>. Có thể tách helper hoặc component image chung.</li>
+</ul>
+<h2 id="105-file-nen-tach-nho">10.5. File nên tách nhỏ</h2>
+<ul>
+<li><code>src/services/newsService.js</code>: file khá lớn, chứa cache, mock/API, pagination, home transform, category filter, detail, related, search. Có thể tách:</li>
+<li><code>newsRepository.js</code>: lấy dữ liệu API/mock.</li>
+<li><code>newsTransformService.js</code>: chia home/list/category/search.</li>
+<li><code>paginationHelper.js</code>: helper phân trang.</li>
+<li><code>scripts/generate-sitemap.mjs</code>: có thể tách env loader, route builder, XML writer nếu sitemap phức tạp hơn.</li>
+<li><code>src/utils/seoHelper.js</code>: có thể tách <code>metaHelper</code>, <code>canonicalHelper</code>, <code>schemaHelper</code> nếu SEO tăng.</li>
+</ul>
+<h2 id="106-file-nen-gom-lai">10.6. File nên gom lại</h2>
+<ul>
+<li><code>src/services/apiClient.js</code> chỉ re-export <code>src/api/httpClient.js</code> để tương thích import cũ. Nếu không còn import cũ, có thể cân nhắc bỏ sau khi kiểm tra toàn source.</li>
+<li>Logic fallback image đang lặp ở <code>NewsCard</code>, <code>FeaturedNews</code>, <code>SidebarNews</code>, <code>NewsDetailView</code>. Có thể gom vào component <code>AppImage.vue</code>.</li>
+</ul>
+<h2 id="107-file-nen-chuyen-sang-configenv">10.7. File nên chuyển sang config/env</h2>
+<ul>
+<li>Publisher name trong schema bài viết.</li>
+<li>Page size, related limit nếu cần chỉnh theo môi trường.</li>
+<li>Robots disallow paths nếu có admin/login/test/draft thật.</li>
+<li>API endpoint news/category nếu backend không dùng chuẩn <code>/news</code>, <code>/categories</code>.</li>
+</ul>
+<hr />
+<h1 id="11-de-xuat-cai-thien">11. Đề xuất cải thiện</h1>
+<p>Các đề xuất dưới đây chỉ ghi tài liệu, chưa sửa code.</p>
+<h2 id="111-cau-truc-thu-muc-nen-cai-thien">11.1. Cấu trúc thư mục nên cải thiện</h2>
+<p>Hiện cấu trúc đã khá rõ. Nếu project lớn hơn, có thể cân nhắc:</p>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>src/
+├── modules/
+│   ├── news/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── stores/
+│   ├── category/
+│   └── auth/</code></pre></div>
+<p>Lý do: Module news đang chiếm nhiều file ở pages/stores/services/components.</p>
+<h2 id="112-file-nen-tach-servicecomponent">11.2. File nên tách service/component</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>File hiện tại</th><th>Đề xuất</th></tr></thead>
+<tbody>
+<tr><td><code>src/services/newsService.js</code></td><td>Tách repository, transform, search/filter, cache</td></tr>
+<tr><td><code>src/utils/seoHelper.js</code></td><td>Tách schema helper nếu JSON-LD tăng</td></tr>
+<tr><td><code>scripts/generate-sitemap.mjs</code></td><td>Tách XML builder và route source</td></tr>
+<tr><td><code>NewsCard.vue</code> + <code>SidebarNews.vue</code> + <code>FeaturedNews.vue</code></td><td>Tách <code>AppImage.vue</code> để gom fallback/lazy/alt</td></tr>
+<tr><td><code>ContactView.vue</code></td><td>Nếu form gửi thật, tách <code>contactService.js</code> và validate form</td></tr>
+</tbody></table></div>
+<h2 id="113-file-nen-doi-ten-cho-de-hieu">11.3. File nên đổi tên cho dễ hiểu</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Gợi ý</th></tr></thead>
+<tbody>
+<tr><td><code>src/services/apiClient.js</code></td><td>Có thể bỏ hoặc đổi chú thích rõ hơn vì chỉ re-export</td></tr>
+<tr><td><code>src/data/news.js</code></td><td><code>mockNews.js</code> nếu muốn phân biệt dữ liệu mock</td></tr>
+<tr><td><code>src/data/categories.js</code></td><td><code>mockCategories.js</code> nếu muốn phân biệt dữ liệu mock</td></tr>
+<tr><td><code>git-command-tabs.html</code></td><td>Có thể đổi thành <code>git-npm-cheatsheet.html</code> nếu muốn tên rõ hơn</td></tr>
+</tbody></table></div>
+<h2 id="114-file-nen-them-comment">11.4. File nên thêm comment</h2>
+<ul>
+<li><code>src/services/newsService.js</code>: comment ngắn cho cache và fallback API/mock.</li>
+<li><code>middleware/route-sanitizer.global.js</code>: comment cho sanitize query/slug.</li>
+<li><code>src/utils/sanitizeHtml.js</code>: comment về whitelist HTML.</li>
+<li><code>scripts/generate-sitemap.mjs</code>: comment phần <code>NOINDEX_PATH_PATTERNS</code> và news sitemap 2 ngày.</li>
+</ul>
+<h2 id="115-file-nen-gom-logic">11.5. File nên gom logic</h2>
+<ul>
+<li>Fallback image nên gom vào component/helper.</li>
+<li>Menu item tĩnh nên gom thành config nếu header/mobile/footer tăng thêm link.</li>
+<li>SEO page có thể dùng composable <code>usePageSeo()</code> nếu các page tăng nhiều.</li>
+</ul>
+<h2 id="116-file-can-bao-mat-hon">11.6. File cần bảo mật hơn</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Gợi ý bảo mật</th></tr></thead>
+<tbody>
+<tr><td><code>src/utils/sanitizeHtml.js</code></td><td>Giữ whitelist chặt, không mở <code>iframe/script/style</code> nếu không thật sự cần</td></tr>
+<tr><td><code>src/api/httpClient.js</code></td><td>Kiểm tra CORS/withCredentials khi bật cookie auth</td></tr>
+<tr><td><code>src/services/authSession.js</code></td><td>Hiện token in-memory an toàn hơn localStorage nhưng reload sẽ mất token; cần chiến lược refresh nếu dùng auth thật</td></tr>
+<tr><td><code>.env.example</code></td><td>Không đưa secret/key thật vào</td></tr>
+<tr><td><code>ContactView.vue</code></td><td>Nếu gửi form thật cần validate, rate limit phía backend, chống spam</td></tr>
+</tbody></table></div>
+<div class="note-box note-security">
+<strong>Bảo mật API khi thêm nhiều endpoint</strong>
+<ul>
+<li>Không đưa secret, private key, database password, API key nội bộ vào <code>.env</code> frontend. Biến bắt đầu bằng <code>VITE_</code> sẽ có thể xuất hiện trong bundle browser.</li>
+<li>Frontend chỉ giữ URL public, timeout, flag mock, endpoint public. Secret phải nằm ở backend.</li>
+<li>Mọi dữ liệu nhập từ user cần validate ở frontend để UX tốt, nhưng backend vẫn phải validate lại vì frontend có thể bị bypass.</li>
+<li>Nếu dùng cookie auth và <code>VITE_API_WITH_CREDENTIALS=true</code>, backend phải cấu hình CORS đúng domain, không dùng wildcard <code>*</code> cho credential.</li>
+<li>Nếu dùng Bearer token, hạn chế lưu token ở <code>localStorage</code>. Project hiện lưu token in-memory trong <code>authSession.js</code>, an toàn hơn trước XSS lưu trữ nhưng reload sẽ mất phiên.</li>
+<li>Không log dữ liệu nhạy cảm: token, password, refresh token, cookie, email cá nhân, số điện thoại, payload form đầy đủ, response chứa thông tin riêng tư.</li>
+<li>Endpoint log nên giới hạn kích thước payload, rate limit, loại bỏ field nhạy cảm và chỉ nhận thông tin cần debug.</li>
+</ul>
+</div>
+<div class="note-box note-important">
+<strong>Điểm dễ sai khi nối nhiều API</strong>
+<p>Đừng sửa <code>src/api/httpClient.js</code> mỗi lần thêm endpoint mới. File này chỉ dành cho cấu hình chung: base URL, timeout, auth header, interceptor lỗi. API nghiệp vụ mới nên nằm ở service mới như <code>informationService.js</code>, <code>logService.js</code>, <code>contactService.js</code>.</p>
+</div>
+<div class="table-wrap"><table>
+<thead><tr><th>Tình huống</th><th>Cách làm nên dùng</th><th>Không nên làm</th></tr></thead>
+<tbody>
+<tr><td>Thêm API danh mục</td><td>Sửa/tạo trong <code>categoryService.js</code>, normalize ở <code>categoryMapper.js</code></td><td>Gọi <code>axios.get()</code> trực tiếp trong Header/Footer</td></tr>
+<tr><td>Thêm API thông tin chung</td><td>Tạo <code>informationService.js</code>, nếu cần cache thì thêm <code>useInformationStore.js</code></td><td>Hard-code nhiều endpoint ở component</td></tr>
+<tr><td>Thêm API log lỗi</td><td>Tạo <code>logService.js</code>, chỉ gửi payload đã lọc/sanitize</td><td>Gửi toàn bộ error object hoặc response gốc lên backend</td></tr>
+<tr><td>Đổi domain backend</td><td>Đổi <code>VITE_API_BASE_URL</code> trong <code>.env</code>/<code>.env.production</code></td><td>Sửa cứng URL trong từng service</td></tr>
+<tr><td>Đổi auth token</td><td>Sửa <code>authConfig.js</code>, <code>authSession.js</code>, interceptor nếu cần</td><td>Gắn token thủ công ở từng request</td></tr>
+</tbody></table></div>
+<h2 id="117-seo-nen-cai-thien-them">11.7. SEO nên cải thiện thêm</h2>
+<ul>
+<li>SSR/SSG đã được bật bằng Nuxt; bước tiếp theo là thay <code>VITE_APP_URL=https://example.com</code> bằng domain thật trước khi build production.</li>
+<li><code>scripts/generate-sitemap.mjs</code> hiện lấy <code>src/data</code>; production nên lấy từ API/backend.</li>
+<li>OG image hiện mặc định SVG; social preview thường nên dùng PNG/JPG 1200x630.</li>
+<li>Có thể thêm <code>Article</code>/<code>NewsArticle</code> đầy đủ hơn nếu backend có author image, publisher logo thật.</li>
+</ul>
+<hr />
+<h1 id="12-so-do-luong-project">12. Sơ đồ luồng project</h1>
+<h2 id="121-luong-tong-quat">12.1. Luồng tổng quát</h2>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>User
+↓
+Browser/crawler request URL
+↓
+Nuxt/Nitro SSR hoặc trả HTML đã prerender
+↓
+nuxt.config.js áp dụng routeRules/head/prerender config
+↓
+app.vue render MainLayout + NuxtPage
+↓
+Root pages/ chọn wrapper theo URL
+↓
+MainLayout.vue
+↓
+Page/View trong src/pages
+↓
+Pinia Store trong src/stores
+↓
+Service trong src/services
+↓
+Mock Data trong src/data hoặc API qua src/api/httpClient.js
+↓
+Mapper normalize dữ liệu
+↓
+Store cập nhật state
+↓
+Component render UI
+↓
+seoHelper ghi title/meta/canonical/schema vào SSR/SSG head
+↓
+User nhìn thấy giao diện</code></pre></div>
+<h2 id="122-luong-bai-viet-chi-tiet">12.2. Luồng bài viết chi tiết</h2>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>User vào /tin-tuc/:slug
+↓
+middleware/route-sanitizer.global.js normalize slug
+↓
+pages/tin-tuc/[slug].vue
+↓
+NewsDetailView.vue
+↓
+newsStore.fetchNewsDetail(slug)
+↓
+newsService.getNewsDetailBySlug(slug)
+↓
+getAllNews()
+↓
+Nếu mock: src/data/news.js
+Nếu API thật: GET /news
+↓
+newsMapper.normalizeNewsList()
+↓
+Tìm item theo slug
+↓
+newsStore.newsDetail + relatedNews
+↓
+NewsDetailView render title/content/tags/related
+↓
+sanitizeHtml xử lý content trước v-html
+↓
+seoHelper set NewsArticle JSON-LD + meta</code></pre></div>
+<h2 id="123-luong-danh-muc">12.3. Luồng danh mục</h2>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>User vào /danh-muc/:slug
+↓
+middleware/route-sanitizer.global.js normalize slug
+↓
+pages/danh-muc/[slug].vue
+↓
+CategoryView.vue
+↓
+newsStore.fetchCategoryNews(slug, page)
+↓
+newsService.getNewsByCategorySlug()
+↓
+getAllNews() + category cache
+↓
+Filter news theo categoryId
+↓
+Pagination
+↓
+NewsCard + SidebarNews render UI
+↓
+seoHelper set category meta + CollectionPage schema</code></pre></div>
+<h2 id="124-luong-tim-kiem">12.4. Luồng tìm kiếm</h2>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>User nhập từ khóa
+↓
+SearchBox normalize input
+↓
+SearchView debounce hoặc submit
+↓
+Router cập nhật /tim-kiem?q=...
+↓
+middleware/route-sanitizer.global.js sanitize query q/page
+↓
+newsStore.searchNews(q, page)
+↓
+newsService.searchNews()
+↓
+Lọc title/summary/tags trong all news
+↓
+Pagination
+↓
+NewsCard render kết quả
+↓
+seoHelper set robots noindex</code></pre></div>
+<h2 id="125-luong-api-that">12.5. Luồng API thật</h2>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>User
+↓
+Page/View
+↓
+Store
+↓
+Service
+↓
+src/api/httpClient.js
+↓
+Axios request đến VITE_API_BASE_URL
+↓
+Backend API
+↓
+Database
+↓
+Backend response JSON
+↓
+Mapper normalize
+↓
+Store
+↓
+Render UI</code></pre></div>
+<div class="note-box note-api">
+<strong>Cách hiểu nhanh khi nối API thật</strong>
+<p><code>VITE_API_BASE_URL</code> là domain gốc của backend, ví dụ <code>https://api.example.com/api</code>. Khi service gọi <code>apiClient.get('/categories')</code>, request thật sẽ thành <code>https://api.example.com/api/categories</code>.</p>
+</div>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>.env
+VITE_USE_MOCK_API=false
+VITE_API_BASE_URL=https://api.example.com/api
+VITE_API_TIMEOUT=12000
+VITE_API_WITH_CREDENTIALS=false
+
+Service gọi:
+apiClient.get('/categories')
+apiClient.get('/information')
+apiClient.post('/logs/client-error', payload)
+
+Request thật:
+https://api.example.com/api/categories
+https://api.example.com/api/information
+https://api.example.com/api/logs/client-error</code></pre></div>
+<div class="note-box note-security">
+<strong>Checklist trước khi bật API production</strong>
+<ul>
+<li>Kiểm tra <code>VITE_USE_MOCK_API=false</code> để app không còn dùng mock data.</li>
+<li>Kiểm tra <code>VITE_API_BASE_URL</code> đúng domain HTTPS production.</li>
+<li>Kiểm tra backend trả JSON shape đúng mapper đang normalize.</li>
+<li>Kiểm tra CORS chỉ cho phép domain frontend thật.</li>
+<li>Kiểm tra endpoint log không nhận dữ liệu nhạy cảm và có rate limit.</li>
+<li>Kiểm tra lỗi 401 có clear session và điều hướng/hiển thị thông báo phù hợp.</li>
+<li>Không commit file <code>.env</code> thật lên GitHub.</li>
+</ul>
+</div>
+<p>Database trong sơ đồ trên là giả định ở backend. Repo frontend hiện tại chưa có database.</p>
+<hr />
+<h1 id="13-ghi-chu-kiem-tra-theo-yeu-cau-ky-thuat">13. Ghi chú kiểm tra theo yêu cầu kỹ thuật</h1>
+<h2 id="131-khong-xoa-code-hien-tai">13.1. Không xóa code hiện tại</h2>
+<p>File tài liệu này không yêu cầu xóa code.</p>
+<h2 id="132-khong-sua-logic-project">13.2. Không sửa logic project</h2>
+<p>Không cần sửa logic runtime. Tài liệu chỉ phân tích.</p>
+<h2 id="133-chi-taocap-nhat-file-projectflowmd">13.3. Chỉ tạo/cập nhật file <code>PROJECT_FLOW.md</code></h2>
+<p>File tài liệu được tạo ở root project:</p>
+<div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>PROJECT_FLOW.md</code></pre></div>
+<h2 id="134-noi-dung-viet-bang-tieng-viet">13.4. Nội dung viết bằng tiếng Việt</h2>
+<p>Toàn bộ tài liệu chính viết bằng tiếng Việt, giữ tên file/code/path đúng thực tế.</p>
+<h2 id="135-cho-chua-chac">13.5. Chỗ chưa chắc</h2>
+<p>Các phần cần kiểm tra thêm:</p>
+<ul>
+<li>Backend API thực tế có đúng endpoint <code>/news</code>, <code>/categories</code>, <code>/categories/:slug</code> không.</li>
+<li>Database/table/stored procedure phía backend.</li>
+<li>UI login/admin có tồn tại ở repo khác không, vì frontend hiện có auth service nhưng chưa thấy route login/admin.</li>
+<li>Contact form có cần gửi API thật không, vì hiện form chưa thấy service submit.</li>
+<li>Production sitemap có nên lấy dữ liệu từ backend thật thay vì <code>src/data</code>.</li>
+</ul>
+<h2 id="136-file-chua-thay-noi-goi-truc-tiep">13.6. File chưa thấy nơi gọi trực tiếp</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>File</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td><code>src/services/apiClient.js</code></td><td>Chưa thấy nơi gọi trực tiếp; hiện chỉ re-export <code>src/api/httpClient.js</code> cho import cũ</td></tr>
+<tr><td><code>src/services/authService.js</code></td><td>Chưa thấy page/component gọi trực tiếp</td></tr>
+<tr><td><code>src/directives/lazyImage.js</code></td><td>Được register global qua plugin, nhưng chưa thấy template dùng <code>v-lazy-image</code> trực tiếp</td></tr>
+<tr><td><code>src/stores/useAppStore.js</code> field <code>globalLoading</code></td><td>Chưa thấy nơi dùng rõ trong các file đã kiểm tra</td></tr>
+<tr><td><code>src/stores/useAppStore.js</code> field <code>isAuthenticated</code></td><td>Có set khi 401, nhưng chưa thấy UI login/auth route sử dụng đầy đủ</td></tr>
+</tbody></table></div>
+<hr />
+<h1 id="tom-tat-nhanh-cho-nguoi-moi-vao-project">Tóm tắt nhanh cho người mới vào project</h1>
+<p>Đây là Nuxt 3 SSR/SSG cho website tin tức. Khi mở web, app đi từ <code>app.vue</code> vào <code>MainLayout</code>, Nuxt chọn wrapper trong <code>pages/</code>, rồi render lại view cũ trong <code>src/pages/*View.vue</code>. Dữ liệu tin tức vẫn nằm ở Pinia store, store gọi service, service lấy mock data hoặc API thật tùy <code>VITE_USE_MOCK_API</code>. SEO được ghi vào HTML server/static bằng <code>seoHelper.js</code> + <code>useHead</code>, còn sitemap/robots được sinh trước build bằng <code>scripts/generate-sitemap.mjs</code>.</p>
+<p>File nên nắm đầu tiên:</p>
+<ol>
+<li><code>nuxt.config.js</code></li>
+<li><code>app.vue</code></li>
+<li><code>pages/</code></li>
+<li><code>src/layouts/MainLayout.vue</code></li>
+<li><code>src/pages/HomeView.vue</code></li>
+<li><code>src/pages/NewsDetailView.vue</code></li>
+<li><code>src/stores/useNewsStore.js</code></li>
+<li><code>src/services/newsService.js</code></li>
+<li><code>src/api/httpClient.js</code></li>
+<li><code>src/utils/seoHelper.js</code></li>
+<li><code>.env.example</code></li>
+<li><code>scripts/generate-sitemap.mjs</code></li>
+</ol>
+        </article>
+      </main>
+    </div>
+    <script>
+      const content = document.querySelector('.content');
+      const links = Array.from(document.querySelectorAll('.toc-link[href^="#"]'));
+      const source = document.createElement('div');
+      const panel = document.createElement('div');
+
+      source.className = 'content-source';
+      panel.className = 'panel-view';
+
+      while (content.firstChild) {
+        source.appendChild(content.firstChild);
+      }
+
+      content.append(source, panel);
+
+      const sourceChildren = Array.from(source.children);
+      const headings = sourceChildren.filter((element) => /^H[1-6]$/.test(element.tagName) && element.id);
+
+      headings.forEach((heading) => {
+        heading.dataset.flowId = heading.id;
+        heading.removeAttribute('id');
+      });
+
+      function getHeadingLevel(heading) {
+        return Number(heading.tagName.slice(1));
+      }
+
+      function getLinkId(link) {
+        return decodeURIComponent(link.getAttribute('href').slice(1));
+      }
+
+      function findHeadingById(id) {
+        return headings.find((heading) => heading.dataset.flowId === id);
+      }
+
+      function getSectionNodes(heading) {
+        const startIndex = sourceChildren.indexOf(heading);
+        const currentLevel = getHeadingLevel(heading);
+        let endIndex = sourceChildren.length;
+
+        for (let index = startIndex + 1; index < sourceChildren.length; index += 1) {
+          const element = sourceChildren[index];
+          const isHeading = /^H[1-6]$/.test(element.tagName);
+
+          if (isHeading && getHeadingLevel(element) <= currentLevel) {
+            endIndex = index;
+            break;
+          }
+        }
+
+        const nodes = sourceChildren.slice(startIndex, endIndex);
+        return nodes.filter((node, index) => !(node.tagName === 'HR' && (index === 0 || index === nodes.length - 1)));
+      }
+
+      function setActiveLink(id) {
+        links.forEach((link) => {
+          const isActive = getLinkId(link) === id;
+          link.classList.toggle('active', isActive);
+
+          if (isActive) {
+            link.setAttribute('aria-current', 'page');
+          } else {
+            link.removeAttribute('aria-current');
+          }
+        });
+      }
+
+      function renderPanel(id, updateHash = true) {
+        const heading = findHeadingById(id) || headings[0];
+        if (!heading) return;
+
+        const headingId = heading.dataset.flowId;
+        const clones = getSectionNodes(heading).map((node) => {
+          const clone = node.cloneNode(true);
+
+          if (clone.tagName === heading.tagName && clone.textContent === heading.textContent) {
+            clone.id = headingId;
+          }
+
+          return clone;
+        });
+
+        panel.replaceChildren(...clones);
+        content.scrollTop = 0;
+        setActiveLink(headingId);
+
+        if (updateHash && window.history?.replaceState) {
+          window.history.replaceState(null, '', `#${headingId}`);
+        }
+      }
+
+      links.forEach((link) => {
+        link.addEventListener('click', (event) => {
+          event.preventDefault();
+          renderPanel(getLinkId(link));
+        });
+      });
+
+      document.addEventListener('click', async (event) => {
+        const button = event.target.closest('.copy-code');
+        if (!button) return;
+
+        const code = button.closest('.code-card')?.querySelector('code')?.innerText;
+        if (!code) return;
+
+        try {
+          await navigator.clipboard.writeText(code);
+          const original = button.textContent;
+          button.textContent = 'Copied';
+          setTimeout(() => { button.textContent = original; }, 1200);
+        } catch {
+          const textarea = document.createElement('textarea');
+          textarea.value = code;
+          document.body.appendChild(textarea);
+          textarea.select();
+          document.execCommand('copy');
+          textarea.remove();
+        }
+      });
+
+      const initialId = window.location.hash ? decodeURIComponent(window.location.hash.slice(1)) : getLinkId(links[0]);
+      renderPanel(initialId, false);
+    </script>
+  </body>
+</html>

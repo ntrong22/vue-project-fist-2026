@@ -101,7 +101,7 @@ export const getSafeErrorMessage = (rawError, fallbackMessage = DEFAULT_UI_MESSA
 };
 
 export const logTechnicalError = (rawError, context = 'app') => {
-  if (import.meta.env.DEV) {
+  if (import.meta.dev || import.meta.env?.DEV) {
     console.error(`[${context}]`, rawError);
   }
 };

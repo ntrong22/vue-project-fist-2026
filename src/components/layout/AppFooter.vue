@@ -13,9 +13,9 @@
           <h3 class="mb-3 text-base font-semibold text-slate-900">{{ t('footer.categoryTitle') }}</h3>
           <ul class="space-y-2 text-sm text-slate-600">
             <li v-for="item in categoriesToShow" :key="item.id">
-              <RouterLink :to="`/danh-muc/${item.slug}`" class="hover:text-brand-700">
+              <NuxtLink :to="`/danh-muc/${item.slug}`" class="hover:text-brand-700">
                 {{ getCategoryName(item) }}
-              </RouterLink>
+              </NuxtLink>
             </li>
           </ul>
         </section>
@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted } from 'vue';
+import { computed, onMounted, onServerPrefetch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useLocale } from '@/composables/useLocale';
 import { useCategoryStore } from '@/stores/useCategoryStore';
@@ -53,9 +53,13 @@ const categoriesToShow = computed(() => categoryStore.categories.slice(0, 6));
 
 const getCategoryName = (category) => getLocalizedContent(category, 'name', locale.value);
 
-onMounted(async () => {
+const loadFooterCategories = async () => {
   if (!categoryStore.hasCategories) {
     await categoryStore.fetchCategories();
   }
-});
+};
+
+onServerPrefetch(loadFooterCategories);
+
+onMounted(loadFooterCategories);
 </script>

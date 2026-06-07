@@ -2,9 +2,9 @@
   <section :aria-labelledby="headingId" class="mt-8">
     <div class="mb-4 flex items-center justify-between">
       <h2 :id="headingId" class="text-2xl font-bold text-slate-900">{{ displayCategoryName }}</h2>
-      <RouterLink :to="`/danh-muc/${props.category.slug}`" class="text-sm font-medium text-brand-700 hover:text-brand-800">
+      <NuxtLink :to="`/danh-muc/${props.category.slug}`" class="text-sm font-medium text-brand-700 hover:text-brand-800">
         {{ t('common.all') }}
-      </RouterLink>
+      </NuxtLink>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -2,7 +2,7 @@
   <section aria-labelledby="latest-news-heading">
     <div class="mb-5 flex items-center justify-between">
       <h2 id="latest-news-heading" class="section-title mb-0">{{ t('news.latest') }}</h2>
-      <RouterLink to="/tin-tuc" class="text-sm font-medium text-brand-700 hover:text-brand-800">{{ t('common.readMore') }}</RouterLink>
+      <NuxtLink to="/tin-tuc" class="text-sm font-medium text-brand-700 hover:text-brand-800">{{ t('common.readMore') }}</NuxtLink>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">

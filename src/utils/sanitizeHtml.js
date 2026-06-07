@@ -1,4 +1,4 @@
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 
 const ALLOWED_HTML_TAGS = Object.freeze([
   'p',
@@ -26,6 +26,7 @@ const ALLOWED_HTML_ATTR = Object.freeze([
   'alt',
   'loading',
   'decoding',
+  'referrerpolicy',
   'class',
 ]);
 
@@ -62,7 +63,9 @@ const attachSanitizeHooks = () => {
   }
 
   DOMPurify.addHook('afterSanitizeAttributes', (node) => {
-    if (!node || node.nodeType !== Node.ELEMENT_NODE) {
+    const elementNodeType = typeof Node === 'undefined' ? 1 : Node.ELEMENT_NODE;
+
+    if (!node || node.nodeType !== elementNodeType) {
       return;
     }
 
@@ -129,7 +132,7 @@ export const sanitizeHtml = (input = '') => {
 
   const content = input.trim();
 
-  if (!content || typeof window === 'undefined') {
+  if (!content) {
     return '';
   }
 

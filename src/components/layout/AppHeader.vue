@@ -12,10 +12,10 @@
             <span class="text-xl leading-none">☰</span>
           </button>
 
-          <RouterLink to="/" class="flex items-center gap-2">
+          <NuxtLink to="/" class="flex items-center gap-2">
             <span class="rounded-lg bg-brand-600 px-2.5 py-1 text-sm font-bold text-white">VN</span>
             <span class="text-lg font-bold text-slate-900">{{ appStore.appName }}</span>
-          </RouterLink>
+          </NuxtLink>
         </div>
 
         <div class="hidden min-w-0 flex-1 lg:block">
@@ -31,32 +31,32 @@
           <LanguageSwitcher />
         </div>
 
-        <RouterLink
+        <NuxtLink
           to="/tim-kiem"
           class="inline-flex items-center rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-700 transition hover:border-brand-400 hover:text-brand-700 lg:hidden"
         >
           {{ t('nav.search') }}
-        </RouterLink>
+        </NuxtLink>
       </div>
 
       <nav class="hidden items-center gap-1 overflow-x-auto whitespace-nowrap border-t border-slate-100 py-2 lg:flex">
-        <RouterLink
+        <NuxtLink
           to="/"
           class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-brand-50 hover:text-brand-700"
           active-class="bg-brand-600 text-white hover:bg-brand-600 hover:text-white"
         >
           {{ t('nav.home') }}
-        </RouterLink>
+        </NuxtLink>
 
-        <RouterLink
+        <NuxtLink
           to="/tin-tuc"
           class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-brand-50 hover:text-brand-700"
           active-class="bg-brand-600 text-white hover:bg-brand-600 hover:text-white"
         >
           {{ t('nav.latest') }}
-        </RouterLink>
+        </NuxtLink>
 
-        <RouterLink
+        <NuxtLink
           v-for="item in categories"
           :key="item.id"
           :to="`/danh-muc/${item.slug}`"
@@ -64,23 +64,23 @@
           active-class="bg-brand-600 text-white hover:bg-brand-600 hover:text-white"
         >
           {{ getCategoryName(item) }}
-        </RouterLink>
+        </NuxtLink>
 
-        <RouterLink
+        <NuxtLink
           to="/gioi-thieu"
           class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-brand-50 hover:text-brand-700"
           active-class="bg-brand-600 text-white hover:bg-brand-600 hover:text-white"
         >
           {{ t('nav.about') }}
-        </RouterLink>
+        </NuxtLink>
 
-        <RouterLink
+        <NuxtLink
           to="/lien-he"
           class="rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-brand-50 hover:text-brand-700"
           active-class="bg-brand-600 text-white hover:bg-brand-600 hover:text-white"
         >
           {{ t('nav.contact') }}
-        </RouterLink>
+        </NuxtLink>
       </nav>
     </div>
 
@@ -93,7 +93,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, onServerPrefetch, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import SearchBox from '@/components/common/SearchBox.vue';
@@ -131,17 +131,21 @@ watch(
   { immediate: true },
 );
 
-onMounted(async () => {
+const loadHeaderCategories = async () => {
   if (!categoryStore.hasCategories) {
     await categoryStore.fetchCategories();
   }
-});
+};
+
+onServerPrefetch(loadHeaderCategories);
+
+onMounted(loadHeaderCategories);
 
 const handleSearch = (value) => {
   const safeQuery = normalizeSearchInput(value);
 
   router.push({
-    name: 'search',
+    path: '/tim-kiem',
     query: safeQuery ? { q: safeQuery } : {},
   });
 

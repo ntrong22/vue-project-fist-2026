@@ -5,6 +5,8 @@ import {
   HREFLANG_MAP,
   SUPPORTED_LOCALES,
 } from '@/constants/localeConstants';
+import { useHead } from '#imports';
+import { unref } from 'vue';
 
 const CONTROL_CHAR_PATTERN = /[\u0000-\u001F\u007F]/g;
 const TAG_PATTERN = /<[^>]*>/g;
@@ -49,6 +51,160 @@ const sanitizeUrl = (value = '', fallbackPath = '') => {
   } catch {
     return '';
   }
+};
+
+const tryUseHead = (payload) => {
+  try {
+    useHead(payload);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const createMetaByName = (name, content) => {
+  const safeContent = sanitizeMetaText(content);
+
+  if (!safeContent) {
+    return null;
+  }
+
+  return {
+    key: `meta-name-${name}`,
+    name,
+    content: safeContent,
+  };
+};
+
+const createMetaByProperty = (property, content) => {
+  const safeContent = sanitizeMetaText(content);
+
+  if (!safeContent) {
+    return null;
+  }
+
+  return {
+    key: `meta-property-${property}`,
+    property,
+    content: safeContent,
+  };
+};
+
+const createLink = (link) => {
+  if (!link?.href) {
+    return null;
+  }
+
+  const safeHref = sanitizeUrl(link.href);
+
+  if (!safeHref) {
+    return null;
+  }
+
+  return {
+    ...link,
+    href: safeHref,
+  };
+};
+
+const resolveHeadSource = (source) => {
+  if (typeof source === 'function') {
+    return source();
+  }
+
+  return unref(source);
+};
+
+const buildSeoHeadPayload = ({
+  title,
+  description,
+  keywords,
+  ogTitle,
+  ogDescription,
+  ogImage,
+  ogType = 'website',
+  robots = 'index, follow',
+  twitterCard = 'summary_large_image',
+  locale = DEFAULT_LOCALE,
+  alternates = [],
+  canonical,
+} = {}) => {
+  const safeLocale = String(locale || DEFAULT_LOCALE).toLowerCase();
+  const safeTitle = sanitizeMetaText(title, 80);
+  const safeDescription = sanitizeMetaText(description, 320);
+  const canonicalUrl = sanitizeUrl(canonical);
+  const safeOgImage = sanitizeUrl(ogImage, '/images/og-default.svg');
+  const safeOgLocale = sanitizeMetaText(
+    String(HREFLANG_MAP[safeLocale] || HREFLANG_MAP[DEFAULT_LOCALE] || 'vi-VN').replace('-', '_'),
+    40,
+  );
+  const ogLocaleAlternates = SUPPORTED_LOCALES
+    .filter((item) => item !== safeLocale)
+    .map((item) => String(HREFLANG_MAP[item] || '').replace('-', '_'))
+    .filter(Boolean);
+
+  return {
+    title: safeTitle || undefined,
+    htmlAttrs: {
+      lang: safeLocale,
+    },
+    meta: [
+      createMetaByName('description', safeDescription),
+      createMetaByName('keywords', keywords),
+      createMetaByName('robots', robots),
+      createMetaByProperty('og:type', sanitizeMetaText(ogType, 40) || 'website'),
+      createMetaByProperty('og:url', canonicalUrl),
+      createMetaByProperty('og:title', ogTitle || safeTitle),
+      createMetaByProperty('og:description', ogDescription || safeDescription),
+      createMetaByProperty('og:image', safeOgImage),
+      createMetaByProperty('og:image:alt', ogTitle || safeTitle),
+      createMetaByProperty('og:site_name', appConfig.appName),
+      createMetaByProperty('og:locale', safeOgLocale),
+      ...ogLocaleAlternates
+        .map((localeValue, index) => ({
+          key: `meta-property-og-locale-alternate-${index}`,
+          property: 'og:locale:alternate',
+          content: sanitizeMetaText(localeValue, 40),
+        }))
+        .filter((item) => item.content),
+      createMetaByName('twitter:card', twitterCard),
+      createMetaByName('twitter:title', ogTitle || safeTitle),
+      createMetaByName('twitter:description', ogDescription || safeDescription),
+      createMetaByName('twitter:image', safeOgImage),
+    ].filter(Boolean),
+    link: [
+      createLink({
+        key: 'canonical',
+        rel: 'canonical',
+        href: canonicalUrl,
+      }),
+      ...alternates.map((item, index) => createLink({
+        key: `alternate-${index}-${item?.hreflang || ''}`,
+        rel: 'alternate',
+        hreflang: sanitizeMetaText(item?.hreflang || '', 40),
+        href: item?.href || '',
+      })),
+    ].filter(Boolean),
+  };
+};
+
+const normalizeStructuredDataEntries = (entries = []) => {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+
+  return entries
+    .filter((entry) => entry?.id && entry?.schema && typeof entry.schema === 'object')
+    .map((entry) => {
+      const scriptId = `${SCHEMA_SCRIPT_PREFIX}${sanitizeMetaText(String(entry.id), 80)}`;
+
+      return {
+        key: scriptId,
+        id: scriptId,
+        type: 'application/ld+json',
+        children: JSON.stringify(entry.schema),
+      };
+    });
 };
 
 const upsertMetaTag = ({ selector, attrKey, attrValue, content }) => {
@@ -244,16 +400,41 @@ export const buildAbsoluteUrl = (value = '') => {
   return sanitizeUrl(value);
 };
 
-export const setStructuredData = (schemaId, schemaObject) => {
-  if (typeof document === 'undefined') {
-    return;
-  }
+export const useSeoHead = (metaSource) => {
+  return tryUseHead(() => buildSeoHeadPayload(resolveHeadSource(metaSource) || {}));
+};
 
+export const useStructuredDataHead = (entriesSource) => {
+  return tryUseHead(() => ({
+    script: normalizeStructuredDataEntries(resolveHeadSource(entriesSource) || []),
+  }));
+};
+
+export const setStructuredData = (schemaId, schemaObject) => {
   if (!schemaId || !schemaObject || typeof schemaObject !== 'object') {
     return;
   }
 
   const scriptId = `${SCHEMA_SCRIPT_PREFIX}${schemaId}`;
+  const json = JSON.stringify(schemaObject);
+
+  if (tryUseHead({
+    script: [
+      {
+        key: scriptId,
+        id: scriptId,
+        type: 'application/ld+json',
+        children: json,
+      },
+    ],
+  })) {
+    return;
+  }
+
+  if (typeof document === 'undefined') {
+    return;
+  }
+
   let script = document.head.querySelector(`#${scriptId}`);
 
   if (!script) {
@@ -264,7 +445,7 @@ export const setStructuredData = (schemaId, schemaObject) => {
   }
 
   // Ghi đè schema theo route hiện tại để tránh dữ liệu JSON-LD cũ bị giữ lại.
-  script.textContent = JSON.stringify(schemaObject);
+  script.textContent = json;
 };
 
 export const removeStructuredData = (schemaId) => {
@@ -295,6 +476,20 @@ export const updateSeoMeta = ({
   canonical,
 }) => {
   if (typeof document === 'undefined') {
+    tryUseHead(buildSeoHeadPayload({
+      title,
+      description,
+      keywords,
+      ogTitle,
+      ogDescription,
+      ogImage,
+      ogType,
+      robots,
+      twitterCard,
+      locale,
+      alternates,
+      canonical,
+    }));
     return;
   }
 
@@ -313,6 +508,23 @@ export const updateSeoMeta = ({
     .filter((item) => item !== safeLocale)
     .map((item) => String(HREFLANG_MAP[item] || '').replace('-', '_'))
     .filter(Boolean);
+
+  if (tryUseHead(buildSeoHeadPayload({
+    title,
+    description,
+    keywords,
+    ogTitle,
+    ogDescription,
+    ogImage,
+    ogType,
+    robots,
+    twitterCard,
+    locale,
+    alternates,
+    canonical,
+  }))) {
+    return;
+  }
 
   if (safeTitle) {
     document.title = safeTitle;

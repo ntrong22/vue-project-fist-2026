@@ -20,7 +20,7 @@
 
     <AppHeader />
     <main class="pb-8">
-      <RouterView />
+      <slot />
     </main>
     <AppFooter />
   </div>
@@ -40,7 +40,7 @@ const { t } = useI18n({ useScope: 'global' });
 
 let removeUnauthorizedListener = () => {};
 
-onMounted(() => {
+const applyWebsiteStructuredData = () => {
   // Khai báo schema WebSite 1 lần ở layout để công cụ tìm kiếm hiểu rõ website và chức năng tìm kiếm.
   setStructuredData('website', {
     '@context': 'https://schema.org',
@@ -53,7 +53,11 @@ onMounted(() => {
       'query-input': 'required name=search_term_string',
     },
   });
+};
 
+applyWebsiteStructuredData();
+
+onMounted(() => {
   removeUnauthorizedListener = addUnauthorizedListener(() => {
     appStore.markAuthExpired(true);
     appStore.setAuthenticated(false);

@@ -4,7 +4,7 @@
 
     <div v-if="items.length" class="grid gap-4 lg:grid-cols-3">
       <article class="relative overflow-hidden rounded-2xl lg:col-span-2">
-        <RouterLink :to="buildNewsPath(items[0].slug)" class="block">
+        <NuxtLink :to="buildNewsPath(items[0].slug)" class="block">
           <img
             :src="items[0].thumbnail"
             :alt="getText(items[0], 'title')"
@@ -18,7 +18,7 @@
             <h3 class="text-2xl font-bold leading-tight lg:text-3xl">{{ getText(items[0], 'title') }}</h3>
             <p class="mt-3 line-clamp-2 text-sm text-slate-100">{{ getText(items[0], 'summary') }}</p>
           </div>
-        </RouterLink>
+        </NuxtLink>
       </article>
 
       <div class="space-y-4">

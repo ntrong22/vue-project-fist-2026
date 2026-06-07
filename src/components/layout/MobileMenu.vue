@@ -25,21 +25,21 @@
       </div>
 
       <nav class="space-y-1">
-        <RouterLink
+        <NuxtLink
           to="/"
           class="block rounded-lg px-3 py-2 text-slate-700 transition hover:bg-brand-50 hover:text-brand-700"
           @click="emit('close')"
         >
           {{ t('nav.home') }}
-        </RouterLink>
-        <RouterLink
+        </NuxtLink>
+        <NuxtLink
           to="/tin-tuc"
           class="block rounded-lg px-3 py-2 text-slate-700 transition hover:bg-brand-50 hover:text-brand-700"
           @click="emit('close')"
         >
           {{ t('nav.latest') }}
-        </RouterLink>
-        <RouterLink
+        </NuxtLink>
+        <NuxtLink
           v-for="item in categories"
           :key="item.id"
           :to="`/danh-muc/${item.slug}`"
@@ -47,21 +47,21 @@
           @click="emit('close')"
         >
           {{ getCategoryName(item) }}
-        </RouterLink>
-        <RouterLink
+        </NuxtLink>
+        <NuxtLink
           to="/gioi-thieu"
           class="block rounded-lg px-3 py-2 text-slate-700 transition hover:bg-brand-50 hover:text-brand-700"
           @click="emit('close')"
         >
           {{ t('nav.about') }}
-        </RouterLink>
-        <RouterLink
+        </NuxtLink>
+        <NuxtLink
           to="/lien-he"
           class="block rounded-lg px-3 py-2 text-slate-700 transition hover:bg-brand-50 hover:text-brand-700"
           @click="emit('close')"
         >
           {{ t('nav.contact') }}
-        </RouterLink>
+        </NuxtLink>
       </nav>
     </aside>
   </Transition>
