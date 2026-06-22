@@ -378,6 +378,12 @@
         <p class="subtitle">Tổng hợp full luồng project Nuxt SSR/SSG hiện tại.</p>
         <nav class="toc" aria-label="Mục lục">
           <a class="toc-link level-1" href="#projectflow-tong-hop-full-luong-project">PROJECT_FLOW - Tổng hợp full luồng project</a>
+<a class="toc-link level-1" href="#tong-quan-moi-nhat-luong-truy-cap-web-sau-khi-don">Mở đầu. Luồng truy cập web sau khi dọn</a>
+<a class="toc-link level-2" href="#duong-di-khi-nguoi-dung-mo-url">Đường đi khi người dùng mở URL</a>
+<a class="toc-link level-2" href="#bang-route-thu-muc-va-file-di-qua">Bảng route, thư mục và file đi qua</a>
+<a class="toc-link level-2" href="#vi-du-chi-tiet-khi-mo-bai-viet">Ví dụ chi tiết khi mở bài viết</a>
+<a class="toc-link level-2" href="#sau-nay-muon-doi-thi-sua-o-dau">Sau này muốn đổi thì sửa ở đâu</a>
+<a class="toc-link level-2" href="#trang-thai-thu-muc-sau-khi-don">Trạng thái thư mục sau khi dọn</a>
 <a class="toc-link level-1" href="#0-cap-nhat-nuxt-ssr-ssg-seo">0. Cập nhật Nuxt SSR/SSG SEO</a>
 <a class="toc-link level-2" href="#01-luong-runtime-nuxt-hien-tai">0.1. Luồng runtime Nuxt hiện tại</a>
 <a class="toc-link level-2" href="#02-luong-ssg-prerender">0.2. Luồng SSG/prerender</a>
@@ -397,11 +403,13 @@
 <a class="toc-link level-2" href="#154-huong-dan-theo-tinh-huong">15.4. Hướng dẫn theo tình huống</a>
 <a class="toc-link level-1" href="#1-tong-quan-project">1. Tổng quan project</a>
 <a class="toc-link level-2" href="#11-project-dung-cong-nghe-gi">1.1. Project dùng công nghệ gì</a>
+<a class="toc-link level-3" href="#111-phien-ban-va-thu-vien-dang-dung">1.1.1. Phiên bản và thư viện đang dùng</a>
 <a class="toc-link level-2" href="#12-muc-dich-chinh-cua-project">1.2. Mục đích chính của project</a>
 <a class="toc-link level-2" href="#13-cau-truc-tong-the">1.3. Cấu trúc tổng thể</a>
 <a class="toc-link level-2" href="#14-luong-chay-chinh-tu-luc-mo-webapp-den-khi-xu-ly-du-lieu">1.4. Luồng chạy chính từ lúc mở web/app đến khi xử lý dữ liệu</a>
 <a class="toc-link level-1" href="#2-cay-thu-muc-project">2. Cây thư mục project</a>
 <a class="toc-link level-2" href="#21-thu-muc-cap-root">2.1. Thư mục cấp root</a>
+<a class="toc-link level-3" href="#211-phan-loai-folder-giu-xoa">2.1.1. Phân loại folder giữ/xóa</a>
 <a class="toc-link level-2" href="#22-thu-muc-trong-src">2.2. Thư mục trong <code>src</code></a>
 <a class="toc-link level-2" href="#23-thu-muc-khong-co-trong-project">2.3. Thư mục không có trong project</a>
 <a class="toc-link level-1" href="#3-giai-thich-tung-file-quan-trong">3. Giải thích từng file quan trọng</a>
@@ -474,6 +482,143 @@
         <article class="content">
           <h1 id="projectflow-tong-hop-full-luong-project">PROJECT_FLOW - Tổng hợp full luồng project</h1>
 <p>Tài liệu này phân tích project hiện tại theo code thực tế trong thư mục <code>G:\VUEJS-NEW\pro-vue-01</code>.</p>
+
+<h1 id="tong-quan-moi-nhat-luong-truy-cap-web-sau-khi-don">Mở đầu: Luồng truy cập web sau khi dọn project</h1>
+<div class="note-box note-info">
+  <strong>Mục tiêu đọc nhanh:</strong>
+  <p>Project hiện tại chạy bằng Nuxt 3 SSR/SSG. Khi người dùng hoặc Googlebot mở một URL, request đi qua lớp Nuxt ở root trước, sau đó mới vào các view nghiệp vụ trong <code>src/pages</code>. Các thư mục đã dọn như <code>.nuxt</code>, <code>.output</code>, <code>dist</code>, <code>127.0.0.1</code> đều là cache/output hoặc legacy output, không phải nơi sửa logic hằng ngày.</p>
+</div>
+
+<h2 id="duong-di-khi-nguoi-dung-mo-url">Đường đi khi người dùng mở URL</h2>
+<div class="code-card"><div class="code-head"><span>Luồng request runtime hiện tại</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>Browser hoặc Googlebot mở URL
+Ví dụ: /tin-tuc/[slug], /danh-muc/[slug], /tim-kiem?q=...
+↓
+Môi trường chạy
+- Dev: npm run dev → Nuxt dev server
+- Production SSR/preview: npm run build → .output
+- Production static: npm run generate → .output/public + public/web.config fallback cho IIS
+↓
+nuxt.config.js
+- Bật ssr=true
+- Đăng ký @pinia/nuxt, Tailwind/PostCSS, CSS global
+- Cấu hình alias @ trỏ vào src
+- Cấu hình app head mặc định, routeRules, Nitro prerender routes
+↓
+plugins/
+- plugins/i18n.js: đăng ký i18n, đọc locale từ query/cookie
+- plugins/directives.client.js: đăng ký directive chỉ chạy phía client
+↓
+middleware/route-sanitizer.global.js
+- Sanitize page query, q query, slug bài viết/danh mục
+- Redirect về URL sạch hoặc /404 nếu slug không hợp lệ
+↓
+app.vue
+- Bọc toàn bộ app bằng src/layouts/MainLayout.vue
+- NuxtPage là vị trí Nuxt gắn page theo URL
+↓
+pages/ ở root
+- Nuxt file-based routing chọn wrapper theo URL
+- Wrapper rất mỏng, chỉ import view thật từ src/pages
+↓
+src/pages/*View.vue
+- View nghiệp vụ: HomeView, NewsListView, NewsDetailView, CategoryView, SearchView...
+- onServerPrefetch nạp data trước khi Nuxt render HTML SSR/SSG
+- useSeoHead/useStructuredDataHead ghi title/meta/canonical/schema vào HTML
+↓
+src/stores/
+- Pinia giữ state/loading/error/cache
+- View chỉ gọi action store, không gọi API trực tiếp
+↓
+src/services/ + src/api/
+- service chuẩn hóa nghiệp vụ, cache/fallback, mapper
+- nếu VITE_USE_MOCK_API=true: đọc src/data/news.js và src/data/categories.js
+- nếu VITE_USE_MOCK_API=false: đi qua src/api/httpClient.js để gọi backend
+↓
+src/components/ + src/layouts/ + src/styles/
+- Render giao diện, layout, header/footer, card, pagination, rich content
+↓
+HTML trả về cho browser/crawler
+- Có nội dung, meta SEO, canonical, hreflang, JSON-LD trước khi client hydrate</code></pre></div>
+
+<h2 id="bang-route-thu-muc-va-file-di-qua">Bảng route, thư mục và file đi qua</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>URL người dùng mở</th><th>Root <code>pages/</code> của Nuxt</th><th>View nghiệp vụ trong <code>src/pages</code></th><th>Store/action chính</th><th>Service/data chính</th></tr></thead>
+<tbody>
+<tr><td><code>/</code></td><td><code>pages/index.vue</code></td><td><code>src/pages/HomeView.vue</code></td><td><code>useNewsStore.fetchHomeNews()</code></td><td><code>newsService.getHomeNewsData()</code> → mock data hoặc API</td></tr>
+<tr><td><code>/tin-tuc</code></td><td><code>pages/tin-tuc/index.vue</code></td><td><code>src/pages/NewsListView.vue</code></td><td><code>useNewsStore.fetchNewsList()</code></td><td><code>newsService.getNewsList()</code> → danh sách tin + phân trang</td></tr>
+<tr><td><code>/tin-tuc/[slug]</code></td><td><code>pages/tin-tuc/[slug].vue</code></td><td><code>src/pages/NewsDetailView.vue</code></td><td><code>useNewsStore.fetchNewsDetail(slug)</code></td><td><code>newsService.getNewsDetailBySlug()</code> + <code>getRelatedNews()</code></td></tr>
+<tr><td><code>/danh-muc/[slug]</code></td><td><code>pages/danh-muc/[slug].vue</code></td><td><code>src/pages/CategoryView.vue</code></td><td><code>useNewsStore.fetchCategoryNews()</code></td><td><code>newsService.getNewsByCategorySlug()</code> + category mapper</td></tr>
+<tr><td><code>/tim-kiem?q=...</code></td><td><code>pages/tim-kiem.vue</code></td><td><code>src/pages/SearchView.vue</code></td><td><code>useNewsStore.searchNews()</code></td><td><code>newsService.searchNews()</code>; query được sanitize trước</td></tr>
+<tr><td><code>/gioi-thieu</code></td><td><code>pages/gioi-thieu.vue</code></td><td><code>src/pages/AboutView.vue</code></td><td>Không cần store chính</td><td>Nội dung tĩnh + SEO theo view</td></tr>
+<tr><td><code>/lien-he</code></td><td><code>pages/lien-he.vue</code></td><td><code>src/pages/ContactView.vue</code></td><td>Không cần store chính</td><td>Nội dung tĩnh + SEO theo view</td></tr>
+<tr><td><code>/404</code> hoặc route sai</td><td><code>pages/404.vue</code>, <code>pages/[...pathMatch].vue</code></td><td><code>src/pages/NotFoundView.vue</code></td><td>Không cần store chính</td><td>SEO <code>noindex</code></td></tr>
+</tbody></table></div>
+
+<h2 id="vi-du-chi-tiet-khi-mo-bai-viet">Ví dụ chi tiết khi mở bài viết</h2>
+<div class="code-card"><div class="code-head"><span>Ví dụ /tin-tuc/mot-bai-viet</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>/tin-tuc/mot-bai-viet
+↓
+middleware/route-sanitizer.global.js
+- normalize slug: mot-bai-viet
+- nếu slug bẩn hoặc rỗng thì redirect URL sạch hoặc /404
+↓
+pages/tin-tuc/[slug].vue
+- wrapper Nuxt rất mỏng
+- import src/pages/NewsDetailView.vue
+↓
+src/pages/NewsDetailView.vue
+- đọc route.params.slug
+- onServerPrefetch(loadNewsDetail) để SSR có data trước
+- onMounted(loadNewsDetail) để client refresh khi cần
+- watch slug/locale để đổi bài hoặc đổi ngôn ngữ
+↓
+useNewsStore.fetchNewsDetail(slug)
+- set loading/error
+- gọi newsService.getNewsDetailBySlug(slug)
+- gọi newsService.getRelatedNews(newsDetail)
+↓
+src/services/newsService.js
+- nếu mock: lấy từ src/data/news.js, src/data/categories.js
+- nếu API thật: gọi src/api/httpClient.js đến backend
+- normalize bằng newsMapper/categoryMapper
+- fallback mock nếu API lỗi hoặc payload sai shape
+↓
+src/pages/NewsDetailView.vue render
+- Breadcrumb, title, thumbnail, rich content, related news
+- sanitizeHtml trước khi v-html nội dung bài viết
+- useSeoHead ghi title, description, canonical, OG/Twitter
+- useStructuredDataHead ghi BreadcrumbList + NewsArticle JSON-LD
+↓
+Nuxt trả HTML đã có nội dung + SEO
+↓
+Browser hydrate để NuxtLink, i18n, interaction chạy phía client</code></pre></div>
+
+<h2 id="sau-nay-muon-doi-thi-sua-o-dau">Sau này muốn đổi thì sửa ở đâu</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Nhu cầu thay đổi</th><th>Sửa chính ở đâu</th><th>Lưu ý để không phá luồng</th></tr></thead>
+<tbody>
+<tr><td>Đổi giao diện trang</td><td><code>src/pages/*View.vue</code>, <code>src/components/</code>, <code>src/styles/main.css</code></td><td>Không cần sửa root <code>pages/</code> nếu URL không đổi.</td></tr>
+<tr><td>Đổi layout/header/footer/menu</td><td><code>src/layouts/MainLayout.vue</code>, <code>src/components/layout/</code>, <code>src/data/categories.js</code> nếu menu theo danh mục</td><td><code>app.vue</code> chỉ nên sửa khi đổi shell toàn app.</td></tr>
+<tr><td>Thêm URL/trang mới</td><td>Tạo wrapper trong root <code>pages/</code>, tạo hoặc tái dùng view trong <code>src/pages</code></td><td>Nếu muốn SSG/SEO mạnh, bổ sung routeRules/prerender trong <code>nuxt.config.js</code> khi cần.</td></tr>
+<tr><td>Đổi API backend</td><td><code>.env</code>, <code>src/config/apiConfig.js</code>, <code>src/api/httpClient.js</code>, <code>src/services/*Service.js</code></td><td>Giữ page → store → service → api, không gọi API trực tiếp từ component.</td></tr>
+<tr><td>Đổi dữ liệu mock</td><td><code>src/data/news.js</code>, <code>src/data/categories.js</code></td><td>Nhớ kiểm slug vì sitemap/prerender đọc data này.</td></tr>
+<tr><td>Đổi SEO từng trang</td><td><code>src/utils/seoHelper.js</code> và phần <code>useSeoHead</code> trong từng <code>*View.vue</code></td><td>Default SEO nằm trong <code>nuxt.config.js</code>; dynamic SEO nằm trong view.</td></tr>
+<tr><td>Đổi sitemap/robots</td><td><code>scripts/generate-sitemap.mjs</code>, <code>public/robots.txt</code>, <code>public/news-sitemap.xml</code>, <code>public/sitemap.xml</code></td><td><code>npm run build</code> và <code>npm run generate</code> đều chạy script sitemap trước.</td></tr>
+<tr><td>Đổi bảo vệ route/query</td><td><code>middleware/route-sanitizer.global.js</code>, <code>src/utils/sanitizeHtml.js</code>, <code>src/utils/slugHelper.js</code></td><td>Cẩn thận vì middleware chạy trước hầu hết page.</td></tr>
+</tbody></table></div>
+
+<h2 id="trang-thai-thu-muc-sau-khi-don">Trạng thái thư mục sau khi dọn</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>Nhóm</th><th>File/thư mục</th><th>Trạng thái hiện tại</th><th>Ghi chú</th></tr></thead>
+<tbody>
+<tr><td>Core Nuxt runtime</td><td><code>app.vue</code>, <code>pages/</code>, <code>middleware/</code>, <code>plugins/</code>, <code>nuxt.config.js</code></td><td>Giữ</td><td>Đây là lớp request đi qua trước.</td></tr>
+<tr><td>Nghiệp vụ app</td><td><code>src/pages/</code>, <code>src/stores/</code>, <code>src/services/</code>, <code>src/api/</code>, <code>src/components/</code>, <code>src/utils/</code></td><td>Giữ</td><td>Đây là nơi sửa tính năng hằng ngày.</td></tr>
+<tr><td>Public/deploy</td><td><code>public/</code>, <code>scripts/</code></td><td>Giữ</td><td>Public assets, sitemap/robots, web.config và script build.</td></tr>
+<tr><td>Generated/cache</td><td><code>.nuxt/</code>, <code>.output/</code>, <code>dist/</code>, <code>127.0.0.1/</code></td><td>Đã xóa, có thể sinh lại</td><td><code>.nuxt</code>/<code>.output</code> do Nuxt sinh; <code>dist</code> là output cũ; <code>127.0.0.1</code> là cache lạc chỗ.</td></tr>
+<tr><td>Dependency</td><td><code>node_modules/</code></td><td>Giữ local, ẩn trong VS Code</td><td>Xóa được nhưng phải chạy <code>npm install</code> lại.</td></tr>
+<tr><td>Local config</td><td><code>.env</code></td><td>Giữ local, không commit</td><td><code>.env.example</code> là mẫu nên vẫn giữ trong repo.</td></tr>
+<tr><td>Legacy/tài liệu</td><td><code>index.html</code>, <code>git-command-tabs.html</code>, <code>PROJECT_FLOW.md</code></td><td>Giữ hoặc ẩn</td><td><code>index.html</code> là entry SPA cũ; runtime Nuxt không đi qua file này.</td></tr>
+</tbody></table></div>
+
 <p>Lưu ý quan trọng:</p>
 <ul>
 <li>Project hiện tại đã chuyển sang <strong>Nuxt 3 SSR/SSG</strong> để tăng SEO, crawler có thể nhận HTML đã có content/title/meta/canonical/schema.</li>
@@ -565,19 +710,28 @@ Nitro prerender routes: /, /tin-tuc, /danh-muc/[slug], /tin-tuc/[slug], /gioi-th
 
 <div class="code-card"><div class="code-head"><span>src/config/apiConfig.js</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>baseURL  ← VITE_API_BASE_URL    (mặc định: http://localhost:5000/api)
 timeout  ← VITE_API_TIMEOUT     (mặc định: 12000 ms)
-withCredentials ← VITE_API_WITH_CREDENTIALS  (mặc định: false)</code></pre></div>
+withCredentials ← VITE_API_WITH_CREDENTIALS  (mặc định: false)
+csrf.enabled    ← VITE_API_CSRF_ENABLED      (mặc định: false)</code></pre></div>
 
 <div class="table-wrap"><table>
 <thead><tr><th>Biến .env</th><th>Giá trị mặc định</th><th>Ý nghĩa</th><th>Ảnh hưởng</th></tr></thead>
 <tbody>
 <tr><td><code>VITE_API_BASE_URL</code></td><td><code>http://localhost:5000/api</code></td><td>Domain gốc của backend API</td><td><strong>Toàn bộ mọi request</strong></td></tr>
-<tr><td><code>VITE_USE_MOCK_API</code></td><td><code>true</code></td><td>Dùng mock data hay API thật</td><td>Quyết định luồng service</td></tr>
+<tr><td><code>VITE_USE_MOCK_API</code></td><td><code>false</code></td><td>Dùng mock data hay API thật</td><td>Mặc định gọi API thật; chỉ bật <code>true</code> khi cần demo/offline</td></tr>
+<tr><td><code>VITE_API_ALLOW_MOCK_FALLBACK</code></td><td><code>false</code></td><td>Cho phép fallback về mock khi API lỗi</td><td>Production nên giữ <code>false</code> để không hiện dữ liệu demo ngoài ý muốn</td></tr>
 <tr><td><code>VITE_API_TIMEOUT</code></td><td><code>12000</code></td><td>Timeout ms mỗi request</td><td>Khi backend chậm/lỗi</td></tr>
 <tr><td><code>VITE_API_WITH_CREDENTIALS</code></td><td><code>false</code></td><td>Gửi cookie/session qua cross-origin</td><td>Bật khi dùng cookie auth</td></tr>
+<tr><td><code>VITE_API_CSRF_ENABLED</code></td><td><code>false</code></td><td>Bật tự gắn CSRF token cho POST/PUT/PATCH/DELETE</td><td>Dùng khi backend yêu cầu CSRF</td></tr>
+<tr><td><code>VITE_API_CSRF_COOKIE_NAME</code></td><td><code>XSRF-TOKEN</code></td><td>Tên cookie chứa CSRF token</td><td>Interceptor đọc token phía browser</td></tr>
+<tr><td><code>VITE_API_CSRF_HEADER_NAME</code></td><td><code>X-CSRF-TOKEN</code></td><td>Tên header gửi CSRF token</td><td>Backend kiểm tra request ghi dữ liệu</td></tr>
+<tr><td><code>VITE_API_CSRF_META_NAME</code></td><td><code>csrf-token</code></td><td>Tên meta tag fallback chứa CSRF token</td><td>Dùng khi không lấy token qua cookie</td></tr>
 <tr><td><code>VITE_AUTH_TOKEN_TYPE</code></td><td><code>Bearer</code></td><td>Tiền tố token trong header</td><td>Header Authorization</td></tr>
 <tr><td><code>VITE_AUTH_LOGIN_ENDPOINT</code></td><td><code>/auth/login</code></td><td>Endpoint đăng nhập</td><td><code>authService.login()</code></td></tr>
 <tr><td><code>VITE_AUTH_REFRESH_ENDPOINT</code></td><td><code>/auth/refresh</code></td><td>Endpoint làm mới token</td><td><code>authService.refreshAccessToken()</code></td></tr>
 <tr><td><code>VITE_AUTH_LOGOUT_ENDPOINT</code></td><td><code>/auth/logout</code></td><td>Endpoint đăng xuất</td><td><code>authService.logout()</code></td></tr>
+<tr><td><code>VITE_AUTH_LOGIN_PATH</code></td><td><code>/</code></td><td>Đường dẫn redirect khi route yêu cầu auth</td><td>Middleware route auth dùng khi chưa đăng nhập</td></tr>
+<tr><td><code>VITE_AUTH_REFRESH_BEFORE_EXPIRES_MS</code></td><td><code>60000</code></td><td>Ngưỡng refresh token trước khi hết hạn</td><td>Request interceptor tự refresh trước hạn</td></tr>
+<tr><td><code>VITE_AUTH_REFRESH_USES_COOKIE</code></td><td><code>false</code></td><td>Refresh token nằm trong cookie httpOnly thay vì body</td><td>Dùng cùng <code>withCredentials</code> khi backend hỗ trợ</td></tr>
 <tr><td><code>VITE_NEWS_CACHE_TTL_MS</code></td><td><code>60000</code></td><td>Thời gian cache tin tức (ms)</td><td>Bao lâu mới gọi API lại</td></tr>
 </tbody></table></div>
 
@@ -591,16 +745,19 @@ withCredentials ← VITE_API_WITH_CREDENTIALS  (mặc định: false)</code></pr
 <ol class="flow-steps">
   <li>Service gọi <code>apiClient.get('/news')</code> hoặc bất kỳ method nào.</li>
   <li>Interceptor kiểm tra URL có khớp <code>/auth/login</code> hoặc <code>/auth/refresh</code> không (SKIP_AUTH_PATTERNS).</li>
+  <li>Nếu token gần hết hạn theo <code>VITE_AUTH_REFRESH_BEFORE_EXPIRES_MS</code> → gọi <code>authTokenRefresh.js</code> để refresh trước khi gửi request.</li>
   <li>Nếu không skip → gọi <code>getAuthorizationHeader()</code> từ <code>authSession.js</code>.</li>
   <li><code>hasValidAccessToken()</code> kiểm tra token tồn tại và chưa hết hạn (<code>Date.now() &lt; expiresAt</code>).</li>
   <li>Nếu có token hợp lệ → tự động thêm header <code>Authorization: Bearer &lt;token&gt;</code>.</li>
+  <li>Nếu <code>VITE_API_CSRF_ENABLED=true</code> và method là POST/PUT/PATCH/DELETE → gắn CSRF token từ meta/cookie vào header.</li>
   <li>Request bay đến backend.</li>
 </ol>
 
 <p><strong>Interceptor RESPONSE (sau khi nhận):</strong></p>
 <ol class="flow-steps">
   <li>Response trả về → kiểm tra HTTP status.</li>
-  <li>Nếu status <code>401</code> → gọi <code>clearAuthSession()</code> (xóa token khỏi memory) + <code>notifyUnauthorized()</code>.</li>
+  <li>Nếu status <code>401</code> và còn refresh token/cookie refresh → refresh token rồi retry request cũ đúng 1 lần.</li>
+  <li>Nếu refresh thất bại hoặc đã retry rồi vẫn <code>401</code> → gọi <code>clearAuthSession()</code> + <code>notifyUnauthorized()</code>.</li>
   <li><code>MainLayout.vue</code> lắng nghe event <code>notifyUnauthorized</code> → hiện banner "phiên đăng nhập hết hạn".</li>
   <li>Nếu status <code>0, 403, 500</code> → gọi <code>logTechnicalError()</code> (chỉ log ở DEV mode).</li>
   <li>Lỗi được normalize qua <code>normalizeAppError()</code> → trả ra message i18n thân thiện.</li>
@@ -621,7 +778,7 @@ withCredentials ← VITE_API_WITH_CREDENTIALS  (mặc định: false)</code></pr
 <tr><td><code>/categories</code></td><td>GET</td><td><code>categoryService.js → getCategories()</code></td><td>Menu, filter tin theo danh mục</td><td>Không (public)</td><td>Mock data</td></tr>
 <tr><td><code>/categories/:slug</code></td><td>GET</td><td><code>categoryService.js → getCategoryBySlug()</code></td><td>Trang danh mục</td><td>Không (public)</td><td>Tìm trong mock</td></tr>
 <tr><td><code>/auth/login</code></td><td>POST</td><td><code>authService.js → login()</code></td><td>Đăng nhập</td><td>Skip auth header</td><td>Throw error</td></tr>
-<tr><td><code>/auth/refresh</code></td><td>POST</td><td><code>authService.js → refreshAccessToken()</code></td><td>Token sắp hết hạn</td><td>Skip auth header</td><td>clearAuthSession()</td></tr>
+<tr><td><code>/auth/refresh</code></td><td>POST</td><td><code>authTokenRefresh.js</code> / <code>authService.js → refreshAccessToken()</code></td><td>Token sắp hết hạn hoặc retry sau 401</td><td>Skip auth header</td><td><code>clearAuthSession()</code></td></tr>
 <tr><td><code>/auth/logout</code></td><td>POST</td><td><code>authService.js → logout()</code></td><td>Đăng xuất</td><td>Có (Bearer token)</td><td>Vẫn clear local session</td></tr>
 <tr><td><code>/information</code></td><td>GET</td><td><em>Chưa có — cần thêm service</em></td><td>Trang About/Contact</td><td>TBD</td><td>—</td></tr>
 <tr><td><code>/logs</code></td><td>POST</td><td><em>Chưa có — cần thêm service</em></td><td>Gửi log client-side</td><td>TBD</td><td>—</td></tr>
@@ -681,11 +838,14 @@ VITE_API_BASE_URL=https://api.vietnews24h.com/api</code></pre></div>
 
 <p><strong>Cơ chế bảo mật hiện tại:</strong></p>
 <ol class="flow-steps step-sec">
-  <li><strong>Token chỉ lưu trong biến module (memory)</strong> — <code>authSession.js</code> dùng biến <code>let accessToken</code>, <code>let refreshToken</code>. Không lưu <code>localStorage</code>, không lưu cookie. Mất khi F5 hoặc đóng tab. An toàn hơn trước XSS.</li>
-  <li><strong>Kiểm tra expiry trước khi gắn token</strong> — <code>hasValidAccessToken()</code> so sánh <code>Date.now() &lt; expiresAt</code>. Token hết hạn → không gắn header → backend trả 401.</li>
+  <li><strong>Token chỉ lưu in-memory phía browser</strong> — <code>authSession.js</code> không lưu <code>localStorage</code>, không lưu cookie, và không lưu token vào module state khi chạy SSR server. Mất khi F5 hoặc đóng tab nếu không dùng cookie/httpOnly refresh.</li>
+  <li><strong>Kiểm tra expiry trước khi gắn token</strong> — <code>hasValidAccessToken()</code> so sánh <code>Date.now() &lt; expiresAt</code>. Nếu token gần hết hạn thì request interceptor tự refresh trước theo <code>VITE_AUTH_REFRESH_BEFORE_EXPIRES_MS</code>.</li>
   <li><strong>SKIP_AUTH_PATTERNS bảo vệ endpoint login/refresh</strong> — <code>/auth/login</code> và <code>/auth/refresh</code> bị loại khỏi việc gắn token (tránh vòng lặp và leak token cũ).</li>
   <li><strong>skipAuth flag</strong> — khi gọi <code>apiClient.post(endpoint, data, { skipAuth: true })</code> thì interceptor bỏ qua gắn token. Dùng cho login, refresh.</li>
-  <li><strong>Auto clear khi 401</strong> — interceptor response tự gọi <code>clearAuthSession()</code> khi nhận 401. Không để token cũ tồn tại.</li>
+  <li><strong>Auto refresh và retry 401 một lần</strong> — nếu backend trả 401 và còn refresh token/cookie refresh, interceptor gọi <code>authTokenRefresh.js</code>, gắn token mới và retry request cũ đúng 1 lần.</li>
+  <li><strong>Auto clear khi refresh thất bại</strong> — nếu refresh fail hoặc retry vẫn 401, interceptor gọi <code>clearAuthSession()</code> và <code>notifyUnauthorized()</code>. Không để token cũ tồn tại.</li>
+  <li><strong>Chống refresh storm</strong> — nhiều request cùng lúc chỉ dùng chung một promise refresh, tránh bắn nhiều request <code>/auth/refresh</code> song song.</li>
+  <li><strong>CSRF header tùy chọn</strong> — khi <code>VITE_API_CSRF_ENABLED=true</code>, request ghi dữ liệu tự gắn CSRF token từ meta/cookie vào header cấu hình bởi <code>VITE_API_CSRF_HEADER_NAME</code>.</li>
   <li><strong>notifyUnauthorized listener</strong> — <code>MainLayout.vue</code> đăng ký listener để bắt event 401, hiển thị banner thông báo hết phiên mà không redirect cứng.</li>
   <li><strong>DOMPurify sanitize HTML</strong> — nội dung bài viết dùng <code>v-html</code> nhưng bắt buộc qua <code>sanitizeHtml.js</code> (DOMPurify) trước khi render. Ngăn XSS từ nội dung CMS.</li>
   <li><strong>Nuxt middleware sanitize slug/query</strong> — <code>middleware/route-sanitizer.global.js</code> sanitize params slug và query string trước khi cho vào component. Ngăn path traversal và injection qua URL.</li>
@@ -699,7 +859,8 @@ VITE_API_BASE_URL=https://api.vietnews24h.com/api</code></pre></div>
   <strong class="hl-title">🟡 Điểm cần lưu ý thêm khi mở rộng bảo mật:</strong>
   <ul>
     <li>Nếu backend dùng <strong>cookie httpOnly</strong>: bật <code>VITE_API_WITH_CREDENTIALS=true</code> và cấu hình CORS backend cho phép <code>credentials</code>.</li>
-    <li>Nếu cần <strong>auto refresh token</strong> trước khi hết hạn: thêm logic gọi <code>authService.refreshAccessToken()</code> trong interceptor request khi <code>expiresAt - Date.now() &lt; threshold</code>.</li>
+    <li>Nếu backend refresh bằng cookie httpOnly thay vì refresh token trong response body: bật <code>VITE_AUTH_REFRESH_USES_COOKIE=true</code>.</li>
+    <li>Nếu bật CSRF: backend cần phát cookie/meta token không httpOnly cho frontend đọc, và kiểm tra header tương ứng ở các method ghi dữ liệu.</li>
     <li>API <strong>/logs</strong> nếu có: nên dùng <code>skipAuth: false</code> (gắn token) để backend biết user nào gửi log.</li>
     <li>API <strong>/information</strong> nếu public: không cần token, interceptor tự bỏ qua khi không có token trong session.</li>
     <li>Không bao giờ log <code>accessToken</code> hay <code>credentials</code> ra console, ngay cả trong DEV.</li>
@@ -861,6 +1022,25 @@ VITE_API_BASE_URL=https://api.vietnews24h.com/api</code></pre></div>
 <tr><td>Sitemap</td><td><code>scripts/generate-sitemap.mjs</code></td><td>Sinh <code>sitemap.xml</code>, <code>news-sitemap.xml</code>, <code>robots.txt</code> khi build</td></tr>
 <tr><td>Deploy IIS/static</td><td><code>public/web.config</code>, <code>.output/public</code></td><td>Rewrite/serve route static Nuxt khi deploy SSG</td></tr>
 </tbody></table></div>
+<h3 id="111-phien-ban-va-thu-vien-dang-dung">1.1.1. Phiên bản và thư viện đang dùng</h3>
+<p>Project hiện tại chạy trên <strong>Nuxt 3</strong> và <strong>Vue 3</strong>. Theo <code>npm ls --depth=0</code>, bản đang cài trong <code>node_modules</code> là <code>vue@3.5.34</code> và <code>nuxt@3.21.7</code>. Trong <code>package.json</code>, Nuxt đang khai báo <code>^3.19.3</code>, nên khi cài lại bằng npm có thể được nâng trong cùng major version theo package lock/registry.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>Thư viện</th><th>Version khai báo trong <code>package.json</code></th><th>Version đang cài</th><th>Vai trò trong project</th></tr></thead>
+<tbody>
+<tr><td><code>nuxt</code></td><td><code>^3.19.3</code></td><td><code>3.21.7</code></td><td>Framework chính, chạy SSR/SSG, dev server, build, generate và preview.</td></tr>
+<tr><td><code>vue</code></td><td><code>^3.5.34</code></td><td><code>3.5.34</code></td><td>Vue 3 core để viết component, composition API, template và hydration UI.</td></tr>
+<tr><td><code>@pinia/nuxt</code></td><td><code>^0.11.3</code></td><td><code>0.11.3</code></td><td>Module tích hợp Pinia vào Nuxt.</td></tr>
+<tr><td><code>pinia</code></td><td><code>^3.0.4</code></td><td><code>3.0.4</code></td><td>State management cho app, tin tức và danh mục.</td></tr>
+<tr><td><code>axios</code></td><td><code>^1.13.2</code></td><td><code>1.16.1</code></td><td>HTTP client gọi API backend khi <code>VITE_USE_MOCK_API=false</code>.</td></tr>
+<tr><td><code>dompurify</code></td><td><code>^3.4.5</code></td><td><code>3.4.5</code></td><td>Làm sạch HTML phía client.</td></tr>
+<tr><td><code>isomorphic-dompurify</code></td><td><code>^2.31.0</code></td><td><code>2.36.0</code></td><td>Làm sạch HTML dùng được cả server/client, quan trọng cho SSR khi render <code>v-html</code>.</td></tr>
+<tr><td><code>vue-i18n</code></td><td><code>^11.1.12</code></td><td><code>11.1.12</code></td><td>Đa ngôn ngữ VI/EN.</td></tr>
+<tr><td><code>vue-router</code></td><td><code>^4.6.4</code></td><td><code>4.6.4</code></td><td>Router nền của Vue/Nuxt; project hiện dùng Nuxt file-based routing là chính, còn <code>src/router</code> là legacy SPA cũ.</td></tr>
+<tr><td><code>tailwindcss</code></td><td><code>^3.4.18</code></td><td><code>3.4.19</code></td><td>CSS utility cho giao diện.</td></tr>
+<tr><td><code>postcss</code></td><td><code>^8.5.6</code></td><td><code>8.5.15</code></td><td>Pipeline CSS cho Tailwind/Nuxt build.</td></tr>
+<tr><td><code>autoprefixer</code></td><td><code>^10.4.22</code></td><td><code>10.5.0</code></td><td>Tự thêm vendor prefix CSS khi build.</td></tr>
+</tbody></table></div>
+<p>Ghi chú: <code>node_modules</code> có thể xuất hiện một số package <code>extraneous</code> nếu từng cài thử thư viện nhưng chưa lưu vào <code>package.json</code>. Những package đó không nên xem là dependency chính của project.</p>
 <h2 id="12-muc-dich-chinh-cua-project">1.2. Mục đích chính của project</h2>
 <p>Project là một nền tảng tin tức tên <code>VietNews 24h</code>, có các chức năng:</p>
 <ul>
@@ -951,6 +1131,25 @@ Nuxt render HTML SSR/SSG + hydrate UI + ghi SEO head/schema</code></pre></div>
 <tr><td><code>tailwind.config.js</code></td><td>Cấu hình Tailwind theme, content scan.</td></tr>
 <tr><td><code>PROJECT_FLOW.md</code></td><td>File tài liệu phân tích full luồng project này.</td></tr>
 </tbody></table></div>
+<h3 id="211-phan-loai-folder-giu-xoa">2.1.1. Phân loại folder giữ/xóa</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Folder</th><th>Chức năng</th><th>Giữ/Xóa</th></tr></thead>
+<tbody>
+<tr><td><code>.nuxt</code></td><td>Cache/build tạm khi chạy <code>npm run dev</code> hoặc <code>nuxt prepare</code>.</td><td>Xóa được, tự sinh lại.</td></tr>
+<tr><td><code>.output</code></td><td>Output sau <code>npm run build</code> / <code>npm run generate</code>; dùng cho <code>npm run preview</code> hoặc deploy Nuxt.</td><td>Giữ nếu cần preview/deploy, xóa được nếu build lại.</td></tr>
+<tr><td><code>.vscode</code></td><td>Cấu hình VS Code cá nhân.</td><td>Không cần commit, xóa được.</td></tr>
+<tr><td><code>127.0.0.1</code></td><td>Thư mục lạ, chỉ chứa <code>.nuxt/nuxt.json</code> và <code>.nuxt/nuxt.lock</code>.</td><td>Nên xóa.</td></tr>
+<tr><td><code>dist</code></td><td>Output build cũ/static cũ, hiện <code>package.json</code> không dùng trực tiếp.</td><td>Xóa được nếu deploy theo Nuxt <code>.output</code>.</td></tr>
+<tr><td><code>middleware</code></td><td>Middleware route của Nuxt, đang dùng để sanitize route/query/slug.</td><td>Giữ.</td></tr>
+<tr><td><code>node_modules</code></td><td>Thư viện cài từ <code>npm install</code>.</td><td>Giữ khi chạy local; xóa được nhưng phải <code>npm install</code> lại.</td></tr>
+<tr><td><code>pages</code></td><td>Route chính của Nuxt: <code>/</code>, <code>/tin-tuc</code>, <code>/danh-muc/...</code>.</td><td>Giữ.</td></tr>
+<tr><td><code>plugins</code></td><td>Plugin Nuxt: i18n, directives.</td><td>Giữ.</td></tr>
+<tr><td><code>public</code></td><td>File public copy thẳng ra web: favicon, sitemap, robots, images, <code>web.config</code>.</td><td>Giữ.</td></tr>
+<tr><td><code>scripts</code></td><td>Script phụ trợ; <code>generate-sitemap.mjs</code> đang được <code>build</code>/<code>generate</code> gọi.</td><td>Giữ.</td></tr>
+<tr><td><code>src</code></td><td>Code chính: components, layouts, data, stores, services, styles.</td><td>Giữ.</td></tr>
+</tbody></table></div>
+<p>Lệnh dọn các folder generated/lạ có thể chạy khi muốn làm sạch project local:</p>
+<div class="code-card"><div class="code-head"><span>powershell</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>Remove-Item -Recurse -Force .nuxt, .output, dist, 127.0.0.1</code></pre></div>
 <h2 id="22-thu-muc-trong-src">2.2. Thư mục trong <code>src</code></h2>
 <div class="table-wrap"><table>
 <thead><tr><th>Đường dẫn</th><th>Nhiệm vụ</th></tr></thead>
@@ -1039,17 +1238,19 @@ Nuxt render HTML SSR/SSG + hydrate UI + ghi SEO head/schema</code></pre></div>
 <tr><td><code>src/stores/useCategoryStore.js</code></td><td>State danh mục, currentCategory, cache</td><td>Header/Footer/Home</td><td>categoryService</td><td>Động</td><td>Có cẩn thận</td><td>Menu phụ thuộc file này</td></tr>
 <tr><td><code>src/services/newsService.js</code></td><td>Logic lấy, cache, phân trang, lọc tin, search, fallback mock/API</td><td>useNewsStore</td><td>apiClient, categoryService, mock data, mappers</td><td>Động</td><td>Có cẩn thận</td><td>Logic nghiệp vụ chính</td></tr>
 <tr><td><code>src/services/categoryService.js</code></td><td>Lấy danh mục từ mock/API, fallback</td><td>useCategoryStore, newsService</td><td>apiClient, mock categories, mapper</td><td>Động</td><td>Có</td><td>Endpoint <code>/categories</code></td></tr>
-<tr><td><code>src/services/authService.js</code></td><td>Login/refresh/logout</td><td>Chưa thấy page gọi trực tiếp</td><td>apiClient, authSession</td><td>Động</td><td>Cần kiểm tra thêm</td><td>Có service nhưng chưa thấy UI login</td></tr>
-<tr><td><code>src/services/authSession.js</code></td><td>Lưu token in-memory, auth header, unauthorized listener</td><td>apiClient, router, MainLayout, authService</td><td>authConfig</td><td>Động</td><td>Ít sửa</td><td>Không lưu token localStorage</td></tr>
+<tr><td><code>src/services/authService.js</code></td><td>Login/refresh/logout</td><td>Chưa thấy page gọi trực tiếp</td><td>apiClient, authSession, authTokenRefresh</td><td>Động</td><td>Cần kiểm tra thêm</td><td>Có service nhưng chưa thấy UI login</td></tr>
+<tr><td><code>src/services/authSession.js</code></td><td>Lưu token in-memory phía browser, auth header, refresh threshold, unauthorized listener</td><td>apiClient, router, MainLayout, authService</td><td>authConfig</td><td>Động</td><td>Ít sửa</td><td>Không lưu token localStorage và không lưu token trong SSR module state</td></tr>
+<tr><td><code>src/services/authTokenRefresh.js</code></td><td>Gọi refresh token bằng Axios riêng, tránh vòng lặp interceptor chính</td><td>httpClient, authService</td><td>apiConfig, authConfig, authSession</td><td>Core auth</td><td>Ít sửa</td><td>Dùng chung cho auto refresh trước hạn và retry 401</td></tr>
+<tr><td><code>src/services/authPayload.js</code></td><td>Normalize payload auth từ nhiều kiểu field backend</td><td>authService, authTokenRefresh</td><td>Không</td><td>Utility auth</td><td>Ít sửa</td><td>Hỗ trợ <code>access_token</code>, <code>refresh_token</code>, <code>expires_in</code>, <code>exp</code></td></tr>
 <tr><td><code>src/services/apiClient.js</code></td><td>Re-export <code>src/api/httpClient.js</code> cho import cũ</td><td>Chưa thấy import trực tiếp ngoài file này</td><td>httpClient</td><td>Cố định</td><td>Hạn chế sửa</td><td>Tương thích ngược</td></tr>
-<tr><td><code>src/api/httpClient.js</code></td><td>Axios instance, auth header, xử lý 401/lỗi</td><td>Services</td><td>apiConfig, authSession, errorHandler</td><td>Core API</td><td>Hạn chế sửa</td><td>Sửa sai ảnh hưởng toàn bộ API</td></tr>
+<tr><td><code>src/api/httpClient.js</code></td><td>Axios instance, auth header, auto refresh token, retry 401 một lần, CSRF header, xử lý lỗi</td><td>Services</td><td>apiConfig, authSession, authTokenRefresh, errorHandler</td><td>Core API</td><td>Hạn chế sửa</td><td>Sửa sai ảnh hưởng toàn bộ API</td></tr>
 <tr><td><code>src/services/newsMapper.js</code></td><td>Normalize news item/list, sanitize field cơ bản, image fallback</td><td>newsService</td><td>appConfig, slugHelper</td><td>Động</td><td>Có cẩn thận</td><td>Chốt shape dữ liệu tin</td></tr>
 <tr><td><code>src/services/categoryMapper.js</code></td><td>Normalize category item/list</td><td>categoryService/newsService</td><td>slugHelper</td><td>Động</td><td>Có</td><td>Chốt shape dữ liệu danh mục</td></tr>
 <tr><td><code>src/data/news.js</code></td><td>32 bài viết mock, tự sinh slug/content/thumbnail/SEO fields</td><td>newsService, sitemap script</td><td>Không gọi API</td><td>Tĩnh/mock</td><td>Có khi đổi dữ liệu demo</td><td>Không phải database</td></tr>
 <tr><td><code>src/data/categories.js</code></td><td>9 danh mục mock</td><td>categoryService, newsService, sitemap script</td><td>Không gọi API</td><td>Tĩnh/mock</td><td>Có khi đổi danh mục mock</td><td>Menu mock phụ thuộc file này</td></tr>
 <tr><td><code>src/config/appConfig.js</code></td><td>App name, app URL, mock flag, page size, cache TTL, fallback image</td><td>Stores/services/SEO</td><td><code>.env</code></td><td>Cấu hình động</td><td>Có khi đổi behavior app</td><td>Ảnh hưởng nhiều nơi</td></tr>
-<tr><td><code>src/config/apiConfig.js</code></td><td>Base URL, timeout, credentials cho API</td><td>httpClient</td><td><code>.env</code></td><td>Cấu hình động</td><td>Có khi đổi API</td><td>Không hard-code production trong code</td></tr>
-<tr><td><code>src/config/authConfig.js</code></td><td>Endpoint auth/token type</td><td>authService/authSession</td><td><code>.env</code></td><td>Cấu hình động</td><td>Có khi đổi auth API</td><td>Auth chưa có UI rõ ràng</td></tr>
+<tr><td><code>src/config/apiConfig.js</code></td><td>Base URL, timeout, credentials, CSRF config cho API</td><td>httpClient</td><td><code>.env</code></td><td>Cấu hình động</td><td>Có khi đổi API</td><td>Không hard-code production trong code</td></tr>
+<tr><td><code>src/config/authConfig.js</code></td><td>Endpoint auth, token type, login path, refresh threshold/cookie mode</td><td>authService/authSession</td><td><code>.env</code></td><td>Cấu hình động</td><td>Có khi đổi auth API</td><td>Auth chưa có UI rõ ràng</td></tr>
 <tr><td><code>src/plugins/i18n.js</code></td><td>Tạo i18n, đọc/lưu locale localStorage/cookie</td><td>root <code>plugins/i18n.js</code>, useLocale, errorHandler</td><td>locales, locale constants</td><td>Core plugin</td><td>Ít sửa</td><td>Sai locale làm lỗi text toàn app</td></tr>
 <tr><td><code>src/plugins/directives.js</code></td><td>Đăng ký directive global</td><td>root <code>plugins/directives.client.js</code></td><td>lazyImage directive</td><td>Core plugin client</td><td>Ít sửa</td><td>Hiện chỉ có <code>v-lazy-image</code></td></tr>
 <tr><td><code>src/directives/lazyImage.js</code></td><td>Lazy load image/background bằng IntersectionObserver</td><td>plugins/directives</td><td>DOM/browser API</td><td>Động</td><td>Có</td><td>Chưa thấy nơi dùng <code>v-lazy-image</code> trực tiếp</td></tr>
@@ -1099,8 +1300,8 @@ Component render UI</code></pre></div>
 <strong>Quan trọng: API kết nối qua một cửa duy nhất</strong>
 <p>Project hiện dùng <code>src/api/httpClient.js</code> làm Axios instance trung tâm. Các service như <code>newsService.js</code>, <code>categoryService.js</code>, <code>authService.js</code> không tự tạo Axios mới mà import <code>apiClient</code> rồi gọi endpoint tương ứng.</p>
 <ul>
-<li><code>src/config/apiConfig.js</code> đọc <code>VITE_API_BASE_URL</code>, <code>VITE_API_TIMEOUT</code>, <code>VITE_API_WITH_CREDENTIALS</code>.</li>
-<li><code>src/api/httpClient.js</code> gắn <code>baseURL</code>, timeout, header JSON, auth header và xử lý lỗi 401.</li>
+<li><code>src/config/apiConfig.js</code> đọc <code>VITE_API_BASE_URL</code>, <code>VITE_API_TIMEOUT</code>, <code>VITE_API_WITH_CREDENTIALS</code> và các biến CSRF.</li>
+<li><code>src/api/httpClient.js</code> gắn <code>baseURL</code>, timeout, header JSON, auth header, CSRF header, auto refresh token và retry 401 một lần.</li>
 <li><code>src/services/*.js</code> là nơi viết từng nhóm API nghiệp vụ: news, category, information, log, contact...</li>
 <li><code>src/stores/*.js</code> gọi service, lưu loading/error/cache/state để page dùng.</li>
 </ul>
@@ -1117,7 +1318,7 @@ Component render UI</code></pre></div>
 <tr><td>Information</td><td><code>src/services/informationService.js</code>, có thể thêm <code>src/stores/useInformationStore.js</code></td><td><code>GET /information</code>, <code>GET /information/:key</code></td><td>Page/Layout → Store → informationService → apiClient</td><td>Dùng cho thông tin trường, footer, giới thiệu, cấu hình nội dung public</td></tr>
 <tr><td>Contact</td><td><code>src/services/contactService.js</code></td><td><code>POST /contact</code></td><td>ContactView → contactService hoặc contactStore → apiClient</td><td>Cần validate phía client và backend, chống spam/rate limit phía backend</td></tr>
 <tr><td>Log</td><td><code>src/services/logService.js</code></td><td><code>POST /logs/client-error</code></td><td>errorHandler → logService → apiClient</td><td>Không gửi token, password, email nhạy cảm, full response, stack trace chứa dữ liệu người dùng</td></tr>
-<tr><td>Auth</td><td><code>src/services/authService.js</code>, <code>src/services/authSession.js</code>, <code>src/config/authConfig.js</code></td><td><code>POST /auth/login</code>, <code>POST /auth/refresh</code>, <code>POST /auth/logout</code></td><td>Login page → authService → apiClient → authSession</td><td>Login/refresh đang dùng <code>skipAuth</code>, token hiện lưu in-memory</td></tr>
+<tr><td>Auth</td><td><code>src/services/authService.js</code>, <code>src/services/authSession.js</code>, <code>src/services/authTokenRefresh.js</code>, <code>src/config/authConfig.js</code></td><td><code>POST /auth/login</code>, <code>POST /auth/refresh</code>, <code>POST /auth/logout</code></td><td>Login page → authService → apiClient/authTokenRefresh → authSession</td><td>Login/refresh skip auth header, token lưu in-memory phía browser, interceptor tự refresh/retry 401</td></tr>
 </tbody></table></div>
 <p>Ví dụ khi thêm API mới:</p>
 <div class="code-card"><div class="code-head"><span>js</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>// src/services/informationService.js
@@ -1233,7 +1434,7 @@ export const logService = {
 <tbody>
 <tr><td>Service</td><td><code>src/services/authService.js</code></td><td>Có login/refresh/logout</td></tr>
 <tr><td>Session</td><td><code>src/services/authSession.js</code></td><td>Token lưu in-memory, không localStorage</td></tr>
-<tr><td>API client</td><td><code>src/api/httpClient.js</code></td><td>Gắn Authorization header nếu token hợp lệ</td></tr>
+<tr><td>API client</td><td><code>src/api/httpClient.js</code></td><td>Gắn Authorization/CSRF header, auto refresh trước hạn, retry 401 một lần</td></tr>
 <tr><td>Router/middleware</td><td><code>middleware/route-sanitizer.global.js</code> + authSession</td><td>Hiện runtime Nuxt chỉ dùng sanitize route/query; auth route riêng chưa thấy khai báo</td></tr>
 <tr><td>Layout</td><td><code>MainLayout.vue</code></td><td>Lắng nghe unauthorized để bật banner auth expired</td></tr>
 <tr><td>Cần kiểm tra thêm</td><td>UI login/admin</td><td>Chưa thấy page login/admin trong project hiện tại</td></tr>
@@ -1307,12 +1508,12 @@ export const logService = {
 <div class="table-wrap"><table>
 <thead><tr><th>Nội dung</th><th>Nguồn hiện tại</th><th>Ghi chú</th></tr></thead>
 <tbody>
-<tr><td>Tin tức</td><td><code>src/data/news.js</code> khi mock, hoặc API <code>/news</code> khi tắt mock</td><td>Hiện mock mặc định theo <code>.env.example</code></td></tr>
-<tr><td>Danh mục</td><td><code>src/data/categories.js</code> khi mock, hoặc API <code>/categories</code></td><td>Menu phụ thuộc dữ liệu này</td></tr>
+<tr><td>Tin tức</td><td><code>src/data/news.js</code> khi bật mock, hoặc API <code>/news</code> khi tắt mock</td><td><code>.env.example</code> hiện mặc định gọi API thật; fallback mock chỉ bật khi <code>VITE_API_ALLOW_MOCK_FALLBACK=true</code></td></tr>
+<tr><td>Danh mục</td><td><code>src/data/categories.js</code> khi bật mock, hoặc API <code>/categories</code></td><td>Menu phụ thuộc dữ liệu này</td></tr>
 <tr><td>Text giao diện</td><td><code>src/locales/vi.json</code>, <code>src/locales/en.json</code></td><td>i18n</td></tr>
 <tr><td>About/Contact content</td><td>Locale files</td><td>Không gọi API</td></tr>
 <tr><td>Contact form submit</td><td>Chưa thấy API submit</td><td>Form hiện chỉ <code>@submit.prevent</code>, chưa có logic gửi</td></tr>
-<tr><td>SEO default</td><td><code>index.html</code>, <code>src/utils/seoHelper.js</code>, locale files</td><td>Dynamic theo page</td></tr>
+<tr><td>SEO default</td><td><code>nuxt.config.js</code>, <code>src/utils/seoHelper.js</code>, locale files</td><td>SSR/SSG dynamic theo page</td></tr>
 <tr><td>Sitemap</td><td><code>scripts/generate-sitemap.mjs</code> + <code>src/data</code></td><td>Build-time</td></tr>
 </tbody></table></div>
 <hr />
@@ -1330,7 +1531,7 @@ export const logService = {
 <tr><td>Cấu hình</td><td><code>.env.example</code></td><td>Mẫu cấu hình</td><td>Dùng để tạo <code>.env</code></td></tr>
 <tr><td>Cấu hình</td><td><code>.env</code></td><td>Local động</td><td>Không commit</td></tr>
 <tr><td>Cấu hình</td><td><code>src/config/*.js</code></td><td>Động theo env</td><td>App/API/auth config</td></tr>
-<tr><td>API</td><td><code>src/api/httpClient.js</code></td><td>Động/core</td><td>Axios, auth header, error handling</td></tr>
+<tr><td>API</td><td><code>src/api/httpClient.js</code></td><td>Động/core</td><td>Axios, auth header, CSRF, auto refresh, retry 401, error handling</td></tr>
 <tr><td>API</td><td><code>src/services/newsService.js</code></td><td>Động</td><td>Mock/API, cache, pagination, search</td></tr>
 <tr><td>API</td><td><code>src/services/categoryService.js</code></td><td>Động</td><td>Mock/API danh mục</td></tr>
 <tr><td>API</td><td><code>src/services/authService.js</code></td><td>Động</td><td>Login/refresh/logout, chưa thấy UI gọi</td></tr>
@@ -1485,7 +1686,7 @@ export const logService = {
 <tr><td><code>categoryService.js</code></td><td><code>GET /categories</code></td><td>Khi <code>VITE_USE_MOCK_API=false</code></td></tr>
 <tr><td><code>categoryService.js</code></td><td><code>GET /categories/:slug</code></td><td>Khi lấy danh mục theo slug và tắt mock</td></tr>
 <tr><td><code>authService.js</code></td><td><code>POST /auth/login</code> hoặc env <code>VITE_AUTH_LOGIN_ENDPOINT</code></td><td>Khi có UI gọi login</td></tr>
-<tr><td><code>authService.js</code></td><td><code>POST /auth/refresh</code> hoặc env <code>VITE_AUTH_REFRESH_ENDPOINT</code></td><td>Khi refresh token</td></tr>
+<tr><td><code>authTokenRefresh.js</code> / <code>authService.js</code></td><td><code>POST /auth/refresh</code> hoặc env <code>VITE_AUTH_REFRESH_ENDPOINT</code></td><td>Khi token gần hết hạn hoặc retry sau 401</td></tr>
 <tr><td><code>authService.js</code></td><td><code>POST /auth/logout</code> hoặc env <code>VITE_AUTH_LOGOUT_ENDPOINT</code></td><td>Khi logout</td></tr>
 </tbody></table></div>
 <h2 id="94-api-goi-database-nao">9.4. API gọi database nào</h2>
@@ -1507,9 +1708,9 @@ export const logService = {
 <thead><tr><th>File</th><th>Ảnh hưởng</th></tr></thead>
 <tbody>
 <tr><td><code>.env</code></td><td>App URL, API URL, mock/API mode, port, timeout, auth endpoints</td></tr>
-<tr><td><code>src/config/appConfig.js</code></td><td>Tên app, domain canonical, mock mode, page size, cache TTL</td></tr>
-<tr><td><code>src/config/apiConfig.js</code></td><td>Base URL và timeout toàn bộ API</td></tr>
-<tr><td><code>src/config/authConfig.js</code></td><td>Token type và auth endpoint</td></tr>
+<tr><td><code>src/config/appConfig.js</code></td><td>Tên app, domain canonical, mock mode, mock fallback mode, page size, cache TTL</td></tr>
+<tr><td><code>src/config/apiConfig.js</code></td><td>Base URL, timeout, credentials và CSRF toàn bộ API</td></tr>
+<tr><td><code>src/config/authConfig.js</code></td><td>Token type, auth endpoint, login path, refresh threshold/cookie mode</td></tr>
 <tr><td><code>pages/</code></td><td>Toàn bộ navigation route Nuxt</td></tr>
 <tr><td><code>middleware/route-sanitizer.global.js</code></td><td>Sanitize route/query</td></tr>
 <tr><td><code>src/utils/seoHelper.js</code></td><td>SEO toàn site</td></tr>
@@ -1527,7 +1728,7 @@ export const logService = {
 <tr><td><code>nuxt.config.js</code></td><td>SSR/SSG, alias, CSS, prerender hoặc head mặc định có thể lỗi</td></tr>
 <tr><td><code>pages/</code></td><td>Route sai, 404 sai, wrapper page sai</td></tr>
 <tr><td><code>middleware/route-sanitizer.global.js</code></td><td>Query/slug sanitize sai</td></tr>
-<tr><td><code>src/api/httpClient.js</code></td><td>Tất cả API bị ảnh hưởng, auth header/lỗi 401 sai</td></tr>
+<tr><td><code>src/api/httpClient.js</code></td><td>Tất cả API bị ảnh hưởng, auth header/CSRF/refresh/lỗi 401 sai</td></tr>
 <tr><td><code>src/services/newsService.js</code></td><td>Dữ liệu tin tức toàn site sai</td></tr>
 <tr><td><code>src/stores/useNewsStore.js</code></td><td>Loading/error/cache tin tức sai</td></tr>
 <tr><td><code>src/utils/sanitizeHtml.js</code></td><td>Có thể tạo lỗi hiển thị hoặc rủi ro XSS</td></tr>
@@ -1635,8 +1836,9 @@ export const logService = {
 <thead><tr><th>File</th><th>Gợi ý bảo mật</th></tr></thead>
 <tbody>
 <tr><td><code>src/utils/sanitizeHtml.js</code></td><td>Giữ whitelist chặt, không mở <code>iframe/script/style</code> nếu không thật sự cần</td></tr>
-<tr><td><code>src/api/httpClient.js</code></td><td>Kiểm tra CORS/withCredentials khi bật cookie auth</td></tr>
-<tr><td><code>src/services/authSession.js</code></td><td>Hiện token in-memory an toàn hơn localStorage nhưng reload sẽ mất token; cần chiến lược refresh nếu dùng auth thật</td></tr>
+<tr><td><code>src/api/httpClient.js</code></td><td>Đã có auto refresh trước hạn, retry 401 một lần, CSRF header khi bật env; vẫn cần backend CORS/CSRF đúng</td></tr>
+<tr><td><code>src/services/authSession.js</code></td><td>Token chỉ lưu in-memory phía browser, không localStorage và tránh lưu token trong SSR module state; reload vẫn mất token nếu không dùng cookie/httpOnly</td></tr>
+<tr><td><code>src/services/authTokenRefresh.js</code></td><td>Refresh token dùng Axios riêng để tránh vòng lặp interceptor; nếu backend dùng cookie refresh thì bật <code>VITE_AUTH_REFRESH_USES_COOKIE=true</code></td></tr>
 <tr><td><code>.env.example</code></td><td>Không đưa secret/key thật vào</td></tr>
 <tr><td><code>ContactView.vue</code></td><td>Nếu gửi form thật cần validate, rate limit phía backend, chống spam</td></tr>
 </tbody></table></div>
@@ -1647,6 +1849,7 @@ export const logService = {
 <li>Frontend chỉ giữ URL public, timeout, flag mock, endpoint public. Secret phải nằm ở backend.</li>
 <li>Mọi dữ liệu nhập từ user cần validate ở frontend để UX tốt, nhưng backend vẫn phải validate lại vì frontend có thể bị bypass.</li>
 <li>Nếu dùng cookie auth và <code>VITE_API_WITH_CREDENTIALS=true</code>, backend phải cấu hình CORS đúng domain, không dùng wildcard <code>*</code> cho credential.</li>
+<li>Nếu dùng CSRF, bật <code>VITE_API_CSRF_ENABLED=true</code> và thống nhất cookie/header CSRF với backend.</li>
 <li>Nếu dùng Bearer token, hạn chế lưu token ở <code>localStorage</code>. Project hiện lưu token in-memory trong <code>authSession.js</code>, an toàn hơn trước XSS lưu trữ nhưng reload sẽ mất phiên.</li>
 <li>Không log dữ liệu nhạy cảm: token, password, refresh token, cookie, email cá nhân, số điện thoại, payload form đầy đủ, response chứa thông tin riêng tư.</li>
 <li>Endpoint log nên giới hạn kích thước payload, rate limit, loại bỏ field nhạy cảm và chỉ nhận thông tin cần debug.</li>
@@ -1810,8 +2013,12 @@ Render UI</code></pre></div>
 <div class="code-card"><div class="code-head"><span>text</span><button type="button" class="copy-code" aria-label="Sao chép code">Copy</button></div><pre><code>.env
 VITE_USE_MOCK_API=false
 VITE_API_BASE_URL=https://api.example.com/api
+VITE_API_ALLOW_MOCK_FALLBACK=false
 VITE_API_TIMEOUT=12000
 VITE_API_WITH_CREDENTIALS=false
+VITE_API_CSRF_ENABLED=false
+VITE_AUTH_REFRESH_BEFORE_EXPIRES_MS=60000
+VITE_AUTH_REFRESH_USES_COOKIE=false
 
 Service gọi:
 apiClient.get('/categories')
@@ -1826,11 +2033,14 @@ https://api.example.com/api/logs/client-error</code></pre></div>
 <strong>Checklist trước khi bật API production</strong>
 <ul>
 <li>Kiểm tra <code>VITE_USE_MOCK_API=false</code> để app không còn dùng mock data.</li>
+<li>Kiểm tra <code>VITE_API_ALLOW_MOCK_FALLBACK=false</code> để API lỗi không âm thầm hiện dữ liệu demo.</li>
 <li>Kiểm tra <code>VITE_API_BASE_URL</code> đúng domain HTTPS production.</li>
 <li>Kiểm tra backend trả JSON shape đúng mapper đang normalize.</li>
 <li>Kiểm tra CORS chỉ cho phép domain frontend thật.</li>
+<li>Nếu dùng cookie auth: bật <code>VITE_API_WITH_CREDENTIALS=true</code>, cấu hình CORS credential, và cân nhắc <code>VITE_AUTH_REFRESH_USES_COOKIE=true</code>.</li>
+<li>Nếu backend yêu cầu CSRF: bật <code>VITE_API_CSRF_ENABLED=true</code> và thống nhất cookie/header CSRF.</li>
 <li>Kiểm tra endpoint log không nhận dữ liệu nhạy cảm và có rate limit.</li>
-<li>Kiểm tra lỗi 401 có clear session và điều hướng/hiển thị thông báo phù hợp.</li>
+<li>Kiểm tra lỗi 401 có auto refresh/retry một lần; nếu refresh fail thì clear session và hiển thị thông báo phù hợp.</li>
 <li>Không commit file <code>.env</code> thật lên GitHub.</li>
 </ul>
 </div>
@@ -1867,7 +2077,7 @@ https://api.example.com/api/logs/client-error</code></pre></div>
 </tbody></table></div>
 <hr />
 <h1 id="tom-tat-nhanh-cho-nguoi-moi-vao-project">Tóm tắt nhanh cho người mới vào project</h1>
-<p>Đây là Nuxt 3 SSR/SSG cho website tin tức. Khi mở web, app đi từ <code>app.vue</code> vào <code>MainLayout</code>, Nuxt chọn wrapper trong <code>pages/</code>, rồi render lại view cũ trong <code>src/pages/*View.vue</code>. Dữ liệu tin tức vẫn nằm ở Pinia store, store gọi service, service lấy mock data hoặc API thật tùy <code>VITE_USE_MOCK_API</code>. SEO được ghi vào HTML server/static bằng <code>seoHelper.js</code> + <code>useHead</code>, còn sitemap/robots được sinh trước build bằng <code>scripts/generate-sitemap.mjs</code>.</p>
+<p>Đây là Nuxt 3 SSR/SSG cho website tin tức. Khi mở web, app đi từ <code>app.vue</code> vào <code>MainLayout</code>, Nuxt chọn wrapper trong <code>pages/</code>, rồi render lại view cũ trong <code>src/pages/*View.vue</code>. Dữ liệu tin tức vẫn nằm ở Pinia store, store gọi service, service lấy mock data hoặc API thật tùy <code>VITE_USE_MOCK_API</code>; fallback mock khi API lỗi chỉ chạy nếu bật <code>VITE_API_ALLOW_MOCK_FALLBACK=true</code>. SEO được ghi vào HTML server/static bằng <code>seoHelper.js</code> + <code>useHead</code>, còn sitemap/robots được sinh trước build bằng <code>scripts/generate-sitemap.mjs</code>.</p>
 <p>File nên nắm đầu tiên:</p>
 <ol>
 <li><code>nuxt.config.js</code></li>

@@ -6,6 +6,8 @@ let expiresAt = 0;
 
 const unauthorizedListeners = new Set();
 
+const isBrowserRuntime = () => typeof window !== 'undefined';
+
 const normalizeToken = (value) => {
   return typeof value === 'string' ? value.trim() : '';
 };
@@ -15,30 +17,66 @@ export const setAuthSession = ({
   refreshToken: nextRefreshToken = '',
   expiresAt: nextExpiresAt = 0,
 } = {}) => {
+  if (!isBrowserRuntime()) {
+    return;
+  }
+
   accessToken = normalizeToken(nextAccessToken);
   refreshToken = normalizeToken(nextRefreshToken);
   expiresAt = Number(nextExpiresAt) || 0;
 };
 
 export const clearAuthSession = () => {
+  if (!isBrowserRuntime()) {
+    return;
+  }
+
   accessToken = '';
   refreshToken = '';
   expiresAt = 0;
 };
 
-export const getAccessToken = () => accessToken;
-export const getRefreshToken = () => refreshToken;
+export const getAccessToken = () => (isBrowserRuntime() ? accessToken : '');
+export const getRefreshToken = () => (isBrowserRuntime() ? refreshToken : '');
+export const getAccessTokenExpiresAt = () => (isBrowserRuntime() ? expiresAt : 0);
+
+export const hasRefreshToken = () => Boolean(getRefreshToken());
+
+export const canRefreshAccessToken = () => {
+  return hasRefreshToken() || authConfig.refreshUsesCookie;
+};
 
 export const hasValidAccessToken = () => {
-  if (!accessToken) {
+  const currentAccessToken = getAccessToken();
+
+  if (!currentAccessToken) {
     return false;
   }
 
-  if (!expiresAt) {
+  const currentExpiresAt = getAccessTokenExpiresAt();
+
+  if (!currentExpiresAt) {
     return true;
   }
 
-  return Date.now() < expiresAt;
+  return Date.now() < currentExpiresAt;
+};
+
+export const shouldRefreshAccessToken = (
+  thresholdMs = authConfig.refreshBeforeExpiresMs,
+) => {
+  if (!isBrowserRuntime() || !canRefreshAccessToken()) {
+    return false;
+  }
+
+  const currentAccessToken = getAccessToken();
+  const currentExpiresAt = getAccessTokenExpiresAt();
+
+  if (!currentAccessToken || !currentExpiresAt) {
+    return false;
+  }
+
+  return Date.now() + Math.max(Number(thresholdMs) || 0, 0) >= currentExpiresAt;
 };
 
 export const getAuthorizationHeader = () => {
@@ -46,7 +84,7 @@ export const getAuthorizationHeader = () => {
     return '';
   }
 
-  return `${authConfig.tokenType} ${accessToken}`;
+  return `${authConfig.tokenType} ${getAccessToken()}`;
 };
 
 export const addUnauthorizedListener = (listener) => {

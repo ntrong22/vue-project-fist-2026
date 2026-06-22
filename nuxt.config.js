@@ -59,11 +59,16 @@ export default defineNuxtConfig({
 
   modules: ['@pinia/nuxt'],
 
-  css: ['@/styles/main.css'],
+  css: [
+    '@/styles/variables.css',
+    '@/styles/base.css',
+    '@/styles/layout.css',
+    '@/styles/components.css',
+    '@/styles/utilities.css',
+  ],
 
   postcss: {
     plugins: {
-      tailwindcss: {},
       autoprefixer: {},
     },
   },
@@ -95,7 +100,17 @@ export default defineNuxtConfig({
         { name: 'twitter:description', content: 'Nền tảng tin tức hiện đại, cập nhật liên tục nhiều chuyên mục.' },
         { name: 'twitter:image', content: `${appUrl}/images/og-default.svg` },
       ],
+      script: [
+        // Mẫu JS thư viện tải về — xóa block dưới nếu không dùng; cần plugins/sample-vendor.client.js
+        { src: '/vendor/sample-lib/sample-lib.js', defer: true },
+      ],
       link: [
+        {
+          rel: 'stylesheet',
+          href: 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap',
+        },
+        // Mẫu CSS thư viện trong public/vendor/ — xóa dòng dưới nếu không dùng
+        { rel: 'stylesheet', href: '/vendor/sample-lib/sample-lib.css' },
         { rel: 'canonical', href: `${appUrl}/` },
         { rel: 'alternate', hreflang: 'vi-VN', href: `${appUrl}/` },
         { rel: 'alternate', hreflang: 'en-US', href: `${appUrl}/?lang=en` },

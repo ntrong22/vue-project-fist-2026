@@ -1,0 +1,44 @@
+/* Biến màu / spacing dùng chung — sửa tại đây khi đổi theme */
+:root {
+  --color-text: #142033;
+  --color-muted: #64748b;
+  --color-border: #d9e2ef;
+  --color-surface: #ffffff;
+  --radius-card: 1rem;
+  --radius-btn: 0.5rem;
+  --space-section: 2rem;
+
+  --color-brand-50: #f0f9ff;
+  --color-brand-100: #e0f2fe;
+  --color-brand-200: #bae6fd;
+  --color-brand-400: #38bdf8;
+  --color-brand-500: #0ea5e9;
+  --color-brand-600: #0284c7;
+  --color-brand-700: #0369a1;
+  --color-brand-800: #075985;
+
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+
+  --color-amber-50: #fffbeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #fbbf24;
+  --color-amber-900: #78350f;
+
+  --shadow-soft: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --font-sans: 'Be Vietnam Pro', system-ui, sans-serif;
+
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+}

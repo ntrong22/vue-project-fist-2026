@@ -64,6 +64,14 @@ const normalizedMockNews = normalizeNewsList(newsMock, normalizedCategories);
 
 const getSortedMockNews = () => sortByPublishedAtDesc(normalizedMockNews);
 
+const getCategoriesFallback = () => {
+  return appConfig.allowMockFallback ? [...normalizedCategories] : [];
+};
+
+const getNewsFallback = () => {
+  return appConfig.allowMockFallback ? getSortedMockNews() : [];
+};
+
 const categoryCache = {
   items: [...normalizedCategories],
   expiresAt: 0,
@@ -102,7 +110,7 @@ const isCategoryCacheAvailable = () => {
 };
 
 const saveCategoryCache = (items) => {
-  categoryCache.items = Array.isArray(items) ? [...items] : [...normalizedCategories];
+  categoryCache.items = Array.isArray(items) ? [...items] : getCategoriesFallback();
   categoryCache.expiresAt = Date.now() + getCacheTtl();
 };
 
@@ -132,8 +140,9 @@ const getAvailableCategories = async () => {
       categoryCache.pending = null;
     }
 
-    saveCategoryCache(normalizedCategories);
-    return [...normalizedCategories];
+    const fallbackCategories = getCategoriesFallback();
+    saveCategoryCache(fallbackCategories);
+    return fallbackCategories;
   })();
 
   return categoryCache.pending;
@@ -162,7 +171,7 @@ const getAllNews = async () => {
       const availableCategories = await getAvailableCategories();
 
       if (!hasValidShape) {
-        const fallbackNews = getSortedMockNews();
+        const fallbackNews = getNewsFallback();
         saveNewsCache(fallbackNews);
         return fallbackNews;
       }
@@ -170,7 +179,7 @@ const getAllNews = async () => {
       const normalizedNews = normalizeNewsList(items, availableCategories);
 
       if (items.length > 0 && normalizedNews.length === 0) {
-        const fallbackNews = getSortedMockNews();
+        const fallbackNews = getNewsFallback();
         saveNewsCache(fallbackNews);
         return fallbackNews;
       }
@@ -180,7 +189,7 @@ const getAllNews = async () => {
       return sortedNews;
     } catch (error) {
       logTechnicalError(error, 'newsService:getAllNews');
-      const fallbackNews = getSortedMockNews();
+      const fallbackNews = getNewsFallback();
       saveNewsCache(fallbackNews);
       return fallbackNews;
     } finally {

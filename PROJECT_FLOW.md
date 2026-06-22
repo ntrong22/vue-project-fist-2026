@@ -2,6 +2,145 @@
 
 Tài liệu này phân tích project hiện tại theo code thực tế trong thư mục `G:\VUEJS-NEW\pro-vue-01`.
 
+# Mở đầu: Luồng truy cập web sau khi dọn project
+
+Mục tiêu đọc nhanh: Project hiện tại chạy bằng Nuxt 3 SSR/SSG. Khi người dùng hoặc Googlebot mở một URL, request đi qua lớp Nuxt ở root trước, sau đó mới vào các view nghiệp vụ trong `src/pages`. Các thư mục đã dọn như `.nuxt`, `.output`, `dist`, `127.0.0.1` đều là cache/output hoặc legacy output, không phải nơi sửa logic hằng ngày.
+
+## Đường đi khi người dùng mở URL
+
+```text
+Browser hoặc Googlebot mở URL
+Ví dụ: /tin-tuc/[slug], /danh-muc/[slug], /tim-kiem?q=...
+↓
+Môi trường chạy
+- Dev: npm run dev → Nuxt dev server
+- Production SSR/preview: npm run build → .output
+- Production static: npm run generate → .output/public + public/web.config fallback cho IIS
+↓
+nuxt.config.js
+- Bật ssr=true
+- Đăng ký @pinia/nuxt, Tailwind/PostCSS, CSS global
+- Cấu hình alias @ trỏ vào src
+- Cấu hình app head mặc định, routeRules, Nitro prerender routes
+↓
+plugins/
+- plugins/i18n.js: đăng ký i18n, đọc locale từ query/cookie
+- plugins/directives.client.js: đăng ký directive chỉ chạy phía client
+↓
+middleware/route-sanitizer.global.js
+- Sanitize page query, q query, slug bài viết/danh mục
+- Redirect về URL sạch hoặc /404 nếu slug không hợp lệ
+↓
+app.vue
+- Bọc toàn bộ app bằng src/layouts/MainLayout.vue
+- NuxtPage là vị trí Nuxt gắn page theo URL
+↓
+pages/ ở root
+- Nuxt file-based routing chọn wrapper theo URL
+- Wrapper rất mỏng, chỉ import view thật từ src/pages
+↓
+src/pages/*View.vue
+- View nghiệp vụ: HomeView, NewsListView, NewsDetailView, CategoryView, SearchView...
+- onServerPrefetch nạp data trước khi Nuxt render HTML SSR/SSG
+- useSeoHead/useStructuredDataHead ghi title/meta/canonical/schema vào HTML
+↓
+src/stores/
+- Pinia giữ state/loading/error/cache
+- View chỉ gọi action store, không gọi API trực tiếp
+↓
+src/services/ + src/api/
+- service chuẩn hóa nghiệp vụ, cache/fallback, mapper
+- nếu VITE_USE_MOCK_API=true: đọc src/data/news.js và src/data/categories.js
+- nếu VITE_USE_MOCK_API=false: đi qua src/api/httpClient.js để gọi backend
+↓
+src/components/ + src/layouts/ + src/styles/
+- Render giao diện, layout, header/footer, card, pagination, rich content
+↓
+HTML trả về cho browser/crawler
+- Có nội dung, meta SEO, canonical, hreflang, JSON-LD trước khi client hydrate
+```
+
+## Bảng route, thư mục và file đi qua
+
+| URL người dùng mở | Root `pages/` của Nuxt | View nghiệp vụ trong `src/pages` | Store/action chính | Service/data chính |
+| ----------------- | ---------------------- | -------------------------------- | ------------------ | ------------------ |
+| `/` | `pages/index.vue` | `src/pages/HomeView.vue` | `useNewsStore.fetchHomeNews()` | `newsService.getHomeNewsData()` → mock data hoặc API |
+| `/tin-tuc` | `pages/tin-tuc/index.vue` | `src/pages/NewsListView.vue` | `useNewsStore.fetchNewsList()` | `newsService.getNewsList()` → danh sách tin + phân trang |
+| `/tin-tuc/[slug]` | `pages/tin-tuc/[slug].vue` | `src/pages/NewsDetailView.vue` | `useNewsStore.fetchNewsDetail(slug)` | `newsService.getNewsDetailBySlug()` + `getRelatedNews()` |
+| `/danh-muc/[slug]` | `pages/danh-muc/[slug].vue` | `src/pages/CategoryView.vue` | `useNewsStore.fetchCategoryNews()` | `newsService.getNewsByCategorySlug()` + category mapper |
+| `/tim-kiem?q=...` | `pages/tim-kiem.vue` | `src/pages/SearchView.vue` | `useNewsStore.searchNews()` | `newsService.searchNews()`; query được sanitize trước |
+| `/gioi-thieu` | `pages/gioi-thieu.vue` | `src/pages/AboutView.vue` | Không cần store chính | Nội dung tĩnh + SEO theo view |
+| `/lien-he` | `pages/lien-he.vue` | `src/pages/ContactView.vue` | Không cần store chính | Nội dung tĩnh + SEO theo view |
+| `/404` hoặc route sai | `pages/404.vue`, `pages/[...pathMatch].vue` | `src/pages/NotFoundView.vue` | Không cần store chính | SEO `noindex` |
+
+## Ví dụ chi tiết khi mở bài viết
+
+```text
+/tin-tuc/mot-bai-viet
+↓
+middleware/route-sanitizer.global.js
+- normalize slug: mot-bai-viet
+- nếu slug bẩn hoặc rỗng thì redirect URL sạch hoặc /404
+↓
+pages/tin-tuc/[slug].vue
+- wrapper Nuxt rất mỏng
+- import src/pages/NewsDetailView.vue
+↓
+src/pages/NewsDetailView.vue
+- đọc route.params.slug
+- onServerPrefetch(loadNewsDetail) để SSR có data trước
+- onMounted(loadNewsDetail) để client refresh khi cần
+- watch slug/locale để đổi bài hoặc đổi ngôn ngữ
+↓
+useNewsStore.fetchNewsDetail(slug)
+- set loading/error
+- gọi newsService.getNewsDetailBySlug(slug)
+- gọi newsService.getRelatedNews(newsDetail)
+↓
+src/services/newsService.js
+- nếu mock: lấy từ src/data/news.js, src/data/categories.js
+- nếu API thật: gọi src/api/httpClient.js đến backend
+- normalize bằng newsMapper/categoryMapper
+- fallback mock nếu API lỗi hoặc payload sai shape
+↓
+src/pages/NewsDetailView.vue render
+- Breadcrumb, title, thumbnail, rich content, related news
+- sanitizeHtml trước khi v-html nội dung bài viết
+- useSeoHead ghi title, description, canonical, OG/Twitter
+- useStructuredDataHead ghi BreadcrumbList + NewsArticle JSON-LD
+↓
+Nuxt trả HTML đã có nội dung + SEO
+↓
+Browser hydrate để NuxtLink, i18n, interaction chạy phía client
+```
+
+## Sau này muốn đổi thì sửa ở đâu
+
+| Nhu cầu thay đổi | Sửa chính ở đâu | Lưu ý để không phá luồng |
+| ---------------- | --------------- | ------------------------ |
+| Đổi giao diện trang | `src/pages/*View.vue`, `src/components/`, `src/styles/main.css` | Không cần sửa root `pages/` nếu URL không đổi. |
+| Đổi layout/header/footer/menu | `src/layouts/MainLayout.vue`, `src/components/layout/`, `src/data/categories.js` nếu menu theo danh mục | `app.vue` chỉ nên sửa khi đổi shell toàn app. |
+| Thêm URL/trang mới | Tạo wrapper trong root `pages/`, tạo hoặc tái dùng view trong `src/pages` | Nếu muốn SSG/SEO mạnh, bổ sung routeRules/prerender trong `nuxt.config.js` khi cần. |
+| Đổi API backend | `.env`, `src/config/apiConfig.js`, `src/api/httpClient.js`, `src/services/*Service.js` | Giữ page → store → service → api, không gọi API trực tiếp từ component. |
+| Đổi dữ liệu mock | `src/data/news.js`, `src/data/categories.js` | Nhớ kiểm slug vì sitemap/prerender đọc data này. |
+| Đổi SEO từng trang | `src/utils/seoHelper.js` và phần `useSeoHead` trong từng `*View.vue` | Default SEO nằm trong `nuxt.config.js`; dynamic SEO nằm trong view. |
+| Đổi sitemap/robots | `scripts/generate-sitemap.mjs`, `public/robots.txt`, `public/news-sitemap.xml`, `public/sitemap.xml` | `npm run build` và `npm run generate` đều chạy script sitemap trước. |
+| Đổi bảo vệ route/query | `middleware/route-sanitizer.global.js`, `src/utils/sanitizeHtml.js`, `src/utils/slugHelper.js` | Cẩn thận vì middleware chạy trước hầu hết page. |
+
+## Trạng thái thư mục sau khi dọn
+
+| Nhóm | File/thư mục | Trạng thái hiện tại | Ghi chú |
+| ---- | ------------ | ------------------- | ------- |
+| Core Nuxt runtime | `app.vue`, `pages/`, `middleware/`, `plugins/`, `nuxt.config.js` | Giữ | Đây là lớp request đi qua trước. |
+| Nghiệp vụ app | `src/pages/`, `src/stores/`, `src/services/`, `src/api/`, `src/components/`, `src/utils/` | Giữ | Đây là nơi sửa tính năng hằng ngày. |
+| Public/deploy | `public/`, `scripts/` | Giữ | Public assets, sitemap/robots, web.config và script build. |
+| Generated/cache | `.nuxt/`, `.output/`, `dist/`, `127.0.0.1/` | Đã xóa, có thể sinh lại | `.nuxt`/`.output` do Nuxt sinh; `dist` là output cũ; `127.0.0.1` là cache lạc chỗ. |
+| Dependency | `node_modules/` | Giữ local, ẩn trong VS Code | Xóa được nhưng phải chạy `npm install` lại. |
+| Local config | `.env` | Giữ local, không commit | `.env.example` là mẫu nên vẫn giữ trong repo. |
+| Legacy/tài liệu | `index.html`, `git-command-tabs.html`, `PROJECT_FLOW.md` | Giữ hoặc ẩn | `index.html` là entry SPA cũ; runtime Nuxt không đi qua file này. |
+
+---
+
 Lưu ý quan trọng:
 
 - Project hiện tại đã chuyển sang **Nuxt 3 SSR/SSG** để tăng SEO, crawler có thể nhận HTML đã có content/title/meta/canonical/schema.
@@ -285,17 +424,19 @@ Các thư mục sau không thấy trong project hiện tại:
 | `src/stores/useCategoryStore.js` | State danh mục, currentCategory, cache | Header/Footer/Home | categoryService | Động | Có cẩn thận | Menu phụ thuộc file này |
 | `src/services/newsService.js` | Logic lấy, cache, phân trang, lọc tin, search, fallback mock/API | useNewsStore | apiClient, categoryService, mock data, mappers | Động | Có cẩn thận | Logic nghiệp vụ chính |
 | `src/services/categoryService.js` | Lấy danh mục từ mock/API, fallback | useCategoryStore, newsService | apiClient, mock categories, mapper | Động | Có | Endpoint `/categories` |
-| `src/services/authService.js` | Login/refresh/logout | Chưa thấy page gọi trực tiếp | apiClient, authSession | Động | Cần kiểm tra thêm | Có service nhưng chưa thấy UI login |
-| `src/services/authSession.js` | Lưu token in-memory, auth header, unauthorized listener | apiClient, router, MainLayout, authService | authConfig | Động | Ít sửa | Không lưu token localStorage |
+| `src/services/authService.js` | Login/refresh/logout | Chưa thấy page gọi trực tiếp | apiClient, authSession, authTokenRefresh | Động | Cần kiểm tra thêm | Có service nhưng chưa thấy UI login |
+| `src/services/authSession.js` | Lưu token in-memory phía browser, auth header, refresh threshold, unauthorized listener | apiClient, router, MainLayout, authService | authConfig | Động | Ít sửa | Không lưu token localStorage và không lưu token trong SSR module state |
+| `src/services/authTokenRefresh.js` | Gọi refresh token bằng Axios riêng, tránh vòng lặp interceptor chính | httpClient, authService | apiConfig, authConfig, authSession | Core auth | Ít sửa | Dùng chung cho auto refresh trước hạn và retry 401 |
+| `src/services/authPayload.js` | Normalize payload auth từ nhiều kiểu field backend | authService, authTokenRefresh | Không | Utility auth | Ít sửa | Hỗ trợ `access_token`, `refresh_token`, `expires_in`, `exp` |
 | `src/services/apiClient.js` | Re-export `src/api/httpClient.js` cho import cũ | Chưa thấy import trực tiếp ngoài file này | httpClient | Cố định | Hạn chế sửa | Tương thích ngược |
-| `src/api/httpClient.js` | Axios instance, auth header, xử lý 401/lỗi | Services | apiConfig, authSession, errorHandler | Core API | Hạn chế sửa | Sửa sai ảnh hưởng toàn bộ API |
+| `src/api/httpClient.js` | Axios instance, auth header, auto refresh token, retry 401 một lần, CSRF header, xử lý lỗi | Services | apiConfig, authSession, authTokenRefresh, errorHandler | Core API | Hạn chế sửa | Sửa sai ảnh hưởng toàn bộ API |
 | `src/services/newsMapper.js` | Normalize news item/list, sanitize field cơ bản, image fallback | newsService | appConfig, slugHelper | Động | Có cẩn thận | Chốt shape dữ liệu tin |
 | `src/services/categoryMapper.js` | Normalize category item/list | categoryService/newsService | slugHelper | Động | Có | Chốt shape dữ liệu danh mục |
 | `src/data/news.js` | 32 bài viết mock, tự sinh slug/content/thumbnail/SEO fields | newsService, sitemap script | Không gọi API | Tĩnh/mock | Có khi đổi dữ liệu demo | Không phải database |
 | `src/data/categories.js` | 9 danh mục mock | categoryService, newsService, sitemap script | Không gọi API | Tĩnh/mock | Có khi đổi danh mục mock | Menu mock phụ thuộc file này |
 | `src/config/appConfig.js` | App name, app URL, mock flag, page size, cache TTL, fallback image | Stores/services/SEO | `.env` | Cấu hình động | Có khi đổi behavior app | Ảnh hưởng nhiều nơi |
-| `src/config/apiConfig.js` | Base URL, timeout, credentials cho API | httpClient | `.env` | Cấu hình động | Có khi đổi API | Không hard-code production trong code |
-| `src/config/authConfig.js` | Endpoint auth/token type | authService/authSession | `.env` | Cấu hình động | Có khi đổi auth API | Auth chưa có UI rõ ràng |
+| `src/config/apiConfig.js` | Base URL, timeout, credentials, CSRF config cho API | httpClient | `.env` | Cấu hình động | Có khi đổi API | Không hard-code production trong code |
+| `src/config/authConfig.js` | Endpoint auth, token type, login path, refresh threshold/cookie mode | authService/authSession | `.env` | Cấu hình động | Có khi đổi auth API | Auth chưa có UI rõ ràng |
 | `src/plugins/i18n.js` | Tạo i18n, đọc/lưu locale localStorage/cookie | root `plugins/i18n.js`, useLocale, errorHandler | locales, locale constants | Core plugin | Ít sửa | Sai locale làm lỗi text toàn app |
 | `src/plugins/directives.js` | Đăng ký directive global | root `plugins/directives.client.js` | lazyImage directive | Core plugin client | Ít sửa | Hiện chỉ có `v-lazy-image` |
 | `src/directives/lazyImage.js` | Lazy load image/background bằng IntersectionObserver | plugins/directives | DOM/browser API | Động | Có | Chưa thấy nơi dùng `v-lazy-image` trực tiếp |
@@ -455,6 +596,8 @@ Nếu `VITE_USE_MOCK_API=false`, frontend dự kiến gọi backend tại:
 
 Database/table/stored procedure phía sau các API này: Cần kiểm tra thêm ở project backend.
 
+Nếu API lỗi hoặc payload sai shape, service chỉ fallback về mock khi `VITE_API_ALLOW_MOCK_FALLBACK=true`; production nên giữ `false` để không âm thầm hiện dữ liệu demo.
+
 ---
 
 # 5. Luồng giao diện
@@ -515,8 +658,8 @@ Khi API thật:
 
 | Nội dung | Nguồn hiện tại | Ghi chú |
 | -------- | -------------- | ------- |
-| Tin tức | `src/data/news.js` khi mock, hoặc API `/news` khi tắt mock | Hiện mock mặc định theo `.env.example` |
-| Danh mục | `src/data/categories.js` khi mock, hoặc API `/categories` | Menu phụ thuộc dữ liệu này |
+| Tin tức | `src/data/news.js` khi bật mock, hoặc API `/news` khi tắt mock | `.env.example` hiện mặc định gọi API thật; fallback mock chỉ bật khi `VITE_API_ALLOW_MOCK_FALLBACK=true` |
+| Danh mục | `src/data/categories.js` khi bật mock, hoặc API `/categories` | Menu phụ thuộc dữ liệu này |
 | Text giao diện | `src/locales/vi.json`, `src/locales/en.json` | i18n |
 | About/Contact content | Locale files | Không gọi API |
 | Contact form submit | Chưa thấy API submit | Form hiện chỉ `@submit.prevent`, chưa có logic gửi |
@@ -577,7 +720,7 @@ Nên sửa:
 
 Nên sửa:
 
-- `.env`: đổi `VITE_API_BASE_URL`, `VITE_USE_MOCK_API`.
+- `.env`: đổi `VITE_API_BASE_URL`, `VITE_USE_MOCK_API`, `VITE_API_ALLOW_MOCK_FALLBACK`.
 - `.env.example`: cập nhật biến mẫu nếu thêm biến mới.
 - `src/config/apiConfig.js`: đổi cách đọc cấu hình API.
 - `src/services/newsService.js`: đổi endpoint/tầng xử lý tin.
@@ -707,7 +850,7 @@ Nên sửa:
 | `categoryService.js` | `GET /categories` | Khi `VITE_USE_MOCK_API=false` |
 | `categoryService.js` | `GET /categories/:slug` | Khi lấy danh mục theo slug và tắt mock |
 | `authService.js` | `POST /auth/login` hoặc env `VITE_AUTH_LOGIN_ENDPOINT` | Khi có UI gọi login |
-| `authService.js` | `POST /auth/refresh` hoặc env `VITE_AUTH_REFRESH_ENDPOINT` | Khi refresh token |
+| `authTokenRefresh.js` / `authService.js` | `POST /auth/refresh` hoặc env `VITE_AUTH_REFRESH_ENDPOINT` | Tự refresh trước khi token hết hạn hoặc retry một lần sau 401 |
 | `authService.js` | `POST /auth/logout` hoặc env `VITE_AUTH_LOGOUT_ENDPOINT` | Khi logout |
 
 ## 9.4. API gọi database nào
@@ -735,10 +878,10 @@ MainLayout.vue
 
 | File | Ảnh hưởng |
 | ---- | --------- |
-| `.env` | App URL, API URL, mock/API mode, port, timeout, auth endpoints |
-| `src/config/appConfig.js` | Tên app, domain canonical, mock mode, page size, cache TTL |
-| `src/config/apiConfig.js` | Base URL và timeout toàn bộ API |
-| `src/config/authConfig.js` | Token type và auth endpoint |
+| `.env` | App URL, API URL, mock/API mode, port, timeout, CSRF, auth endpoints |
+| `src/config/appConfig.js` | Tên app, domain canonical, mock mode, mock fallback mode, page size, cache TTL |
+| `src/config/apiConfig.js` | Base URL, timeout, credentials và CSRF toàn bộ API |
+| `src/config/authConfig.js` | Token type, auth endpoint, login path, refresh threshold/cookie mode |
 | `pages/` | Toàn bộ navigation route Nuxt |
 | `middleware/route-sanitizer.global.js` | Sanitize route/query |
 | `src/utils/seoHelper.js` | SEO toàn site |
@@ -875,8 +1018,9 @@ Lý do: Module news đang chiếm nhiều file ở pages/stores/services/compone
 | File | Gợi ý bảo mật |
 | ---- | ------------- |
 | `src/utils/sanitizeHtml.js` | Giữ whitelist chặt, không mở `iframe/script/style` nếu không thật sự cần |
-| `src/api/httpClient.js` | Kiểm tra CORS/withCredentials khi bật cookie auth |
-| `src/services/authSession.js` | Hiện token in-memory an toàn hơn localStorage nhưng reload sẽ mất token; cần chiến lược refresh nếu dùng auth thật |
+| `src/api/httpClient.js` | Đã có auto refresh trước hạn, retry 401 một lần, CSRF header khi bật env; vẫn cần backend CORS/CSRF đúng |
+| `src/services/authSession.js` | Token chỉ lưu in-memory phía browser, không localStorage và tránh lưu token trong SSR module state; reload vẫn mất token nếu không dùng cookie/httpOnly |
+| `src/services/authTokenRefresh.js` | Refresh token dùng Axios riêng để tránh vòng lặp interceptor; nếu backend dùng cookie refresh thì bật `VITE_AUTH_REFRESH_USES_COOKIE=true` |
 | `.env.example` | Không đưa secret/key thật vào |
 | `ContactView.vue` | Nếu gửi form thật cần validate, rate limit phía backend, chống spam |
 
@@ -1025,6 +1169,8 @@ Service
 ↓
 src/api/httpClient.js
 ↓
+Gắn Authorization header, CSRF header nếu bật, auto refresh token/retry 401 một lần
+↓
 Axios request đến VITE_API_BASE_URL
 ↓
 Backend API
@@ -1073,6 +1219,7 @@ Các phần cần kiểm tra thêm:
 - Backend API thực tế có đúng endpoint `/news`, `/categories`, `/categories/:slug` không.
 - Database/table/stored procedure phía backend.
 - UI login/admin có tồn tại ở repo khác không, vì frontend hiện có auth service nhưng chưa thấy route login/admin.
+- Nếu dùng cookie auth/CSRF thật, backend cần CORS credentials, CSRF token/header, SameSite/Secure cookie đúng môi trường production.
 - Contact form có cần gửi API thật không, vì hiện form chưa thấy service submit.
 - Production sitemap có nên lấy dữ liệu từ backend thật thay vì `src/data`.
 
@@ -1090,7 +1237,7 @@ Các phần cần kiểm tra thêm:
 
 # Tóm tắt nhanh cho người mới vào project
 
-Đây là Nuxt 3 SSR/SSG cho website tin tức. Khi mở web, app đi từ `app.vue` vào `MainLayout`, Nuxt chọn wrapper trong `pages/`, rồi render lại view cũ trong `src/pages/*View.vue`. Dữ liệu tin tức vẫn nằm ở Pinia store, store gọi service, service lấy mock data hoặc API thật tùy `VITE_USE_MOCK_API`. SEO được ghi vào HTML server/static bằng `seoHelper.js` + `useHead`, còn sitemap/robots được sinh trước build bằng `scripts/generate-sitemap.mjs`.
+Đây là Nuxt 3 SSR/SSG cho website tin tức. Khi mở web, app đi từ `app.vue` vào `MainLayout`, Nuxt chọn wrapper trong `pages/`, rồi render lại view cũ trong `src/pages/*View.vue`. Dữ liệu tin tức vẫn nằm ở Pinia store, store gọi service, service lấy mock data hoặc API thật tùy `VITE_USE_MOCK_API`; fallback mock khi API lỗi chỉ chạy nếu bật `VITE_API_ALLOW_MOCK_FALLBACK=true`. SEO được ghi vào HTML server/static bằng `seoHelper.js` + `useHead`, còn sitemap/robots được sinh trước build bằng `scripts/generate-sitemap.mjs`.
 
 File nên nắm đầu tiên:
 

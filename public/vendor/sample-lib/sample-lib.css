@@ -1,0 +1,29 @@
+/**
+ * Mẫu CSS thư viện tải về — đặt trong public/vendor/
+ * URL: /vendor/sample-lib/sample-lib.css
+ * Khai báo: nuxt.config.js → app.head.link (rel: stylesheet)
+ */
+
+.sample-lib-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.sample-lib-ready {
+  position: relative;
+}
+
+.sample-lib-ready::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border: 2px dashed #38bdf8;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0.6;
+}

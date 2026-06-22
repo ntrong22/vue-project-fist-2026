@@ -103,21 +103,30 @@ Xem `.env.example`:
 VITE_APP_NAME=VietNews 24h
 VITE_APP_URL=https://example.com
 VITE_API_BASE_URL=http://localhost:5000/api
-VITE_USE_MOCK_API=true
+VITE_USE_MOCK_API=false
+VITE_API_ALLOW_MOCK_FALLBACK=false
 VITE_API_TIMEOUT=12000
 VITE_API_WITH_CREDENTIALS=false
+VITE_API_CSRF_ENABLED=false
+VITE_API_CSRF_COOKIE_NAME=XSRF-TOKEN
+VITE_API_CSRF_HEADER_NAME=X-CSRF-TOKEN
+VITE_API_CSRF_META_NAME=csrf-token
 VITE_NEWS_CACHE_TTL_MS=60000
 VITE_AUTH_TOKEN_TYPE=Bearer
 VITE_AUTH_LOGIN_ENDPOINT=/auth/login
 VITE_AUTH_REFRESH_ENDPOINT=/auth/refresh
 VITE_AUTH_LOGOUT_ENDPOINT=/auth/logout
+VITE_AUTH_LOGIN_PATH=/
+VITE_AUTH_REFRESH_BEFORE_EXPIRES_MS=60000
+VITE_AUTH_REFRESH_USES_COOKIE=false
 ```
 
 ## 9. Kết nối backend .NET Framework 4
 
-1. Đặt `VITE_USE_MOCK_API=false`
-2. Cập nhật `VITE_API_BASE_URL`
-3. Đồng bộ payload API với mapper trong:
+1. Giữ `VITE_USE_MOCK_API=false` để gọi backend thật. Chỉ bật `true` khi cần demo/mock offline.
+2. Giữ `VITE_API_ALLOW_MOCK_FALLBACK=false` ở production để API lỗi không âm thầm hiện dữ liệu demo.
+3. Cập nhật `VITE_API_BASE_URL`
+4. Đồng bộ payload API với mapper trong:
    - `src/services/newsMapper.js`
    - `src/services/categoryMapper.js`
 4. Kiểm tra auth endpoints trong `.env`

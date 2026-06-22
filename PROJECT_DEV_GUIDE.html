@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dev Guide — pro-vue-01</title>
+    <style>
+      :root {
+        --bg: #f0f4f9;
+        --paper: #fff;
+        --text: #142033;
+        --muted: #64748b;
+        --line: #d9e2ef;
+        --brand: #0284c7;
+        --brand-d: #0369a1;
+        --side: #e8f1f8;
+        --code-bg: #1a1f26;
+        --code-tx: #e7edf5;
+        --ui: #1d4ed8; --ui-bg: #eff6ff;
+        --css: #7c3aed; --css-bg: #f5f3ff;
+        --js: #c2410c; --js-bg: #fff7ed;
+        --ok: #065f46; --ok-bg: #ecfdf5;
+        --keep: #065f46; --keep-bg: #ecfdf5;
+        --warn: #a16207; --warn-bg: #fef9c3;
+        --no: #991b1b; --no-bg: #fef2f2;
+        --active: #dbeafe;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; font-family: "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.55; font-size: 14px; }
+
+      .layout { display: grid; grid-template-columns: 248px 1fr; min-height: 100vh; }
+
+      /* ── Sidebar ── */
+      .side {
+        position: sticky; top: 0; height: 100vh; overflow-y: auto;
+        background: var(--side); border-right: 1px solid var(--line);
+        padding: 16px 12px; display: flex; flex-direction: column; gap: 4px;
+      }
+      .side-title { margin: 0 0 2px; font-size: 16px; color: var(--brand-d); font-weight: 700; }
+      .side-sub { margin: 0 0 12px; font-size: 11px; color: var(--muted); }
+
+      .nav-main { display: flex; flex-direction: column; gap: 3px; margin-bottom: 8px; }
+      .nav-btn {
+        display: flex; align-items: center; gap: 8px;
+        width: 100%; padding: 9px 11px; border: 1px solid transparent;
+        border-radius: 9px; background: transparent; color: var(--text);
+        font-size: 13px; font-weight: 600; cursor: pointer; text-align: left;
+        transition: background .12s, border-color .12s;
+      }
+      .nav-btn:hover { background: rgba(2,132,199,.1); }
+      .nav-btn.on { background: var(--paper); border-color: var(--line); color: var(--brand-d); box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+      .nav-btn .ico { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+
+      .nav-sub { display: none; flex-direction: column; gap: 1px; padding: 6px 0 10px; border-top: 1px solid var(--line); }
+      .nav-sub.show { display: flex; }
+      .nav-sub a {
+        padding: 5px 10px 5px 28px; border-radius: 7px;
+        color: #334155; text-decoration: none; font-size: 12px;
+      }
+      .nav-sub a:hover { background: rgba(2,132,199,.09); color: var(--brand); }
+      .nav-sub a.on { background: var(--active); color: var(--brand-d); font-weight: 600; }
+
+      /* ── Main ── */
+      .main { padding: 24px 32px 48px; max-width: 920px; }
+      .panel { display: none; }
+      .panel.on { display: block; }
+
+      h1 { margin: 0 0 6px; font-size: 24px; }
+      .lead { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+      h2 { margin: 28px 0 10px; font-size: 17px; color: var(--brand-d); border-bottom: 2px solid var(--brand); padding-bottom: 5px; }
+      h2:first-child { margin-top: 0; }
+      h3 { margin: 18px 0 8px; font-size: 14px; font-weight: 700; }
+      p { margin: 0 0 10px; }
+      ul, ol { margin: 0 0 12px; padding-left: 20px; }
+      li { margin-bottom: 4px; }
+
+      /* ── Components ── */
+      .badge { display: inline-block; padding: 1px 7px; border-radius: 99px; font-size: 11px; font-weight: 700; }
+      .b-ui { background: var(--ui-bg); color: var(--ui); }
+      .b-css { background: var(--css-bg); color: var(--css); }
+      .b-js { background: var(--js-bg); color: var(--js); }
+      .b-ok { background: var(--ok-bg); color: var(--ok); }
+      .b-keep { background: var(--keep-bg); color: var(--keep); }
+      .b-warn { background: var(--warn-bg); color: var(--warn); }
+
+      table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; background: var(--paper); border: 1px solid var(--line); border-radius: 9px; overflow: hidden; font-size: 13px; }
+      th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+      th { background: #f0f6fc; font-weight: 600; font-size: 12px; }
+      tr:last-child td { border-bottom: none; }
+
+      code { font-family: Consolas, monospace; font-size: 12px; background: #eef2f7; padding: 1px 5px; border-radius: 3px; }
+      pre { margin: 8px 0 14px; padding: 12px 14px; background: var(--code-bg); color: var(--code-tx); border-radius: 8px; overflow-x: auto; font-size: 12px; line-height: 1.45; }
+      pre code { background: none; padding: 0; color: inherit; }
+
+      .card { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; margin: 10px 0 14px; font-size: 13px; }
+      .card.ok { border-left: 3px solid var(--ok); }
+      .card.warn { border-left: 3px solid var(--warn); background: var(--warn-bg); }
+      .card.no { border-left: 3px solid var(--no); background: var(--no-bg); }
+
+      .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+      .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+      .tile {
+        background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+        padding: 12px; cursor: pointer; transition: border-color .12s, box-shadow .12s;
+      }
+      .tile:hover { border-color: var(--brand); box-shadow: 0 3px 12px rgba(2,132,199,.1); }
+      .tile strong { display: block; font-size: 13px; margin-bottom: 4px; color: var(--brand-d); }
+      .tile span { font-size: 12px; color: var(--muted); }
+
+      .flow { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin: 10px 0 14px; font-size: 12px; }
+      .flow span { background: var(--paper); border: 1px solid var(--line); border-radius: 6px; padding: 4px 8px; }
+      .flow .arr { background: none; border: none; color: var(--brand); font-weight: 700; padding: 0 2px; }
+
+      .tree { background: var(--code-bg); color: var(--code-tx); padding: 12px 14px; border-radius: 8px; font-family: Consolas, monospace; font-size: 12px; line-height: 1.55; white-space: pre; overflow-x: auto; margin: 8px 0 12px; }
+
+      .steps { counter-reset: s; list-style: none; padding: 0; margin: 8px 0; }
+      .steps li { counter-increment: s; padding: 8px 10px 8px 36px; margin-bottom: 6px; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; position: relative; font-size: 13px; }
+      .steps li::before { content: counter(s); position: absolute; left: 10px; top: 8px; width: 20px; height: 20px; background: var(--brand); color: #fff; border-radius: 50%; font-size: 11px; font-weight: 700; text-align: center; line-height: 20px; }
+
+      .chk { list-style: none; padding: 0; }
+      .chk li { padding: 6px 10px 6px 30px; margin-bottom: 4px; background: var(--paper); border: 1px solid var(--line); border-radius: 7px; position: relative; font-size: 13px; }
+      .chk li::before { content: "☐"; position: absolute; left: 10px; color: var(--brand); }
+
+      details { margin: 8px 0 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }
+      details summary { padding: 10px 14px; cursor: pointer; font-weight: 600; font-size: 13px; list-style: none; }
+      details summary::-webkit-details-marker { display: none; }
+      details summary::before { content: "▸ "; color: var(--brand); }
+      details[open] summary::before { content: "▾ "; }
+      details .inner { padding: 0 14px 12px; border-top: 1px solid var(--line); }
+
+      .foot { margin-top: 32px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+
+      .loc {
+        display: block; margin: 4px 0 2px;
+        font-size: 12px; font-weight: 700; color: var(--brand-d);
+      }
+      .loc-path {
+        display: block; margin-bottom: 6px;
+        font-family: Consolas, monospace; font-size: 12px;
+        background: #fff8e6; border: 1px solid #f0d78c;
+        border-radius: 6px; padding: 6px 9px; color: #7c4a00;
+      }
+      .loc-path strong { color: #92400e; }
+      table .pre-cell pre { margin: 0; padding: 8px; font-size: 11px; }
+      .highlight-box {
+        background: #fffbeb; border: 1px solid #fcd34d; border-radius: 9px;
+        padding: 12px 14px; margin: 12px 0 16px; font-size: 13px;
+      }
+      .highlight-box .path-big {
+        font-family: Consolas, monospace; font-size: 13px; font-weight: 700;
+        color: #b45309; display: block; margin-bottom: 6px;
+      }
+
+      @media (max-width: 800px) {
+        .layout { grid-template-columns: 1fr; }
+        .side { position: static; height: auto; max-height: none; }
+        .main { padding: 16px; }
+        .grid2, .grid3 { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <!-- ═══ SIDEBAR ═══ -->
+      <aside class="side">
+        <p class="side-title">Dev Guide</p>
+        <p class="side-sub">pro-vue-01 · Nuxt 3</p>
+
+        <nav class="nav-main" id="navMain">
+          <button class="nav-btn on" data-panel="p-home"><span class="ico">📋</span> Tổng quan</button>
+          <button class="nav-btn" data-panel="p-ui"><span class="ico">🎨</span> Giao diện</button>
+          <button class="nav-btn" data-panel="p-css"><span class="ico">🎨</span> CSS</button>
+          <button class="nav-btn" data-panel="p-js"><span class="ico">📦</span> JavaScript</button>
+          <button class="nav-btn" data-panel="p-ref"><span class="ico">🔍</span> Tra cứu</button>
+        </nav>
+
+        <div class="nav-sub show" id="sub-home">
+          <a href="#home-map" data-panel="p-home">Bản đồ file</a>
+          <a href="#home-config" data-panel="p-home">nuxt.config.js</a>
+          <a href="#home-flow" data-panel="p-home">Luồng runtime</a>
+        </div>
+        <div class="nav-sub" id="sub-ui">
+          <a href="#ui-sua" data-panel="p-ui">Sửa ở đâu</a>
+          <a href="#ui-giu" data-panel="p-ui">Giữ nguyên</a>
+          <a href="#ui-order" data-panel="p-ui">Thứ tự làm</a>
+          <a href="#ui-chk" data-panel="p-ui">Checklist</a>
+        </div>
+        <div class="nav-sub" id="sub-css">
+          <a href="#css-dat" data-panel="p-css">Đặt file</a>
+          <a href="#css-khai" data-panel="p-css">Khai báo</a>
+          <a href="#css-quy" data-panel="p-css">Quy trình</a>
+        </div>
+        <div class="nav-sub" id="sub-js">
+          <a href="#js-lib" data-panel="p-js">Thư viện tải về</a>
+          <a href="#js-custom" data-panel="p-js">JS tự viết</a>
+          <a href="#js-khai" data-panel="p-js">Khai báo</a>
+        </div>
+        <div class="nav-sub" id="sub-ref">
+          <a href="#ref-bang" data-panel="p-ref">Bảng tóm tắt</a>
+          <a href="#ref-loi" data-panel="p-ref">Lỗi thường gặp</a>
+          <a href="#ref-no" data-panel="p-ref">Không dùng</a>
+        </div>
+      </aside>
+
+      <!-- ═══ CONTENT ═══ -->
+      <main class="main">
+
+        <!-- ─── PANEL: TỔNG QUAN ─── -->
+        <div class="panel on" id="p-home">
+          <h1>Tổng quan</h1>
+          <p class="lead">Chọn tab trái → nhảy mục con. Một bảng tra tất cả: đặt file ở đâu, khai báo ở đâu.</p>
+
+          <div class="grid3">
+            <div class="tile" data-goto="p-ui"><strong>🎨 Giao diện</strong><span>Template, layout, component</span></div>
+            <div class="tile" data-goto="p-css"><strong>CSS</strong><span>src/styles + nuxt.config</span></div>
+            <div class="tile" data-goto="p-js"><strong>JavaScript</strong><span>Thư viện + code tự viết</span></div>
+          </div>
+
+          <h2 id="home-map">Bản đồ file — đặt ở đâu · khai báo ở file nào</h2>
+          <table>
+            <thead>
+              <tr><th>Loại</th><th>1. Đặt file vào</th><th>2. Khai báo ở file nào</th><th>3. Viết gì</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge b-ui">UI</span> Template</td>
+                <td><code>src/pages/HomeView.vue</code> …</td>
+                <td><strong>Không khai báo</strong> — sửa trực tiếp file .vue</td>
+                <td>Chỉ sửa <code>&lt;template&gt;</code></td>
+              </tr>
+              <tr>
+                <td><span class="badge b-css">CSS</span> Tự viết</td>
+                <td><code>src/styles/ten.css</code></td>
+                <td><code>nuxt.config.js</code> <em>hoặc</em> <code>src/styles/main.css</code></td>
+                <td><code>css: ['@/styles/ten.css']</code> hoặc <code>@import './ten.css'</code></td>
+              </tr>
+              <tr>
+                <td><span class="badge b-css">CSS</span> Thư viện</td>
+                <td><code>public/vendor/swiper/swiper.min.css</code></td>
+                <td><code>nuxt.config.js</code> → mảng <code>css</code></td>
+                <td><code>css: ['/vendor/swiper/swiper.min.css']</code></td>
+              </tr>
+              <tr>
+                <td><span class="badge b-css">CSS</span> 1 component</td>
+                <td>Cuối file <code>NewsCard.vue</code></td>
+                <td><strong>Không khai báo</strong> — trong chính file .vue</td>
+                <td><code>&lt;style scoped&gt; ... &lt;/style&gt;</code></td>
+              </tr>
+              <tr>
+                <td><span class="badge b-js">JS</span> Thư viện .min</td>
+                <td><code>public/vendor/.../ten.min.js</code></td>
+                <td><code>nuxt.config.js</code> → <code>app.head.script</code></td>
+                <td><code>{ src: '/vendor/.../ten.min.js', defer: true }</code></td>
+              </tr>
+              <tr>
+                <td><span class="badge b-js">JS</span> 1 trang</td>
+                <td><code>public/vendor/...</code></td>
+                <td><code>src/pages/HomeView.vue</code> → <code>&lt;script setup&gt;</code></td>
+                <td><code>useHead({ script: [...] })</code></td>
+              </tr>
+              <tr>
+                <td><span class="badge b-js">JS</span> npm</td>
+                <td><code>npm install swiper</code></td>
+                <td><code>plugins/swiper.client.js</code> (tạo mới ở root)</td>
+                <td><code>import Swiper from 'swiper'</code> — Nuxt tự load plugins/</td>
+              </tr>
+              <tr>
+                <td><span class="badge b-js">JS</span> Logic tự viết</td>
+                <td><code>src/utils/myHelper.js</code></td>
+                <td>File .vue cần dùng → <code>&lt;script setup&gt;</code></td>
+                <td><code>import { fn } from '@/utils/myHelper'</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2 id="home-config">File khai báo chính — mở file này để điền link</h2>
+          <div class="highlight-box">
+            <span class="path-big">📁 pro-vue-01/nuxt.config.js</span>
+            (file ở <strong>thư mục gốc</strong> project, cùng cấp <code>package.json</code>)
+          </div>
+          <div class="card ok">
+            <span class="loc">CSS toàn site — dòng ~62, trong <code>defineNuxtConfig({ ... })</code></span>
+            <pre><code>css: [
+  '@/styles/main.css',                    // đang có sẵn
+  '@/styles/layout.css',                    // thêm CSS tự viết
+  '/vendor/swiper/swiper.min.css',          // thêm CSS thư viện trong public/
+],</code></pre>
+
+            <span class="loc">JS thư viện toàn site — dòng ~71, trong khối <code>app → head → script</code></span>
+            <pre><code>app: {
+  head: {
+    script: [
+      { src: '/vendor/jquery/jquery.min.js', defer: true },
+      { src: '/vendor/swiper/swiper.min.js', defer: true },
+    ],
+    link: [   // tùy chọn — thay cho css: nếu muốn
+      { rel: 'stylesheet', href: '/vendor/bootstrap/bootstrap.min.css' },
+    ],
+  },
+},</code></pre>
+            <strong>Không khai báo ở:</strong> <code>src/main.js</code>, <code>index.html</code> — Nuxt <strong>không đọc</strong> 2 file này.
+          </div>
+
+          <h2 id="home-flow">Luồng runtime</h2>
+          <div class="flow">
+            <span>URL</span><span class="arr">→</span>
+            <span>middleware</span><span class="arr">→</span>
+            <span>app.vue</span><span class="arr">→</span>
+            <span>MainLayout</span><span class="arr">→</span>
+            <span>pages/*.vue</span><span class="arr">→</span>
+            <span>*View.vue</span><span class="arr">→</span>
+            <span>store → service → API</span>
+          </div>
+          <p class="card" style="margin:0"><strong>Data:</strong> View → store → service → <code>httpClient</code>. Component không gọi API trực tiếp.</p>
+        </div>
+
+        <!-- ─── PANEL: GIAO DIỆN ─── -->
+        <div class="panel" id="p-ui">
+          <h1>Giao diện / Template</h1>
+          <p class="lead">Chỉnh hiển thị; giữ luồng data, routing, SEO.</p>
+
+          <h2 id="ui-sua">Sửa ở đâu</h2>
+          <table>
+            <thead><tr><th>Ưu tiên</th><th>File</th><th>Nội dung</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td><code>tailwind.config.js</code><br><code>src/styles/main.css</code></td><td>Màu brand, font, class chung</td></tr>
+              <tr><td>2</td><td><code>MainLayout.vue</code><br><code>AppHeader/Footer/MobileMenu</code></td><td>Khung site, menu, search</td></tr>
+              <tr><td>3</td><td><code>NewsCard.vue</code></td><td>Mẫu thẻ tin (dùng nhiều trang)</td></tr>
+              <tr><td>4</td><td><code>HomeView.vue</code> … các <code>*View.vue</code></td><td>Bố cục từng trang</td></tr>
+              <tr><td>5</td><td><code>src/locales/vi.json</code>, <code>en.json</code></td><td>Text <code>t('...')</code></td></tr>
+            </tbody>
+          </table>
+
+          <details>
+            <summary>Danh sách *View.vue theo trang</summary>
+            <div class="inner">
+              <table>
+                <tr><td>Trang chủ</td><td><code>HomeView.vue</code></td></tr>
+                <tr><td>Danh sách tin</td><td><code>NewsListView.vue</code></td></tr>
+                <tr><td>Chi tiết</td><td><code>NewsDetailView.vue</code></td></tr>
+                <tr><td>Danh mục</td><td><code>CategoryView.vue</code></td></tr>
+                <tr><td>Tìm kiếm</td><td><code>SearchView.vue</code></td></tr>
+                <tr><td>Giới thiệu / Liên hệ</td><td><code>AboutView.vue</code>, <code>ContactView.vue</code></td></tr>
+                <tr><td>404</td><td><code>NotFoundView.vue</code></td></tr>
+              </table>
+              <p><code>pages/index.vue</code>… chỉ wrapper — <strong>không cần sửa</strong> nếu URL không đổi.</p>
+            </div>
+          </details>
+
+          <details>
+            <summary>Cấu trúc src/components/</summary>
+            <div class="inner">
+              <div class="tree">src/components/
+├── layout/   AppHeader, AppFooter, MobileMenu
+├── news/     NewsCard, FeaturedNews, LatestNews, SidebarNews...
+├── common/   Breadcrumb, Pagination, SearchBox, LoadingSkeleton
+└── ui/       LanguageSwitcher</div>
+            </div>
+          </details>
+
+          <h2 id="ui-giu">Giữ nguyên (không sửa khi đổi UI)</h2>
+          <table>
+            <thead><tr><th>Thư mục / file</th><th>Lý do</th></tr></thead>
+            <tbody>
+              <tr><td><code>pages/</code> root, <code>middleware/</code></td><td>Routing, sanitize URL</td></tr>
+              <tr><td><code>src/stores/</code>, <code>services/</code>, <code>api/</code></td><td>Data, API, cache</td></tr>
+              <tr><td><code>src/utils/seoHelper.js</code></td><td>SEO, canonical, JSON-LD</td></tr>
+              <tr><td><code>onServerPrefetch</code>, <code>useSeoHead</code> trong View</td><td>SSR + SEO</td></tr>
+              <tr><td><code>src/main.js</code>, <code>router/index.js</code></td><td>Legacy SPA — Nuxt không dùng</td></tr>
+            </tbody>
+          </table>
+
+          <h2 id="ui-order">Thứ tự làm việc</h2>
+          <ol class="steps">
+            <li><code>tailwind.config.js</code> + <code>main.css</code></li>
+            <li><code>MainLayout</code> + Header + Footer</li>
+            <li><code>NewsCard.vue</code></li>
+            <li><code>HomeView.vue</code> → các view còn lại</li>
+            <li><code>vi.json</code> / <code>en.json</code></li>
+          </ol>
+
+          <h2 id="ui-chk">Checklist</h2>
+          <ul class="chk">
+            <li>Không gọi <code>newsService</code> / <code>httpClient</code> trong component</li>
+            <li>Không xóa <code>onServerPrefetch</code></li>
+            <li>Dùng <code>NuxtLink</code>, <code>v-html</code> + <code>sanitizeHtml</code></li>
+            <li>Giữ <code>container-wide</code>, <code>card-surface</code> nhất quán</li>
+            <li>Test mobile: <code>MobileMenu</code>, search</li>
+          </ul>
+        </div>
+
+        <!-- ─── PANEL: CSS ─── -->
+        <div class="panel" id="p-css">
+          <h1>CSS</h1>
+          <p class="lead">Tự viết → <code>src/styles/</code>. Thư viện tải về → <code>public/vendor/</code>.</p>
+
+          <h2 id="css-dat">Đặt file</h2>
+          <div class="grid2">
+            <div>
+              <h3><span class="badge b-css">Tự viết</span></h3>
+              <div class="tree">src/styles/
+├── main.css      ← entry (đã load)
+├── variables.css
+├── layout.css
+└── components.css</div>
+            </div>
+            <div>
+              <h3><span class="badge b-css">Thư viện</span></h3>
+              <div class="tree">public/vendor/
+└── swiper/
+    └── swiper.min.css
+
+URL: /vendor/swiper/swiper.min.css</div>
+            </div>
+          </div>
+
+          <h2 id="css-khai">Khai báo ở đâu — project mới nhận CSS</h2>
+
+          <table>
+            <thead>
+              <tr><th>Cách</th><th>Khai báo ở file nào</th><th>Vị trí trong file</th><th>Viết gì</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>A</strong> Toàn site</td>
+                <td><code>nuxt.config.js</code><br><small>(thư mục gốc project)</small></td>
+                <td>Trong <code>defineNuxtConfig({ })</code><br>mảng <code>css</code> — <strong>dòng ~62</strong></td>
+                <td class="pre-cell"><pre><code>css: [
+  '@/styles/main.css',
+  '@/styles/layout.css',
+  '/vendor/swiper/swiper.min.css',
+],</code></pre></td>
+              </tr>
+              <tr>
+                <td><strong>B</strong> Nhiều file CSS</td>
+                <td><code>src/styles/main.css</code></td>
+                <td>Cuối file, sau <code>@tailwind</code></td>
+                <td class="pre-cell"><pre><code>@import './variables.css';
+@import './layout.css';</code></pre>
+                  <small>Giữ <code>nuxt.config.js</code> chỉ 1 dòng: <code>css: ['@/styles/main.css']</code></small>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>C</strong> 1 component</td>
+                <td>File <code>.vue</code> cần style<br><small>vd: <code>src/components/news/NewsCard.vue</code></small></td>
+                <td>Cuối file, block <code>&lt;style&gt;</code></td>
+                <td class="pre-cell"><pre><code>&lt;style scoped&gt;
+.news-card { ... }
+&lt;/style&gt;</code></pre>
+                  <small><strong>Không</strong> sửa <code>nuxt.config.js</code></small>
+                </td>
+              </tr>
+              <tr>
+                <td><strong>D</strong> CDN / link ngoài</td>
+                <td><code>nuxt.config.js</code></td>
+                <td>Trong <code>app → head → link</code> — <strong>dòng ~98</strong></td>
+                <td class="pre-cell"><pre><code>link: [
+  { rel: 'stylesheet',
+    href: '/vendor/bootstrap/bootstrap.min.css' },
+  { rel: 'stylesheet',
+    href: 'https://cdn.../lib.css' },
+],</code></pre></td>
+              </tr>
+              <tr>
+                <td><strong>E</strong> Màu Tailwind</td>
+                <td><code>tailwind.config.js</code><br><small>(thư mục gốc)</small></td>
+                <td><code>theme.extend.colors.brand</code></td>
+                <td>Không cần thêm vào <code>css: [...]</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="card warn">
+            <strong>Sau khi sửa <code>nuxt.config.js</code>:</strong> dừng <code>npm run dev</code> (Ctrl+C) → chạy lại <code>npm run dev</code> để chắc chắn project nhận CSS mới.
+          </div>
+
+          <h2 id="css-quy">Quy trình thêm CSS mới</h2>
+          <ol class="steps">
+            <li><strong>Bước 1 — Tạo/copy file:</strong> <code>src/styles/layout.css</code> (tự viết) <em>hoặc</em> <code>public/vendor/swiper/swiper.min.css</code> (thư viện)</li>
+            <li><strong>Bước 2 — Mở <code>nuxt.config.js</code></strong> (gốc project) → tìm <code>css: ['@/styles/main.css']</code> → thêm dòng mới vào mảng</li>
+            <li><strong>Bước 3 — Restart</strong> <code>npm run dev</code> → F12 → Network → filter CSS → thấy file load = OK</li>
+          </ol>
+        </div>
+
+        <!-- ─── PANEL: JAVASCRIPT ─── -->
+        <div class="panel" id="p-js">
+          <h1>JavaScript</h1>
+          <p class="lead">Thư viện tải về ≠ JS logic tự viết — mỗi loại một chỗ.</p>
+
+          <h2 id="js-lib">Thư viện JS — khai báo ở file nào</h2>
+          <table>
+            <thead>
+              <tr><th>Loại</th><th>Đặt file</th><th>Khai báo ở file nào</th><th>Viết gì</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>1</strong> .min.js toàn site</td>
+                <td><code>public/vendor/ten/ten.min.js</code></td>
+                <td><code>nuxt.config.js</code><br><code>app → head → script</code> (~dòng 71)</td>
+                <td class="pre-cell"><pre><code>script: [
+  { src: '/vendor/ten/ten.min.js',
+    defer: true },
+]</code></pre></td>
+              </tr>
+              <tr>
+                <td><strong>2</strong> Chỉ 1 trang</td>
+                <td><code>public/vendor/...</code></td>
+                <td><code>src/pages/HomeView.vue</code><br><code>&lt;script setup&gt;</code></td>
+                <td class="pre-cell"><pre><code>useHead({
+  script: [{
+    src: '/vendor/swiper/swiper.min.js',
+    defer: true,
+  }],
+});</code></pre></td>
+              </tr>
+              <tr>
+                <td><strong>3</strong> npm toàn site</td>
+                <td><code>npm install swiper</code></td>
+                <td>Tạo <code>plugins/swiper.client.js</code><br><small>(thư mục gốc, Nuxt tự load)</small></td>
+                <td class="pre-cell"><pre><code>import Swiper from 'swiper'
+import 'swiper/css'
+export default defineNuxtPlugin(() => {})</code></pre></td>
+              </tr>
+              <tr>
+                <td><strong>4</strong> Load .min.js client</td>
+                <td><code>public/vendor/...</code></td>
+                <td>Tạo <code>plugins/vendor.client.js</code></td>
+                <td>Tạo thẻ <code>&lt;script src=...&gt;</code> trong plugin — xem tab Tra cứu</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>CSS đi kèm thư viện → vẫn khai báo ở <code>nuxt.config.js</code> mảng <code>css</code> (tab CSS).</p>
+
+          <h2 id="js-custom">JS tự viết — đặt file · khai báo ở đâu</h2>
+          <table>
+            <thead><tr><th>Mục đích</th><th>1. Tạo file ở</th><th>2. Khai báo ở</th><th>3. Dùng thế nào</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Chạy lúc app start</td>
+                <td><code>plugins/my-init.client.js</code> (gốc)</td>
+                <td><strong>Không khai báo</strong> — Nuxt tự quét <code>plugins/</code></td>
+                <td><code>export default defineNuxtPlugin(() => {})</code></td>
+              </tr>
+              <tr>
+                <td>Trước route</td>
+                <td><code>middleware/auth.js</code> (gốc)</td>
+                <td>Trong page: <code>definePageMeta({ middleware: 'auth' })</code></td>
+                <td>File <code>.global.js</code> = tự chạy mọi route</td>
+              </tr>
+              <tr>
+                <td>Hook Vue</td>
+                <td><code>src/composables/useMyHook.js</code></td>
+                <td>File .vue cần dùng</td>
+                <td><code>import { useMyHook } from '@/composables/useMyHook'</code></td>
+              </tr>
+              <tr>
+                <td>Helper</td>
+                <td><code>src/utils/myHelper.js</code></td>
+                <td>File .vue / service cần dùng</td>
+                <td><code>import { fn } from '@/utils/myHelper'</code></td>
+              </tr>
+              <tr>
+                <td>API / data</td>
+                <td><code>src/services/</code> + <code>src/stores/</code></td>
+                <td>View gọi store — <strong>không</strong> khai báo global</td>
+                <td><code>useNewsStore().fetchHomeNews()</code></td>
+              </tr>
+              <tr>
+                <td>1 component</td>
+                <td>Cuối <code>NewsCard.vue</code></td>
+                <td><strong>Không khai báo</strong></td>
+                <td>Viết trong <code>&lt;script setup&gt;</code></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="tree">plugins/          ← entry Nuxt (auto)
+middleware/       ← route guard (auto)
+src/
+├── composables/  useDebounce, useLocale
+├── utils/        seoHelper, slugHelper, dateHelper
+├── services/     newsService, authService
+├── stores/       useNewsStore, useAppStore
+├── api/          httpClient
+├── config/       apiConfig, authConfig
+└── directives/   lazyImage</div>
+
+          <h2 id="js-khai">Quy trình thêm thư viện JS (file tải về)</h2>
+          <ol class="steps">
+            <li>Copy <code>ten.min.js</code> → <code>public/vendor/ten/ten.min.js</code></li>
+            <li>Mở <strong><code>nuxt.config.js</code></strong> → <code>css: [...]</code> thêm CSS (nếu có)</li>
+            <li>Cùng file <code>nuxt.config.js</code> → <code>app.head.script: [...]</code> thêm JS</li>
+            <li>Trong component: <code>onMounted(() => { new Swiper(...) })</code></li>
+            <li>Restart <code>npm run dev</code> → F12 → Network → JS status 200</li>
+          </ol>
+        </div>
+
+        <!-- ─── PANEL: TRA CỨU ─── -->
+        <div class="panel" id="p-ref">
+          <h1>Tra cứu nhanh</h1>
+          <p class="lead">Bảng một dòng — lỗi thường gặp — chỗ không dùng.</p>
+
+          <h2 id="ref-bang">Bảng tóm tắt — nhìn 1 dòng biết mở file nào</h2>
+          <table>
+            <thead><tr><th>Có gì</th><th>Đặt file</th><th>Mở file nào để khai báo</th><th>Restart?</th></tr></thead>
+            <tbody>
+              <tr><td>CSS tự viết</td><td><code>src/styles/ten.css</code></td><td><code>nuxt.config.js</code> → <code>css</code> <strong>hoặc</strong> <code>src/styles/main.css</code> → <code>@import</code></td><td>Có nếu sửa config</td></tr>
+              <tr><td>CSS thư viện</td><td><code>public/vendor/.../file.css</code></td><td><code>nuxt.config.js</code> → <code>css: ['/vendor/...']</code></td><td>Có</td></tr>
+              <tr><td>JS .min.js</td><td><code>public/vendor/.../file.js</code></td><td><code>nuxt.config.js</code> → <code>app.head.script</code></td><td>Có</td></tr>
+              <tr><td>JS 1 trang</td><td><code>public/vendor/...</code></td><td><code>src/pages/*View.vue</code> → <code>useHead()</code></td><td>Không</td></tr>
+              <tr><td>JS npm</td><td><code>npm install</code></td><td>Tạo <code>plugins/ten.client.js</code> (gốc project)</td><td>Có</td></tr>
+              <tr><td>JS logic</td><td><code>src/utils/</code>, <code>services/</code>…</td><td><code>import</code> trong file cần dùng — <strong>không</strong> sửa nuxt.config</td><td>HMR</td></tr>
+              <tr><td>UI</td><td><code>src/pages/*View.vue</code></td><td>Sửa trực tiếp — <strong>không</strong> khai báo</td><td>HMR</td></tr>
+            </tbody>
+          </table>
+
+          <h2 id="ref-loi">Lỗi thường gặp</h2>
+          <table>
+            <thead><tr><th>Triệu chứng</th><th>Sửa</th></tr></thead>
+            <tbody>
+              <tr><td>404 <code>/vendor/xxx</code></td><td>File phải trong <code>public/vendor/</code>, URL không có <code>public</code></td></tr>
+              <tr><td>CSS/JS không load</td><td>Quên <code>css: [...]</code> hoặc <code>app.head.script</code></td></tr>
+              <tr><td><code>Swiper is not defined</code></td><td>Thêm script; init trong <code>onMounted</code></td></tr>
+              <tr><td>Sửa <code>main.js</code> vô ích</td><td>Dùng <code>nuxt.config.js</code> / <code>plugins/</code></td></tr>
+              <tr><td>SSR mất nội dung</td><td>Giữ <code>onServerPrefetch</code> trong View</td></tr>
+            </tbody>
+          </table>
+
+          <h2 id="ref-no">Không đặt / không khai báo</h2>
+          <div class="card no">
+            <ul>
+              <li><code>src/main.js</code>, <code>index.html</code> — Nuxt không đọc</li>
+              <li><code>public/</code> — không đặt JS logic tự viết (chỉ file tĩnh / thư viện)</li>
+              <li><code>src/utils/</code> — không copy thư viện .min.js</li>
+              <li>Copy tay vào <code>node_modules/</code></li>
+            </ul>
+          </div>
+
+          <p class="foot">File: <code>PROJECT_DEV_GUIDE.html</code> · Luồng chi tiết: <code>PROJECT_FLOW.html</code></p>
+        </div>
+
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        var panels = document.querySelectorAll('.panel');
+        var navBtns = document.querySelectorAll('.nav-btn');
+        var subNavs = { 'p-home': 'sub-home', 'p-ui': 'sub-ui', 'p-css': 'sub-css', 'p-js': 'sub-js', 'p-ref': 'sub-ref' };
+
+        function showPanel(id, anchor) {
+          panels.forEach(function (p) { p.classList.toggle('on', p.id === id); });
+          navBtns.forEach(function (b) { b.classList.toggle('on', b.dataset.panel === id); });
+          Object.keys(subNavs).forEach(function (k) {
+            var el = document.getElementById(subNavs[k]);
+            if (el) el.classList.toggle('show', k === id);
+          });
+          if (anchor) {
+            requestAnimationFrame(function () {
+              var t = document.getElementById(anchor);
+              if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }
+
+        navBtns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            showPanel(btn.dataset.panel, null);
+          });
+        });
+
+        document.querySelectorAll('.nav-sub a').forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            e.preventDefault();
+            var panel = a.dataset.panel;
+            var anchor = a.getAttribute('href').slice(1);
+            document.querySelectorAll('.nav-sub a').forEach(function (x) { x.classList.remove('on'); });
+            a.classList.add('on');
+            showPanel(panel, anchor);
+          });
+        });
+
+        document.querySelectorAll('.tile[data-goto]').forEach(function (tile) {
+          tile.addEventListener('click', function () {
+            showPanel(tile.dataset.goto, null);
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

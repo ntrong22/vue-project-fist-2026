@@ -40,6 +40,18 @@ const extractCategoriesResponse = (payload) => {
 
 const normalizedMockCategories = normalizeCategoryList(categoriesMock);
 
+const getCategoriesFallback = () => {
+  return appConfig.allowMockFallback ? normalizedMockCategories : [];
+};
+
+const getCategoryFallbackBySlug = (slug) => {
+  if (!appConfig.allowMockFallback) {
+    return null;
+  }
+
+  return normalizedMockCategories.find((item) => item.slug === slug) || null;
+};
+
 export const categoryService = {
   async getCategories() {
     if (appConfig.useMockApi) {
@@ -52,19 +64,19 @@ export const categoryService = {
       const { hasValidShape, items } = extractCategoriesResponse(response.data);
 
       if (!hasValidShape) {
-        return normalizedMockCategories;
+        return getCategoriesFallback();
       }
 
       const normalizedCategories = normalizeCategoryList(items);
 
       if (items.length > 0 && normalizedCategories.length === 0) {
-        return normalizedMockCategories;
+        return getCategoriesFallback();
       }
 
       return normalizedCategories;
     } catch (error) {
       logTechnicalError(error, 'categoryService:getCategories');
-      return normalizedMockCategories;
+      return getCategoriesFallback();
     }
   },
 
@@ -82,7 +94,7 @@ export const categoryService = {
       return normalizedCategory || null;
     } catch (error) {
       logTechnicalError(error, 'categoryService:getCategoryBySlug');
-      return normalizedMockCategories.find((item) => item.slug === safeSlug) || null;
+      return getCategoryFallbackBySlug(safeSlug);
     }
   },
 };

@@ -2,24 +2,11 @@ import authConfig from '@/config/authConfig';
 import apiClient from '@/api/httpClient';
 import {
   clearAuthSession,
-  getRefreshToken,
   setAuthSession,
 } from '@/services/authSession';
+import { normalizeAuthPayload } from '@/services/authPayload';
+import { requestAccessTokenRefresh } from '@/services/authTokenRefresh';
 import { normalizeAppError } from '@/utils/errorHandler';
-
-const normalizeAuthPayload = (payload = {}) => {
-  const accessToken = payload.accessToken || payload.token || '';
-  const refreshToken = payload.refreshToken || '';
-  const expiresIn = Number(payload.expiresIn || 0);
-
-  const expiresAt = expiresIn > 0 ? Date.now() + expiresIn * 1000 : 0;
-
-  return {
-    accessToken,
-    refreshToken,
-    expiresAt,
-  };
-};
 
 export const authService = {
   async login(credentials = {}) {
@@ -42,38 +29,7 @@ export const authService = {
   },
 
   async refreshAccessToken() {
-    const refreshToken = getRefreshToken();
-
-    if (!refreshToken) {
-      clearAuthSession();
-      return null;
-    }
-
-    try {
-      const response = await apiClient.post(
-        authConfig.refreshEndpoint,
-        { refreshToken },
-        {
-          skipAuth: true,
-        },
-      );
-
-      const payload = response.data?.data || response.data || {};
-      const session = normalizeAuthPayload(payload);
-      setAuthSession({
-        ...session,
-        refreshToken: session.refreshToken || refreshToken,
-      });
-
-      return session;
-    } catch (error) {
-      clearAuthSession();
-
-      throw normalizeAppError(error, {
-        context: 'auth:refresh',
-        fallbackMessage: 'errors.fallback.refreshExpired',
-      });
-    }
+    return requestAccessTokenRefresh();
   },
 
   async logout() {

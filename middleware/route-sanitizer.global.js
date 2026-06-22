@@ -1,3 +1,4 @@
+import authConfig from '@/config/authConfig';
 import { hasValidAccessToken } from '@/services/authSession';
 import { normalizeSearchInput } from '@/utils/sanitizeHtml';
 import { normalizeSlug } from '@/utils/slugHelper';
@@ -22,12 +23,17 @@ const buildPathWithSlug = (path, rawSlug, safeSlug) => {
   return path.replace(rawSlug, safeSlug);
 };
 
+const getSafeRedirectPath = (to) => {
+  const fullPath = String(to.fullPath || '/');
+  return fullPath.startsWith('/') && !fullPath.startsWith('//') ? fullPath : '/';
+};
+
 export default defineNuxtRouteMiddleware((to) => {
   if (to.meta?.requiresAuth && !hasValidAccessToken()) {
     return navigateTo({
-      path: '/',
+      path: authConfig.loginPath,
       query: {
-        redirect: to.fullPath,
+        redirect: getSafeRedirectPath(to),
       },
     }, { replace: true });
   }
